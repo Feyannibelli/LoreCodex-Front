@@ -1,38 +1,24 @@
 import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-// @ts-ignore
+import { Link } from 'react-router-dom'
 import '../css/Header.css'
-import { useAuth } from '../contexts/AuthContext'
-import { logout } from '../services/authService'
 
 const Header: React.FC = () => {
-    const { isAuthenticated, user, setAuthenticated, setUser } = useAuth();
-    const navigate = useNavigate();
-
-    const handleLogout = () => {
-        logout();
-        setAuthenticated(false);
-        setUser(null);
-        navigate('/');
-    };
+    const isLoggedIn = true
+    const userInitial = 'U'
 
     return (
         <header className="header">
             <div className="header-left">
                 <Link to="/" className="site-name">
-                    LoreCodex
+                    MiSitio
                 </Link>
             </div>
 
             <nav className="header-right">
-                {isAuthenticated ? (
-                    <>
-                        <Link to="/profile" className="profile-circle">
-                            {user?.username.charAt(0).toUpperCase()}
-                        </Link>
-                        <span className="separator">|</span>
-                        <button onClick={handleLogout} className="nav-link logout-button">Logout</button>
-                    </>
+                {isLoggedIn ? (
+                    <Link to="/profile" className="profile-circle">
+                        {userInitial}
+                    </Link>
                 ) : (
                     <>
                         <Link to="/login" className="nav-link">Login</Link>
