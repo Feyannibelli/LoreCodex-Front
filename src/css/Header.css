@@ -1,0 +1,45 @@
+.header{
+    background-color: #f5f5f5;
+    padding: 1rem; /*Agrega espacio interno*/
+    display: flex; /*Activa el sistema de flexbox*/
+    justify-content: space-between; /*Separa el contenido en ambos extremos*/
+    align-items: center;
+    border-bottom: 1px solid #ccc; /*Dibuja una línea gris clara abajo del header para separarlo del resto*/
+}
+
+.site-name{
+    text-decoration: none;
+    color: black;
+    font-weight: bold; /*Hace el texto más grueso*/
+    font-size: 1.2rem;
+}
+
+.header-right{
+    display: flex; /*Hace que los links de login y register estén uno al lado del otro*/
+    align-items: center; /*Alinea verticalmente los enlaces para que estén centrados en el header*/
+}
+
+.nav-link{
+    text-decoration: none; /*Quita el subrayado de los links*/
+    color: black;
+    margin: 0 0.0rem; /*Agrega espacio horizontal entre los enlaces*/
+}
+
+.separator{
+    color: black; /* color del "|"*/
+    font-weight: bold; /* Hace el carácter "|" más grueso */
+    font-size: 1.5rem; /* Levemente más grande */
+}
+
+.profile-circle {
+    background-color: #333;
+    color: white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    text-decoration: none;
+}

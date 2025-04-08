@@ -1,8 +1,11 @@
 import React from "react";
 import { Link } from 'react-router-dom'
-import './Header.css'
+import '../css/Header.css'
 
 const Header = () => {
+
+    const isLoggedIn = true
+    const userInitial = 'u'
     return (
         <header className="header">
             <div className="header-left">

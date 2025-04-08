@@ -1,17 +1,26 @@
-import React from "react";
+import React from 'react'
+import Button from '../components/Button'
 
-const Register = () => {
+const Register: React.FC = () => {
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+        console.log('Registrando usuario...')
+    }
+
     return (
-        <main>
-            <h1>Registrarse</h1>
-            <form>
-                <input type="text" placeholder="Usuario" /><br />
-                <input type="email" placeholder="Email" /><br />
-                <input type="password" placeholder="Contraseña" /><br />
-                <button type="submit">Crear cuenta</button>
+        <div className="register-container">
+            <h2>Registro</h2>
+            <form onSubmit={handleSubmit}>
+                <label>Email:</label>
+                <input type="email" required />
+
+                <label>Contraseña:</label>
+                <input type="password" required />
+
+                <Button type="submit">Registrarse</Button>
             </form>
-        </main>
+        </div>
     )
 }
 
-export default Register;
+export default Register

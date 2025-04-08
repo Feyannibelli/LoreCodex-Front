@@ -1,16 +1,26 @@
-import React from "react";
+import React from 'react'
+import Button from '../components/Button'
 
-const Login = () => {
+const Login: React.FC = () => {
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+        console.log('Iniciando sesión...')
+    }
+
     return (
-        <main>
-            <h1>Iniciar Sesión</h1>
-            <form>
-                <input type="text" placeholder="Usuario"/> <br/>
-                <input type="text" placeholder="Contraseña"/> <br/>
-                <button type="submit">Enviar</button>
+        <div className="login-container">
+            <h2>Iniciar sesión</h2>
+            <form onSubmit={handleSubmit}>
+                <label>Email:</label>
+                <input type="email" required />
+
+                <label>Contraseña:</label>
+                <input type="password" required />
+
+                <Button type="submit">Iniciar sesión</Button>
             </form>
-        </main>
+        </div>
     )
 }
 
-export default Login;
+export default Login
