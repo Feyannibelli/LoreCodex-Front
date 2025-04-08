@@ -1,17 +1,17 @@
-import React, { useState } from 'react'
-import Button from '../components/Button'
+import React, { useState } from "react";
 
-const Profile: React.FC = () => {
-    const [showPassword, setShowPassword] = useState(false)
+const Profile = () => {
+    const [showPassword, setShowPassword] = useState(false);
 
     const user = {
-        email: 'usuario@ejemplo.com',
-        password: 'contraseña123'
+        email: "",
+        password: "",
     }
 
     const handleLogout = () => {
-        console.log('Sesión cerrada')
+        console.log("Sesion terminada");
     }
+
 
     return (
         <div className="profile-container">
@@ -21,16 +21,15 @@ const Profile: React.FC = () => {
             <p>
                 <strong>Contraseña:</strong>{' '}
                 {showPassword ? user.password : '********'}
-                <Button onClick={() => setShowPassword(!showPassword)} className="toggle-button">
+                <button onClick={() => setShowPassword(!showPassword)} className="toggle-button">
                     {showPassword ? 'Ocultar' : 'Mostrar'}
-                </Button>
+                </button>
             </p>
 
-            <Button onClick={handleLogout} className="logout-button">
-                Cerrar sesión
-            </Button>
+            <button onClick={handleLogout} className="logout-button">Cerrar sesión</button>
         </div>
     )
+
 }
 
-export default Profile
+export default Profile;

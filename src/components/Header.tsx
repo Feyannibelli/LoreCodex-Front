@@ -1,11 +1,10 @@
-import React from "react";
+import React from 'react'
 import { Link } from 'react-router-dom'
 import '../css/Header.css'
 
-const Header = () => {
+const Header: React.FC = () => {
 
-    const isLoggedIn = true
-    const userInitial = 'u'
+
     return (
         <header className="header">
             <div className="header-left">
@@ -13,13 +12,16 @@ const Header = () => {
                     LoreCodex
                 </Link>
             </div>
+
             <nav className="header-right">
-                <Link to="/login" className="site-name">Login</Link>
-                <span className="separator">|</span>
-                <Link to="/register" className="site-name">Register</Link>
+                    <>
+                        <Link to="/login" className="nav-link">Login</Link>
+                        <span className="separator">|</span>
+                        <Link to="/register" className="nav-link">Register</Link>
+                    </>
             </nav>
         </header>
     )
 }
 
-export default Header;
+export default Header

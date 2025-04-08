@@ -1,26 +1,20 @@
-import React from 'react'
-import Button from '../components/Button'
+import React from "react"
+import { Link } from "react-router-dom";
 
-const Login: React.FC = () => {
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        console.log('Iniciando sesión...')
-    }
-
+const Login = () => {
     return (
-        <div className="login-container">
-            <h2>Iniciar sesión</h2>
-            <form onSubmit={handleSubmit}>
-                <label>Email:</label>
-                <input type="email" required />
-
-                <label>Contraseña:</label>
-                <input type="password" required />
-
-                <Button type="submit">Iniciar sesión</Button>
+        <main>
+            <h1>Iniciar Sesión</h1>
+            <form>
+                <input type="text" placeholder="Usuario"/> <br/>
+                <input type="text" placeholder="Contraseña"/> <br/>
+                <button type="submit">Enviar</button>
             </form>
-        </div>
+            <nav>
+                <Link to="/register" className="site-name">No Tienes una cuenta? Registrate aqui!</Link>
+            </nav>
+        </main>
     )
 }
 
-export default Login
+export default Login;
