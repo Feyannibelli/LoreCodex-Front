@@ -1,21 +1,22 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import '../css/Header.css'
+import { useAuth } from '../context/AuthContext'
 
 const Header: React.FC = () => {
-    const isLoggedIn = true
-    const userInitial = 'U'
+    const { isAuthenticated, user } = useAuth();
+    const userInitial = user?.username.charAt(0).toUpperCase() || 'U';
 
     return (
         <header className="header">
             <div className="header-left">
                 <Link to="/" className="site-name">
-                    MiSitio
+                    LoreCodex
                 </Link>
             </div>
 
             <nav className="header-right">
-                {isLoggedIn ? (
+                {isAuthenticated ? (
                     <Link to="/profile" className="profile-circle">
                         {userInitial}
                     </Link>
