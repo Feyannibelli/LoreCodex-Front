@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import '../css/Header.css'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/AuthContext.tsx'
 
 const Header: React.FC = () => {
     const { isAuthenticated, user } = useAuth();

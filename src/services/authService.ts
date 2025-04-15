@@ -45,7 +45,7 @@ const authService = {
     // Iniciar sesión
     login: async (loginData: LoginData): Promise<AuthResponse> => {
         try {
-            const response = await axios.post(`${API_URL}/user/login`, loginData);
+            const response = await axios.post(`${API_URL}/auth/login`, loginData);
 
             // Guardar el token y userId en localStorage
             if (response.data.token) {
@@ -63,7 +63,7 @@ const authService = {
     // Registrar usuario
     register: async (registerData: RegisterData): Promise<AuthResponse> => {
         try {
-            const response = await axios.post(`${API_URL}/user/register`, registerData);
+            const response = await axios.post(`${API_URL}/auth/register`, registerData);
 
             // Guardar el token y userId en localStorage después del registro exitoso
             if (response.data.token) {
@@ -84,7 +84,7 @@ const authService = {
         if (!userId) return null;
 
         try {
-            const response = await axios.get(`${API_URL}/user/${userId}`);
+            const response = await axios.get(`${API_URL}/user/me`);
             return response.data;
         } catch (error) {
             console.error('Error fetching user data:', error);

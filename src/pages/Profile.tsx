@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
-import { useAuth } from '../context/AuthContext'
-import '../css/Profile.css'
+import { useAuth } from '../context/AuthContext.tsx'
 
 const Profile: React.FC = () => {
     const { user, logout, loading } = useAuth();
