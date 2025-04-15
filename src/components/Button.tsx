@@ -1,5 +1,6 @@
 import React from 'react'
-import '../css/Button.css'
+import '../css/Button.css';
+
 
 interface ButtonProps {
     onClick?: () => void
