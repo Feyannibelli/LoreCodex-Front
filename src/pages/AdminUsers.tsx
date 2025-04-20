@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
-import { useAuth } from '../context/AuthContext.tsx';
+import { useAuth } from '../context/AuthContext';
 import authService, { UserData } from '../services/authService';
 import '../css/AdminUsers.css';
 
@@ -22,9 +22,15 @@ const AdminUsers: React.FC = () => {
         const fetchUsers = async () => {
             try {
                 const data = await authService.getAllUsers();
-                setUsers(data);
+                if (Array.isArray(data)) {
+                    setUsers(data);
+                } else {
+                    console.error('Expected array but got:', data);
+                    setError('Error: Los datos de usuarios no tienen el formato esperado');
+                }
                 setLoading(false);
             } catch (err) {
+                console.error('Error fetching users:', err);
                 setError('Error al cargar los usuarios');
                 setLoading(false);
             }
@@ -46,11 +52,17 @@ const AdminUsers: React.FC = () => {
     };
 
     if (loading) return <div>Cargando usuarios...</div>;
-    if (error) return <div className="error-message">{error}</div>;
+
+    // Additional check to ensure users is an array before rendering
+    if (!Array.isArray(users)) {
+        return <div className="error-message">Error: No se pudieron cargar los usuarios correctamente</div>;
+    }
 
     return (
         <div className="admin-users-container">
             <h2>Administración de Usuarios</h2>
+
+            {error && <div className="error-message">{error}</div>}
 
             <table className="users-table">
                 <thead>

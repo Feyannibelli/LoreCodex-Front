@@ -128,7 +128,18 @@ const authService = {
     getAllUsers: async (): Promise<UserData[]> => {
         try {
             const response = await axios.get(`${API_URL}/admin/users`);
-            return response.data;
+            if (Array.isArray(response.data)) {
+                return response.data;
+            } else if (response.data && typeof response.data === 'object') {
+                const usersArray = response.data.users || response.data.content || [];
+                if (Array.isArray(usersArray)) {
+                    return usersArray;
+                }
+                console.error('Unexpected response format:', response.data);
+                return [];
+            }
+            console.error('Unexpected response format:', response.data);
+            return [];
         } catch (error) {
             console.error('Error fetching users:', error);
             throw error;
