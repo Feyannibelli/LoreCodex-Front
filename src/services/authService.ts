@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
 const API_URL = 'http://localhost:8080';
 
@@ -23,6 +24,13 @@ export interface UserData {
     username: string;
     email: string;
     password?: string;
+    roles?: string[];
+}
+
+interface JwtPayload {
+    sub: string;
+    roles?: string[];
+    exp: number;
 }
 
 // Configuración de axios para incluir el token en las solicitudes
@@ -101,6 +109,40 @@ const authService = {
     logout: (): void => {
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
+    },
+
+    // Verificar si el usuario tiene rol de admin
+    isAdmin: (): boolean => {
+        const token = localStorage.getItem('token');
+        if (!token) return false;
+
+        try {
+            const decoded = jwtDecode<JwtPayload>(token);
+            return decoded.roles?.includes('ROLE_ADMIN') || false;
+        } catch (e) {
+            return false;
+        }
+    },
+
+    // Obtener todos los usuarios (solo para admin)
+    getAllUsers: async (): Promise<UserData[]> => {
+        try {
+            const response = await axios.get(`${API_URL}/admin/users`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            throw error;
+        }
+    },
+
+    // Eliminar un usuario (solo para admin)
+    deleteUser: async (userId: number): Promise<void> => {
+        try {
+            await axios.delete(`${API_URL}/admin/users/${userId}`);
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            throw error;
+        }
     }
 };
 

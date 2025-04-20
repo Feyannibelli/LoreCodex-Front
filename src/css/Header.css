@@ -43,3 +43,16 @@
     font-weight: bold;
     text-decoration: none;
 }
+
+.admin-link {
+    margin-right: 15px;
+    padding: 5px 10px;
+    background-color: #333;
+    color: white !important;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.admin-link:hover {
+    background-color: #555;
+}
