@@ -8,6 +8,7 @@ import Header from './components/Header'
 import Profile from './pages/Profile'
 import AdminUsers from './pages/AdminUsers'
 import { useAuth } from './context/AuthContext'
+import PublicOnlyRoute from './components/PublicOnlyRoute';
 
 // Componente para rutas protegidas de admin
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -24,8 +25,22 @@ const App: React.FC = () => {
             <Header />
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+                <Route
+                    path="/login"
+                    element={
+                        <PublicOnlyRoute>
+                            <Login />
+                        </PublicOnlyRoute>
+                    }
+                />
+                <Route
+                    path="/register"
+                    element={
+                        <PublicOnlyRoute>
+                            <Register />
+                        </PublicOnlyRoute>
+                    }
+                />
                 <Route path="/profile" element={<Profile />} />
                 <Route
                     path="/admin/users"
