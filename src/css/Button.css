@@ -1,0 +1,31 @@
+.custom-button {
+    padding: 8px 15px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.custom-button:hover {
+    background-color: #555;
+}
+
+.delete-button {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: #c0392b;
+}
+
+.auth-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    margin-top: 10px;
+}

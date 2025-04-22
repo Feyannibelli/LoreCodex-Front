@@ -1,11 +1,18 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
 import { useAuth } from '../context/AuthContext.tsx'
 
 const Profile: React.FC = () => {
     const { user, logout, loading } = useAuth();
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!loading && !user) {
+            navigate('/login');
+        }
+    }, [user, loading, navigate]);
 
     const handleLogout = () => {
         logout();
@@ -33,6 +40,19 @@ const Profile: React.FC = () => {
                 <div className="info-row">
                     <strong>Email:</strong>
                     <span>{user.email}</span>
+                </div>
+
+                <div className="info-row">
+                    <strong>Contraseña:</strong>
+                    <div className="password-container">
+                        <span>{showPassword ? (user.password || '********') : '********'}</span>
+                        <Button
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="toggle-button"
+                        >
+                            {showPassword ? 'Ocultar' : 'Mostrar'}
+                        </Button>
+                    </div>
                 </div>
             </div>
 

@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import Button from '../components/Button'
-import { useAuth } from '../context/AuthContext.tsx'
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import Button from '../components/Button';
+import { useAuth } from '../context/AuthContext';
+import '../css/Auth.css';
 
 const Register: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -37,62 +38,71 @@ const Register: React.FC = () => {
                 setError('Error al registrar. Por favor, inténtalo de nuevo.');
             }
         }
-    }
+    };
 
     return (
         <div className="auth-container">
-            <h2>Registro</h2>
+            <div className="logo-container">
+                <div className="logo-circle">Logo</div>
+            </div>
+
             {error && <div className="error-message">{error}</div>}
 
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label htmlFor="username">Usuario:</label>
                     <input
                         type="text"
                         id="username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
+                        placeholder="User Name"
                         required
                     />
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="email">Email:</label>
                     <input
                         type="email"
                         id="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Email"
                         required
                     />
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="password">Contraseña:</label>
                     <input
                         type="password"
                         id="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Password"
                         required
                     />
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="confirmPassword">Confirmar Contraseña:</label>
                     <input
                         type="password"
                         id="confirmPassword"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Password Confirmation"
                         required
                     />
                 </div>
 
-                <Button type="submit" className="auth-button">Registrarse</Button>
+                <Button type="submit" className="auth-button">Log In</Button>
             </form>
-        </div>
-    )
-}
 
-export default Register
+            <div className="auth-links">
+                <p>
+                    Already got an account? <Link to="/login">Login here</Link>
+                </p>
+            </div>
+        </div>
+    );
+};
+
+export default Register;

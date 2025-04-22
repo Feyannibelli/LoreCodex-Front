@@ -4,7 +4,7 @@ import '../css/Header.css'
 import { useAuth } from '../context/AuthContext.tsx'
 
 const Header: React.FC = () => {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user, isAdmin } = useAuth();
     const userInitial = user?.username.charAt(0).toUpperCase() || 'U';
 
     return (
@@ -17,9 +17,16 @@ const Header: React.FC = () => {
 
             <nav className="header-right">
                 {isAuthenticated ? (
-                    <Link to="/profile" className="profile-circle">
-                        {userInitial}
-                    </Link>
+                    <>
+                        {isAdmin && (
+                            <Link to="/admin/users" className="nav-link admin-link">
+                                Admin
+                            </Link>
+                        )}
+                        <Link to="/profile" className="profile-circle">
+                            {userInitial}
+                        </Link>
+                    </>
                 ) : (
                     <>
                         <Link to="/login" className="nav-link">Login</Link>

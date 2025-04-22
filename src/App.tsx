@@ -1,10 +1,22 @@
+// src/App.tsx
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Header from './components/Header'
 import Profile from './pages/Profile'
+import AdminUsers from './pages/AdminUsers'
+import { useAuth } from './context/AuthContext'
+
+// Componente para rutas protegidas de admin
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+    const { isAdmin, loading } = useAuth();
+
+    if (loading) return <div>Cargando...</div>;
+
+    return isAdmin ? <>{children}</> : <Navigate to="/" />;
+};
 
 const App: React.FC = () => {
     return (
@@ -15,6 +27,14 @@ const App: React.FC = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route
+                    path="/admin/users"
+                    element={
+                        <AdminRoute>
+                            <AdminUsers />
+                        </AdminRoute>
+                    }
+                />
             </Routes>
         </div>
     )
