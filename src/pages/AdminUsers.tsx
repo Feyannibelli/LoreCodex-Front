@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
+import Modal from '../components/Modal';
 import { useAuth } from '../context/AuthContext';
 import authService, { UserData } from '../services/authService';
 import '../css/AdminUsers.css';
@@ -11,6 +12,9 @@ const AdminUsers: React.FC = () => {
     const [error, setError] = useState('');
     const { isAdmin } = useAuth();
     const navigate = useNavigate();
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [userToDelete, setUserToDelete] = useState<number | null>(null);
 
     useEffect(() => {
         // Redirigir si no es administrador
@@ -39,21 +43,32 @@ const AdminUsers: React.FC = () => {
         fetchUsers();
     }, [isAdmin, navigate]);
 
-    const handleDeleteUser = async (userId: number) => {
-        if (window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-            try {
-                await authService.deleteUser(userId);
-                // Actualizar la lista de usuarios después de eliminar
-                setUsers(users.filter(user => user.id !== userId));
-            } catch (err) {
-                setError('Error al eliminar el usuario');
-            }
+    const openDeleteModal = (userId: number) => {
+        setUserToDelete(userId);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setUserToDelete(null);
+    };
+
+    const confirmDelete = async () => {
+        if (userToDelete === null) return;
+
+        try {
+            await authService.deleteUser(userToDelete);
+            // Actualizar la lista de usuarios después de eliminar
+            setUsers(users.filter(user => user.id !== userToDelete));
+            closeModal();
+        } catch (err) {
+            setError('Error al eliminar el usuario');
+            closeModal();
         }
     };
 
     if (loading) return <div>Cargando usuarios...</div>;
 
-    // Additional check to ensure users is an array before rendering
     if (!Array.isArray(users)) {
         return <div className="error-message">Error: No se pudieron cargar los usuarios correctamente</div>;
     }
@@ -81,7 +96,7 @@ const AdminUsers: React.FC = () => {
                         <td>{user.email}</td>
                         <td>
                             <Button
-                                onClick={() => handleDeleteUser(user.id)}
+                                onClick={() => openDeleteModal(user.id)}
                                 className="delete-button"
                             >
                                 Eliminar
@@ -91,6 +106,14 @@ const AdminUsers: React.FC = () => {
                 ))}
                 </tbody>
             </table>
+
+            <Modal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                onConfirm={confirmDelete}
+                title="Confirmar eliminación"
+                message="¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer."
+            />
         </div>
     );
 };
