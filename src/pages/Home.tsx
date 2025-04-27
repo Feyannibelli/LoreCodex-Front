@@ -1,11 +1,18 @@
 import React from "react";
 import "../css/Home.css";
+import { Link } from "react-router-dom";
+
 
 const Home: React.FC = () => {
     const latestNews = [1, 2, 3, 4];
     const recentlyAdded = Array(10).fill(0);
     const popularGames = Array(8).fill(0);
     const popularReviews = [1, 2, 3];
+    const popularGuides = [
+        { id: 1, title: "Cómo vencer al jefe final" },
+        { id: 2, title: "Guía de speedrun Mario 64" },
+        { id: 3, title: "Todos los secretos de Elden Ring" },
+    ];
 
     return (
         <div className="home-container">
@@ -103,10 +110,12 @@ const Home: React.FC = () => {
                     <a href="#" className="view-more">More +</a>
                 </div>
                 <div className="reviews-grid">
-                    {popularReviews.map((_, index) => (
-                        <div key={index} className="review-card">
+                    {popularGuides.map((guide) => (
+                        <div key={guide.id} className="review-card">
                             <div className="review-header">
-                                <span className="item-title">Name</span>
+                                <Link to={`/guides/${guide.id}`} className="item-title">
+                                    {guide.title}
+                                </Link>
                                 <div className="rating">User · Game · Guide Name</div>
                             </div>
                             <div className="review-content">
