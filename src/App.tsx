@@ -10,7 +10,7 @@ import AdminUsers from './pages/AdminUsers'
 import Games from './pages/Games'
 import Game from './pages/Game'
 import AdminGames from './pages/AdminGames'
-import CreateGame from './pages/CreateGame'
+import CreateGame from './pages/CreateGame.tsx'
 import EditGame from './pages/EditGame'
 import { useAuth } from './context/AuthContext'
 import PublicOnlyRoute from './components/PublicOnlyRoute';
