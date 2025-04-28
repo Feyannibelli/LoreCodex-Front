@@ -7,11 +7,21 @@
     border-bottom: 1px solid #ccc; /*Dibuja una línea gris clara abajo del header para separarlo del resto*/
 }
 
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
 .site-name{
     text-decoration: none;
     color: black;
     font-weight: bold; /*Hace el texto más grueso*/
     font-size: 1.2rem;
+    margin-right: 20px;
+}
+
+.games-link {
+    margin-left: 15px;
 }
 
 .header-right{
@@ -22,7 +32,7 @@
 .nav-link{
     text-decoration: none; /*Quita el subrayado de los links*/
     color: black;
-    margin: 0 0.0rem; /*Agrega espacio horizontal entre los enlaces*/
+    margin: 0 0.5rem; /*Agrega espacio horizontal entre los enlaces*/
 }
 
 .separator{
@@ -51,8 +61,41 @@
     color: white !important;
     border-radius: 4px;
     text-decoration: none;
+    cursor: pointer;
 }
 
 .admin-link:hover {
     background-color: #555;
+}
+
+/* Dropdown para el menú de admin */
+.admin-dropdown {
+    position: relative;
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.admin-dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 120px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 4px;
+}
+
+.admin-dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.admin-dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.admin-dropdown:hover .admin-dropdown-content {
+    display: block;
 }

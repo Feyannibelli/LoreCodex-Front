@@ -13,15 +13,22 @@ const Header: React.FC = () => {
                 <Link to="/" className="site-name">
                     LoreCodex
                 </Link>
+                <Link to="/games" className="nav-link games-link">
+                    Games
+                </Link>
             </div>
 
             <nav className="header-right">
                 {isAuthenticated ? (
                     <>
                         {isAdmin && (
-                            <Link to="/admin/users" className="nav-link admin-link">
-                                Admin
-                            </Link>
+                            <div className="admin-dropdown">
+                                <span className="nav-link admin-link">Admin</span>
+                                <div className="admin-dropdown-content">
+                                    <Link to="/admin/users">Users</Link>
+                                    <Link to="/admin/games">Games</Link>
+                                </div>
+                            </div>
                         )}
                         <Link to="/profile" className="profile-circle">
                             {userInitial}
