@@ -1,0 +1,150 @@
+/* src/css/Game.css */
+.game-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.game-header {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.game-image-container {
+    flex: 1;
+    max-width: 300px;
+}
+
+.game-image {
+    width: 100%;
+    height: 400px;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.placeholder-image {
+    color: #999;
+    font-size: 18px;
+}
+
+.game-details {
+    flex: 2;
+}
+
+.game-title {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.game-ratings {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.rating-stars {
+    display: flex;
+    align-items: center;
+}
+
+.star {
+    color: #ddd;
+    font-size: 24px;
+}
+
+.star.filled {
+    color: #f8c42e;
+}
+
+.rating-number {
+    margin-left: 10px;
+    color: #666;
+}
+
+.like-button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background-color: #f8f8f8;
+    color: #e74c3c;
+    border: 1px solid #ddd;
+    padding: 5px 15px;
+}
+
+.heart-icon {
+    font-size: 18px;
+}
+
+.game-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.info-card {
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    padding: 15px;
+    border: 1px solid #eee;
+}
+
+.info-card h3 {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.awards-list, .genre-value, .release-date {
+    text-align: center;
+}
+
+.award-item {
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.game-content {
+    margin-bottom: 30px;
+}
+
+.game-description {
+    border: 1px solid #eee;
+    border-radius: 4px;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.game-description h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.game-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+}
+
+.tab.active {
+    border-bottom-color: #333;
+    font-weight: 500;
+}
+
+.tab-content {
+    min-height: 200px;
+    padding: 10px 0;
+}
