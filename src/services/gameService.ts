@@ -1,15 +1,62 @@
-// src/services/gameService.ts
 import axios from 'axios';
 import { Game, GameFormData } from '../interfaces/Game';
 
-const API_URL = 'http://localhost:8080';
+const API_URL = 'http://localhost:8080/api';
+
+// Interfaces para adaptar el backend al frontend
+interface BackendGame {
+    id: number;
+    title: string;
+    description: string;
+    coverImage: string;
+    releaseDate: string;
+    rating: number;
+    likes: number;
+    genres: string[];
+    awards: string[];
+}
+
+interface BackendGameRequest {
+    title: string;
+    description: string;
+    coverImage: string;
+    releaseDate: string;
+    genres: string[];
+    awards: string[];
+}
+
+// Funciones de adaptación
+const adaptBackendGameToFrontend = (backendGame: BackendGame): Game => {
+    return {
+        id: backendGame.id,
+        name: backendGame.title,
+        description: backendGame.description,
+        genre: backendGame.genres?.length > 0 ? backendGame.genres[0] : '',
+        releaseDate: backendGame.releaseDate,
+        imageUrl: backendGame.coverImage,
+        awards: backendGame.awards?.join(', '),
+        rating: backendGame.rating,
+        likes: backendGame.likes
+    };
+};
+
+const adaptFrontendGameToBackend = (frontendGame: GameFormData): BackendGameRequest => {
+    return {
+        title: frontendGame.name,
+        description: frontendGame.description,
+        coverImage: frontendGame.imageUrl || '',
+        releaseDate: frontendGame.releaseDate,
+        genres: [frontendGame.genre], // Convertimos el género único en un array
+        awards: frontendGame.awards ? frontendGame.awards.split(',').map(award => award.trim()) : []
+    };
+};
 
 const gameService = {
     // Obtener todos los juegos
     getAllGames: async (): Promise<Game[]> => {
         try {
             const response = await axios.get(`${API_URL}/games`);
-            return response.data;
+            return response.data.map(adaptBackendGameToFrontend);
         } catch (error) {
             console.error('Error fetching games:', error);
             throw error;
@@ -20,7 +67,7 @@ const gameService = {
     getGameById: async (id: number): Promise<Game> => {
         try {
             const response = await axios.get(`${API_URL}/games/${id}`);
-            return response.data;
+            return adaptBackendGameToFrontend(response.data);
         } catch (error) {
             console.error(`Error fetching game with id ${id}:`, error);
             throw error;
@@ -30,8 +77,9 @@ const gameService = {
     // Buscar juegos por nombre
     searchGamesByName: async (name: string): Promise<Game[]> => {
         try {
-            const response = await axios.get(`${API_URL}/games/search?name=${name}`);
-            return response.data;
+            // Suponiendo que el backend tiene un endpoint para buscar juegos por título
+            const response = await axios.get(`${API_URL}/games?title=${name}`);
+            return response.data.map(adaptBackendGameToFrontend);
         } catch (error) {
             console.error('Error searching games:', error);
             throw error;
@@ -41,8 +89,9 @@ const gameService = {
     // Crear un nuevo juego (solo admin)
     createGame: async (gameData: GameFormData): Promise<Game> => {
         try {
-            const response = await axios.post(`${API_URL}/admin/games`, gameData);
-            return response.data;
+            const backendGame = adaptFrontendGameToBackend(gameData);
+            const response = await axios.post(`${API_URL}/games`, backendGame);
+            return adaptBackendGameToFrontend(response.data);
         } catch (error) {
             console.error('Error creating game:', error);
             throw error;
@@ -52,8 +101,9 @@ const gameService = {
     // Actualizar un juego existente (solo admin)
     updateGame: async (id: number, gameData: GameFormData): Promise<Game> => {
         try {
-            const response = await axios.put(`${API_URL}/admin/games/${id}`, gameData);
-            return response.data;
+            const backendGame = adaptFrontendGameToBackend(gameData);
+            const response = await axios.put(`${API_URL}/games/${id}`, backendGame);
+            return adaptBackendGameToFrontend(response.data);
         } catch (error) {
             console.error(`Error updating game with id ${id}:`, error);
             throw error;
@@ -63,9 +113,31 @@ const gameService = {
     // Eliminar un juego (solo admin)
     deleteGame: async (id: number): Promise<void> => {
         try {
-            await axios.delete(`${API_URL}/admin/games/${id}`);
+            await axios.delete(`${API_URL}/games/${id}`);
         } catch (error) {
             console.error(`Error deleting game with id ${id}:`, error);
+            throw error;
+        }
+    },
+
+    // Dar like a un juego
+    likeGame: async (id: number): Promise<Game> => {
+        try {
+            const response = await axios.post(`${API_URL}/games/${id}/like`);
+            return adaptBackendGameToFrontend(response.data);
+        } catch (error) {
+            console.error(`Error liking game with id ${id}:`, error);
+            throw error;
+        }
+    },
+
+    // Calificar un juego
+    rateGame: async (id: number, rating: number): Promise<Game> => {
+        try {
+            const response = await axios.post(`${API_URL}/games/${id}/rate?rating=${rating}`);
+            return adaptBackendGameToFrontend(response.data);
+        } catch (error) {
+            console.error(`Error rating game with id ${id}:`, error);
             throw error;
         }
     }
