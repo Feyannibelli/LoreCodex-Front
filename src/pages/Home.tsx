@@ -1,22 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../css/Home.css";
 import { Link } from "react-router-dom";
-
+import axios from "axios";
 
 const Home: React.FC = () => {
+    const [popularGuides, setPopularGuides] = useState<any[]>([]);
+
     const latestNews = [1, 2, 3, 4];
     const recentlyAdded = Array(10).fill(0);
     const popularGames = Array(8).fill(0);
     const popularReviews = [1, 2, 3];
-    const popularGuides = [
-        { id: 1, title: "Cómo vencer al jefe final" },
-        { id: 2, title: "Guía de speedrun Mario 64" },
-        { id: 3, title: "Todos los secretos de Elden Ring" },
-    ];
+
+    useEffect(() => {
+        axios.get("http://localhost:8081/guides/published")
+            .then(response => {
+                setPopularGuides(response.data);
+            })
+            .catch(error => {
+                console.error("Error fetching popular guides:", error);
+            });
+    }, []);
 
     return (
         <div className="home-container">
-            {/* Barra de busqueda */}
+            {/* Barra de búsqueda */}
             <div className="search-container">
                 <div className="search-bar">
                     <input
@@ -32,7 +39,7 @@ const Home: React.FC = () => {
                 </div>
             </div>
 
-            {/* contenido general */}
+            {/* Contenido general */}
             <div className="content-grid">
                 {/* Columna izquierda - noticias */}
                 <div className="content-section">
@@ -51,7 +58,7 @@ const Home: React.FC = () => {
                     </div>
                 </div>
 
-                {/* columna derecha - juegos recien añadidos */}
+                {/* Columna derecha - juegos recién añadidos */}
                 <div className="content-section">
                     <div className="section-header">
                         <span className="section-title">Recently Added</span>
@@ -103,11 +110,11 @@ const Home: React.FC = () => {
                 </div>
             </div>
 
-            {/* Guias populares */}
+            {/* Guías populares */}
             <div className="content-section">
                 <div className="section-header">
-                    <span className="section-title">Popular Guides</span>
-                    <a href="#" className="view-more">More +</a>
+                    <span className="section-title">Recently Published Guides</span>
+                    <a href="/guides" className="view-more">More +</a>
                 </div>
                 <div className="reviews-grid">
                     {popularGuides.map((guide) => (
