@@ -5,7 +5,7 @@ import { Bell, ChevronDown } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 const Header: React.FC = () => {
-    const { isAuthenticated, user, isAdmin, logout } = useAuth(); // AHORA también tenemos logout
+    const { isAuthenticated, user, isAdmin, logout } = useAuth();
     const navigate = useNavigate();
     const userInitial = user?.username.charAt(0).toUpperCase() || 'U';
 
@@ -20,15 +20,21 @@ const Header: React.FC = () => {
             <div className="flex items-center gap-4">
                 {isAuthenticated ? (
                     <>
-                        {/* Admin link */}
+                        {/* Admin dropdown using shadcn/ui */}
                         {isAdmin && (
-                            <div className="admin-dropdown">
-                                <span className="nav-link admin-link">Admin</span>
-                                <div className="admin-dropdown-content">
-                                    <Link to="/admin/users">Users</Link>
-                                    <Link to="/admin/games">Games</Link>
-                                </div>
-                            </div>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger className="px-3 py-1 bg-gray-800 text-white rounded hover:bg-gray-700 cursor-pointer">
+                                    Admin
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-32 shadow-lg rounded-md bg-white dark:bg-[#313E3F] animate-fade-in-scale">
+                                    <DropdownMenuItem asChild>
+                                        <Link to="/admin/users">Users</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link to="/admin/games">Games</Link>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         )}
 
                         {/* Notifications */}
@@ -44,7 +50,7 @@ const Header: React.FC = () => {
                                 <Link to="/profile" className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-300 text-black font-semibold overflow-hidden">
                                     {user?.profilePicture ? (
                                         <img
-                                            src={user.profilePicture} //cuando querramos agregarle foto de perfil al usuario en el futurooo
+                                            src={user.profilePicture}
                                             alt="Profile"
                                             className="h-full w-full object-cover"
                                         />
