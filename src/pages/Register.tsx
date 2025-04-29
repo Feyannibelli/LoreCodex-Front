@@ -17,14 +17,14 @@ const Register: React.FC = () => {
         e.preventDefault();
         setError('');
 
-        // Validaciones básicas
+        // Basic validations
         if (password !== confirmPassword) {
-            setError('Las contraseñas no coinciden');
+            setError('Passwords do not match');
             return;
         }
 
         if (password.length < 6) {
-            setError('La contraseña debe tener al menos 6 caracteres');
+            setError('Password must be at least 6 characters long');
             return;
         }
 
@@ -35,7 +35,7 @@ const Register: React.FC = () => {
             if (err.response && err.response.data) {
                 setError(err.response.data);
             } else {
-                setError('Error al registrar. Por favor, inténtalo de nuevo.');
+                setError('Registration error. Please try again.');
             }
         }
     };

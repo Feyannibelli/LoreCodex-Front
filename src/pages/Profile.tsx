@@ -19,7 +19,7 @@ const Profile: React.FC = () => {
     }
 
     if (loading) {
-        return <div className="loading">Cargando...</div>;
+        return <div className="loading">Loading...</div>;
     }
 
     if (!user) {
@@ -28,11 +28,11 @@ const Profile: React.FC = () => {
 
     return (
         <div className="profile-container">
-            <h2>Perfil del Usuario</h2>
+            <h2>User Profile</h2>
 
             <div className="profile-info">
                 <div className="info-row">
-                    <strong>Usuario:</strong>
+                    <strong>Username:</strong>
                     <span>{user.username}</span>
                 </div>
 
@@ -43,7 +43,7 @@ const Profile: React.FC = () => {
             </div>
 
             <Button onClick={handleLogout} className="logout-button">
-                Cerrar sesión
+                Log out
             </Button>
         </div>
     )

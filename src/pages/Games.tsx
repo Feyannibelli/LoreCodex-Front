@@ -32,7 +32,7 @@ const Games: React.FC = () => {
             setError(null);
         } catch (err) {
             console.error("Error loading games:", err);
-            setError("Error al cargar los juegos. Inténtalo de nuevo más tarde.");
+            setError("Error loading games. Please try again later.");
         } finally {
             setLoading(false);
         }
@@ -54,7 +54,7 @@ const Games: React.FC = () => {
             setError(null);
         } catch (err) {
             console.error("Error searching games:", err);
-            setError("Error al buscar juegos. Inténtalo de nuevo más tarde.");
+            setError("Error searching games. Please try again later.");
         } finally {
             setLoading(false);
         }
@@ -62,9 +62,9 @@ const Games: React.FC = () => {
 
     return (
         <div className="games-container">
-            <h1>Juegos Generales</h1>
+            <h1>General Games</h1>
 
-            {/* Barra de búsqueda */}
+            {/* Search bar */}
             <div className="games-search-container">
                 <form className="games-search-bar" onSubmit={(e) => handleSearch(e)}>
                     <input
@@ -85,7 +85,7 @@ const Games: React.FC = () => {
             {error && <div className="error-message">{error}</div>}
 
             {loading ? (
-                <div className="loading">Cargando juegos...</div>
+                <div className="loading">Loading games...</div>
             ) : games.length > 0 ? (
                 <div className="games-grid">
                     {games.map((game) => (
@@ -109,7 +109,7 @@ const Games: React.FC = () => {
                 </div>
             ) : (
                 <div className="no-games-found">
-                    No se encontraron juegos.
+                    No games found.
                 </div>
             )}
         </div>

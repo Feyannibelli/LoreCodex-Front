@@ -39,7 +39,7 @@ const Home: React.FC = () => {
             setError(null);
         } catch (err) {
             console.error("Error loading games:", err);
-            setError("Error al cargar los juegos. Inténtalo de nuevo más tarde.");
+            setError("Error loading games. Please try again later.");
         } finally {
             setLoading(false);
         }
@@ -54,7 +54,7 @@ const Home: React.FC = () => {
 
     return (
         <div className="home-container">
-            {/* Barra de busqueda */}
+            {/* Search bar */}
             <div className="search-container">
                 <form className="search-bar" onSubmit={handleSearch}>
                     <input
@@ -74,9 +74,9 @@ const Home: React.FC = () => {
 
             {error && <div className="error-message">{error}</div>}
 
-            {/* contenido general */}
+            {/* General content */}
             <div className="content-grid">
-                {/* Columna izquierda - noticias */}
+                {/* Left column - news */}
                 <div className="content-section">
                     <div className="section-header">
                         <span className="section-title">Latest News</span>
@@ -93,7 +93,7 @@ const Home: React.FC = () => {
                     </div>
                 </div>
 
-                {/* columna derecha - juegos recien añadidos */}
+                {/* Right column - recently added games */}
                 <div className="content-section">
                     <div className="section-header">
                         <span className="section-title">Recently Added</span>
@@ -101,7 +101,7 @@ const Home: React.FC = () => {
                     </div>
                     <div className="content-items">
                         {loading ? (
-                            <div className="loading">Cargando...</div>
+                            <div className="loading">Loading...</div>
                         ) : recentlyAdded.length > 0 ? (
                             recentlyAdded.map((game) => (
                                 <Link to={`/games/${game.id}`} key={game.id} className="item-card">
@@ -123,7 +123,7 @@ const Home: React.FC = () => {
                 </div>
             </div>
 
-            {/* Juegos populares */}
+            {/* Popular games */}
             <div className="content-section">
                 <div className="section-header">
                     <span className="section-title">Popular Games</span>
@@ -131,7 +131,7 @@ const Home: React.FC = () => {
                 </div>
                 <div className="content-items">
                     {loading ? (
-                        <div className="loading">Cargando...</div>
+                        <div className="loading">Loading...</div>
                     ) : popularGames.length > 0 ? (
                         popularGames.map((game) => (
                             <Link to={`/games/${game.id}`} key={game.id} className="item-card">
@@ -154,7 +154,7 @@ const Home: React.FC = () => {
                 </div>
             </div>
 
-            {/* Reviews populares */}
+            {/* Popular reviews */}
             <div className="content-section">
                 <div className="section-header">
                     <span className="section-title">Popular Reviews</span>
@@ -168,14 +168,14 @@ const Home: React.FC = () => {
                                 <div className="rating">User · Game</div>
                             </div>
                             <div className="review-content">
-                                Texto
+                                Text
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* Guias populares */}
+            {/* Popular guides */}
             <div className="content-section">
                 <div className="section-header">
                     <span className="section-title">Popular Guides</span>
@@ -189,7 +189,7 @@ const Home: React.FC = () => {
                                 <div className="rating">User · Game · Guide Name</div>
                             </div>
                             <div className="review-content">
-                                Texto
+                                Text
                             </div>
                         </div>
                     ))}

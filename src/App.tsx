@@ -15,11 +15,11 @@ import EditGame from './pages/EditGame'
 import { useAuth } from './context/AuthContext'
 import PublicOnlyRoute from './components/PublicOnlyRoute';
 
-// Componente para rutas protegidas de admin
+// Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     const { isAdmin, loading } = useAuth();
 
-    if (loading) return <div>Cargando...</div>;
+    if (loading) return <div>Loading...</div>;
 
     return isAdmin ? <>{children}</> : <Navigate to="/" />;
 };
