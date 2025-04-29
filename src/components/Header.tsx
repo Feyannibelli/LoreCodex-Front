@@ -13,9 +13,6 @@ const Header: React.FC = () => {
                 <Link to="/" className="site-name">
                     LoreCodex
                 </Link>
-                <Link to="/games" className="nav-link games-link">
-                    Games
-                </Link>
             </div>
 
             <nav className="header-right">

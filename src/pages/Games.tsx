@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Game } from "../interfaces/Game";
 import gameService from "../services/gameService";
 import "../css/Games.css";
@@ -9,10 +9,20 @@ const Games: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState<string>("");
+    const location = useLocation();
 
     useEffect(() => {
-        loadGames();
-    }, []);
+        // Check if there's a search query in the URL
+        const searchParams = new URLSearchParams(location.search);
+        const searchQuery = searchParams.get('search');
+
+        if (searchQuery) {
+            setSearchTerm(searchQuery);
+            handleSearch(null, searchQuery);
+        } else {
+            loadGames();
+        }
+    }, [location.search]);
 
     const loadGames = async () => {
         try {
@@ -28,16 +38,18 @@ const Games: React.FC = () => {
         }
     };
 
-    const handleSearch = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!searchTerm.trim()) {
+    const handleSearch = async (e: React.FormEvent | null, inputSearchTerm?: string) => {
+        if (e) e.preventDefault();
+
+        const term = inputSearchTerm || searchTerm;
+        if (!term.trim()) {
             loadGames();
             return;
         }
 
         try {
             setLoading(true);
-            const data = await gameService.searchGamesByName(searchTerm);
+            const data = await gameService.searchGamesByName(term);
             setGames(data);
             setError(null);
         } catch (err) {
@@ -54,7 +66,7 @@ const Games: React.FC = () => {
 
             {/* Barra de búsqueda */}
             <div className="games-search-container">
-                <form className="games-search-bar" onSubmit={handleSearch}>
+                <form className="games-search-bar" onSubmit={(e) => handleSearch(e)}>
                     <input
                         type="text"
                         className="games-search-input"
