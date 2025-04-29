@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Game, GameFormData } from '../interfaces/Game';
 
-const API_URL = 'http://localhost:8081/api';
+const API_URL = 'http://localhost:8080/api';
 
 // Interfaces para adaptar el backend al frontend
 interface BackendGame {
