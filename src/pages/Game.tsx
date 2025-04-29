@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Game as GameType } from "../interfaces/Game";
 import gameService from "../services/gameService";
-import authService from "../services/authService";
+import { useAuth } from "../context/AuthContext"; // Import useAuth hook instead of authService
 import ReviewList from "../components/ReviewList";
 import "../css/Game.css";
 
@@ -13,14 +13,18 @@ const Game: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<string>("reviews");
     const [userRating, setUserRating] = useState<number>(0);
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [likeSuccess, setLikeSuccess] = useState<boolean>(false);
     const [ratingSuccess, setRatingSuccess] = useState<boolean>(false);
 
+    // Use the auth context instead of direct auth service calls
+    const { isAuthenticated, loading: authLoading } = useAuth();
+
     useEffect(() => {
-        setIsAuthenticated(authService.isAuthenticated());
-        loadGame();
-    }, [id]);
+        // Only load the game once we have confirmed auth status
+        if (!authLoading) {
+            loadGame();
+        }
+    }, [id, authLoading]);
 
     const loadGame = async () => {
         try {
@@ -80,7 +84,8 @@ const Game: React.FC = () => {
         }
     };
 
-    if (loading) return <div className="loading-container">Loading game...</div>;
+    // Show loading indicator while checking auth and loading game
+    if (authLoading || loading) return <div className="loading-container">Loading game...</div>;
     if (error) return <div className="error-message">{error}</div>;
     if (!game) return <div className="not-found">Game not found</div>;
 
