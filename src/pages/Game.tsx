@@ -15,6 +15,8 @@ const Game: React.FC = () => {
     const [userRating, setUserRating] = useState<number>(0);
     const [likeSuccess, setLikeSuccess] = useState<boolean>(false);
     const [ratingSuccess, setRatingSuccess] = useState<boolean>(false);
+    const [averageRating, setAverageRating] = useState<number | null>(null);
+
 
     // Use the auth context instead of direct auth service calls
     const { isAuthenticated, loading: authLoading } = useAuth();
@@ -31,7 +33,9 @@ const Game: React.FC = () => {
             setLoading(true);
             if (id) {
                 const gameData = await gameService.getGameById(parseInt(id));
+                const avgRating = await gameService.getAverageRating(parseInt(id));
                 setGame(gameData);
+                setAverageRating(avgRating);
                 setError(null);
             }
         } catch (err) {
@@ -41,6 +45,7 @@ const Game: React.FC = () => {
             setLoading(false);
         }
     };
+
 
     const handleLike = async () => {
         if (!isAuthenticated) {
@@ -65,6 +70,17 @@ const Game: React.FC = () => {
         setUserRating(value);
     };
 
+    const fetchAverageRating = async () => {
+        if (id) {
+            try {
+                const rating = await gameService.getAverageRating(parseInt(id));
+                setAverageRating(rating);
+            } catch (err) {
+                console.error("Error fetching average rating:", err);
+            }
+        }
+    };
+
     const submitRating = async () => {
         if (!isAuthenticated) {
             setError("You must be logged in to rate");
@@ -75,6 +91,7 @@ const Game: React.FC = () => {
             if (id && userRating > 0) {
                 const updatedGame = await gameService.rateGame(parseInt(id), userRating);
                 setGame(updatedGame);
+                await fetchAverageRating(); // 👈 actualizar el promedio
                 setRatingSuccess(true);
                 setTimeout(() => setRatingSuccess(false), 3000);
             }
@@ -83,6 +100,7 @@ const Game: React.FC = () => {
             setError("Error rating the game. Please try again later.");
         }
     };
+
 
     // Show loading indicator while checking auth and loading game
     if (authLoading || loading) return <div className="loading-container">Loading game...</div>;
@@ -105,12 +123,12 @@ const Game: React.FC = () => {
                     <div className="game-detail-rating">
                         <div className="star-rating">
                             {Array.from({ length: 5 }).map((_, index) => (
-                                <span key={index} className={index < (game.rating || 0) ? "star filled" : "star"}>
-                                    ★
-                                </span>
+                                <span key={index} className={index < Math.round(averageRating ?? 0) ? "star filled" : "star"}>
+                ★
+            </span>
                             ))}
                         </div>
-                        <span>{game.rating ? `${game.rating}/5` : "No rating"}</span>
+                        <span>{averageRating !== null ? `${averageRating}/5` : "No rating"}</span>
                     </div>
 
                     <div className="game-detail-likes">

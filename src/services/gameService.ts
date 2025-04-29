@@ -43,11 +43,7 @@ const adaptFrontendGameToBackend = (frontendGame: GameFormData): BackendGameRequ
     // Procesar awards correctamente como array
     let awardsArray: string[] = [];
     if (frontendGame.awards) {
-        if (typeof frontendGame.awards === 'string') {
-            awardsArray = [frontendGame.awards.trim()];
-        } else if (Array.isArray(frontendGame.awards)) {
-            awardsArray = (frontendGame.awards as string[]).map(award => award.trim());
-        }
+        awardsArray = [frontendGame.awards.trim()];
     }
 
     // Procesar genres como array
@@ -171,6 +167,11 @@ const gameService = {
             }
             throw error;
         }
+    },
+
+    getAverageRating: async (gameId: number): Promise<number> => {
+        const response = await axios.get(`${API_URL}/games/${gameId}/average-rating`);
+        return response.data;
     }
 };
 

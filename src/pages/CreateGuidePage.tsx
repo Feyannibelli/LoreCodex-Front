@@ -9,8 +9,8 @@ const CreateGuidePage = () => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [coverImage, setCoverImage] = useState<File | null>(null);
-    const [gameId, setGameId] = useState(''); // ⭐ Nuevo estado para Game
-    const [games, setGames] = useState<{ id: number; title: string }[]>([]); // ⭐ Lista de juegos
+    const [gameId, setGameId] = useState(''); // Nuevo estado para Game
+    const [games, setGames] = useState<{ id: number; title: string }[]>([]); // Lista de juegos
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -39,7 +39,7 @@ const CreateGuidePage = () => {
             formData.append('content', content);
             formData.append('isDraft', isDraft.toString());
             formData.append('isPublished', (!isDraft).toString());
-            formData.append('gameId', gameId); // ⭐ Guardamos también el Game ID
+            formData.append('gameId', gameId);
             if (coverImage) formData.append('coverImage', coverImage);
 
             await axios.post('http://localhost:8081/guides/create', formData, {
