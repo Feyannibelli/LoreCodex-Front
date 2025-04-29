@@ -31,7 +31,7 @@ const Game: React.FC = () => {
             }
         } catch (err) {
             console.error("Error loading game:", err);
-            setError("Error al cargar el juego. Inténtalo de nuevo más tarde.");
+            setError("Error loading game. Please try again later.");
         } finally {
             setLoading(false);
         }
@@ -39,7 +39,7 @@ const Game: React.FC = () => {
 
     const handleLike = async () => {
         if (!isAuthenticated) {
-            setError("Debes iniciar sesión para dar like");
+            setError("You must be logged in to like");
             return;
         }
 
@@ -52,7 +52,7 @@ const Game: React.FC = () => {
             }
         } catch (err) {
             console.error("Error liking game:", err);
-            setError("Error al dar like al juego. Inténtalo de nuevo más tarde.");
+            setError("Error liking the game. Please try again later.");
         }
     };
 
@@ -62,7 +62,7 @@ const Game: React.FC = () => {
 
     const submitRating = async () => {
         if (!isAuthenticated) {
-            setError("Debes iniciar sesión para calificar");
+            setError("You must be logged in to rate");
             return;
         }
 
@@ -75,13 +75,13 @@ const Game: React.FC = () => {
             }
         } catch (err) {
             console.error("Error rating game:", err);
-            setError("Error al calificar el juego. Inténtalo de nuevo más tarde.");
+            setError("Error rating the game. Please try again later.");
         }
     };
 
-    if (loading) return <div className="loading-container">Cargando juego...</div>;
+    if (loading) return <div className="loading-container">Loading game...</div>;
     if (error) return <div className="error-message">{error}</div>;
-    if (!game) return <div className="not-found">Juego no encontrado</div>;
+    if (!game) return <div className="not-found">Game not found</div>;
 
     return (
         <div className="game-detail-container">
@@ -90,7 +90,7 @@ const Game: React.FC = () => {
                     {game.imageUrl ? (
                         <img src={game.imageUrl} alt={game.name} />
                     ) : (
-                        <div className="no-image">Sin imagen</div>
+                        <div className="no-image">No image</div>
                     )}
                 </div>
                 <div className="game-detail-info">
@@ -104,7 +104,7 @@ const Game: React.FC = () => {
                                 </span>
                             ))}
                         </div>
-                        <span>{game.rating ? `${game.rating}/5` : "Sin calificación"}</span>
+                        <span>{game.rating ? `${game.rating}/5` : "No rating"}</span>
                     </div>
 
                     <div className="game-detail-likes">
@@ -118,12 +118,12 @@ const Game: React.FC = () => {
                             </svg>
                             <span>{game.likes || 0} likes</span>
                         </button>
-                        {likeSuccess && <span className="success-message">¡Gracias por tu like!</span>}
+                        {likeSuccess && <span className="success-message">Thanks for your like!</span>}
                     </div>
 
                     {isAuthenticated && (
                         <div className="user-rating">
-                            <h3>Califica este juego:</h3>
+                            <h3>Rate this game:</h3>
                             <div className="rating-stars">
                                 {[1, 2, 3, 4, 5].map(star => (
                                     <span
@@ -140,22 +140,22 @@ const Game: React.FC = () => {
                                 onClick={submitRating}
                                 disabled={userRating === 0}
                             >
-                                Enviar calificación
+                                Submit rating
                             </button>
-                            {ratingSuccess && <span className="success-message">¡Calificación enviada!</span>}
+                            {ratingSuccess && <span className="success-message">Rating submitted!</span>}
                         </div>
                     )}
 
                     <div className="game-detail-meta">
                         <div className="meta-item">
-                            <strong>Género:</strong> {game.genre}
+                            <strong>Genre:</strong> {game.genre}
                         </div>
                         <div className="meta-item">
-                            <strong>Fecha de lanzamiento:</strong> {new Date(game.releaseDate).toLocaleDateString()}
+                            <strong>Release date:</strong> {new Date(game.releaseDate).toLocaleDateString()}
                         </div>
                         {game.awards && (
                             <div className="meta-item">
-                                <strong>Premios:</strong> {game.awards}
+                                <strong>Awards:</strong> {game.awards}
                             </div>
                         )}
                     </div>
@@ -163,7 +163,7 @@ const Game: React.FC = () => {
             </div>
 
             <div className="game-detail-description">
-                <h2>Descripción</h2>
+                <h2>Description</h2>
                 <p>{game.description}</p>
             </div>
 
@@ -204,37 +204,37 @@ const Game: React.FC = () => {
                 <div className="tab-content">
                     {activeTab === "reviews" && (
                         <div>
-                            <p>No hay reviews disponibles para este juego.</p>
+                            <p>No reviews available for this game.</p>
                             {isAuthenticated && (
-                                <button className="add-content-button">Escribir una review</button>
+                                <button className="add-content-button">Write a review</button>
                             )}
                         </div>
                     )}
 
                     {activeTab === "guides" && (
                         <div>
-                            <p>No hay guías disponibles para este juego.</p>
+                            <p>No guides available for this game.</p>
                             {isAuthenticated && (
-                                <button className="add-content-button">Crear una guía</button>
+                                <button className="add-content-button">Create a guide</button>
                             )}
                         </div>
                     )}
 
                     {activeTab === "news" && (
                         <div>
-                            <p>No hay noticias disponibles para este juego.</p>
+                            <p>No news available for this game.</p>
                         </div>
                     )}
 
                     {activeTab === "challenges" && (
                         <div>
-                            <p>No hay desafíos disponibles para este juego.</p>
+                            <p>No challenges available for this game.</p>
                         </div>
                     )}
 
                     {activeTab === "more" && (
                         <div>
-                            <p>No hay información adicional disponible para este juego.</p>
+                            <p>No additional information available for this game.</p>
                         </div>
                     )}
                 </div>

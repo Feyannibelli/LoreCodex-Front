@@ -27,7 +27,7 @@ const EditGame: React.FC = () => {
                 if (id) {
                     const gameData = await gameService.getGameById(parseInt(id));
 
-                    // Formatear la fecha para el input date
+                    // Format the date for the date input
                     const releaseDate = new Date(gameData.releaseDate);
                     const formattedDate = releaseDate.toISOString().split('T')[0];
 
@@ -43,7 +43,7 @@ const EditGame: React.FC = () => {
                 }
             } catch (err) {
                 console.error("Error loading game:", err);
-                setError("Error al cargar el juego. Inténtalo de nuevo más tarde.");
+                setError("Error loading game. Please try again later.");
             } finally {
                 setLoading(false);
             }
@@ -72,23 +72,23 @@ const EditGame: React.FC = () => {
             }
         } catch (err) {
             console.error("Error updating game:", err);
-            setError("Error al actualizar el juego. Por favor, inténtalo de nuevo.");
+            setError("Error updating game. Please try again.");
         } finally {
             setSubmitting(false);
         }
     };
 
-    if (loading) return <div className="loading-container">Cargando datos del juego...</div>;
+    if (loading) return <div className="loading-container">Loading game data...</div>;
 
     return (
         <div className="admin-games-container">
-            <h1>Editar Juego</h1>
+            <h1>Edit Game</h1>
 
             {error && <div className="error-message">{error}</div>}
 
             <form className="game-form" onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label htmlFor="name">Nombre</label>
+                    <label htmlFor="name">Name</label>
                     <input
                         type="text"
                         id="name"
@@ -100,7 +100,7 @@ const EditGame: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="description">Descripción</label>
+                    <label htmlFor="description">Description</label>
                     <textarea
                         id="description"
                         name="description"
@@ -111,7 +111,7 @@ const EditGame: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="genre">Género</label>
+                    <label htmlFor="genre">Genre</label>
                     <input
                         type="text"
                         id="genre"
@@ -123,7 +123,7 @@ const EditGame: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="releaseDate">Fecha de Lanzamiento</label>
+                    <label htmlFor="releaseDate">Release Date</label>
                     <input
                         type="date"
                         id="releaseDate"
@@ -135,7 +135,7 @@ const EditGame: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="imageUrl">URL de la Imagen</label>
+                    <label htmlFor="imageUrl">Image URL</label>
                     <input
                         type="text"
                         id="imageUrl"
@@ -146,7 +146,7 @@ const EditGame: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="awards">Premios</label>
+                    <label htmlFor="awards">Awards</label>
                     <input
                         type="text"
                         id="awards"
@@ -162,7 +162,7 @@ const EditGame: React.FC = () => {
                         className="cancel-button"
                         onClick={() => navigate("/admin/games")}
                     >
-                        Cancelar
+                        Cancel
                     </Button>
                     <Button
                         type="submit"
@@ -170,7 +170,7 @@ const EditGame: React.FC = () => {
                         onClick={() => {}}
                         disabled={submitting}
                     >
-                        {submitting ? "Guardando..." : "Guardar Cambios"}
+                        {submitting ? "Saving..." : "Save Changes"}
                     </Button>
                 </div>
             </form>

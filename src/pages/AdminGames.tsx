@@ -25,7 +25,7 @@ const AdminGames: React.FC = () => {
             setError(null);
         } catch (err) {
             console.error("Error loading games:", err);
-            setError("Error al cargar los juegos. Inténtalo de nuevo más tarde.");
+            setError("Error loading games. Please try again later.");
         } finally {
             setLoading(false);
         }
@@ -46,35 +46,35 @@ const AdminGames: React.FC = () => {
             setGameToDelete(null);
         } catch (err) {
             console.error("Error deleting game:", err);
-            setError("Error al eliminar el juego. Inténtalo de nuevo más tarde.");
+            setError("Error deleting game. Please try again later.");
         }
     };
 
     return (
         <div className="admin-games-container">
             <div className="admin-games-header">
-                <h1>Administrar Juegos</h1>
+                <h1>Manage Games</h1>
                 <Link to="/admin/games/create" className="create-game-button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"/>
                     </svg>
-                    Crear Juego
+                    Create Game
                 </Link>
             </div>
 
             {error && <div className="error-message">{error}</div>}
 
             {loading ? (
-                <div className="loading">Cargando juegos...</div>
+                <div className="loading">Loading games...</div>
             ) : (
                 <table className="games-table">
                     <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Género</th>
-                        <th>Fecha de Lanzamiento</th>
-                        <th>Acciones</th>
+                        <th>Name</th>
+                        <th>Genre</th>
+                        <th>Release Date</th>
+                        <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -90,20 +90,20 @@ const AdminGames: React.FC = () => {
                                         className="edit-button"
                                         onClick={() => navigate(`/admin/games/edit/${game.id}`)}
                                     >
-                                        Editar
+                                        Edit
                                     </button>
                                     <button
                                         className="delete-button"
                                         onClick={() => handleDelete(game)}
                                     >
-                                        Eliminar
+                                        Delete
                                     </button>
                                 </td>
                             </tr>
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={5}>No hay juegos disponibles</td>
+                            <td colSpan={5}>No games available</td>
                         </tr>
                     )}
                     </tbody>
@@ -114,8 +114,8 @@ const AdminGames: React.FC = () => {
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={confirmDelete}
-                title="Confirmar eliminación"
-                message={`¿Estás seguro de que deseas eliminar el juego "${gameToDelete?.name}"? Esta acción no se puede deshacer.`}
+                title="Confirm deletion"
+                message={`Are you sure you want to delete the game "${gameToDelete?.name}"? This action cannot be undone.`}
             />
         </div>
     );

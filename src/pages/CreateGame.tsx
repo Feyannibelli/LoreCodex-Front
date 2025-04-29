@@ -38,7 +38,7 @@ const CreateGame: React.FC = () => {
             navigate("/admin/games");
         } catch (err) {
             console.error("Error creating game:", err);
-            setError("Error al crear el juego. Por favor, inténtalo de nuevo.");
+            setError("Error creating game. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -46,13 +46,13 @@ const CreateGame: React.FC = () => {
 
     return (
         <div className="admin-games-container">
-            <h1>Crear Nuevo Juego</h1>
+            <h1>Create New Game</h1>
 
             {error && <div className="error-message">{error}</div>}
 
             <form className="game-form" onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label htmlFor="name">Nombre</label>
+                    <label htmlFor="name">Name</label>
                     <input
                         type="text"
                         id="name"
@@ -64,7 +64,7 @@ const CreateGame: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="description">Descripción</label>
+                    <label htmlFor="description">Description</label>
                     <textarea
                         id="description"
                         name="description"
@@ -75,7 +75,7 @@ const CreateGame: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="genre">Género</label>
+                    <label htmlFor="genre">Genre</label>
                     <input
                         type="text"
                         id="genre"
@@ -87,7 +87,7 @@ const CreateGame: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="releaseDate">Fecha de Lanzamiento</label>
+                    <label htmlFor="releaseDate">Release Date</label>
                     <input
                         type="date"
                         id="releaseDate"
@@ -99,7 +99,7 @@ const CreateGame: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="imageUrl">URL de la Imagen</label>
+                    <label htmlFor="imageUrl">Image URL</label>
                     <input
                         type="text"
                         id="imageUrl"
@@ -110,7 +110,7 @@ const CreateGame: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="awards">Premios</label>
+                    <label htmlFor="awards">Awards</label>
                     <input
                         type="text"
                         id="awards"
@@ -126,7 +126,7 @@ const CreateGame: React.FC = () => {
                         className="cancel-button"
                         onClick={() => navigate("/admin/games")}
                     >
-                        Cancelar
+                        Cancel
                     </Button>
                     <Button
                         type="submit"
@@ -134,7 +134,7 @@ const CreateGame: React.FC = () => {
                         onClick={() => {}}
                         disabled={loading}
                     >
-                        {loading ? "Creando..." : "Crear Juego"}
+                        {loading ? "Creating..." : "Create Game"}
                     </Button>
                 </div>
             </form>
