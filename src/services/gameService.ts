@@ -25,7 +25,6 @@ interface BackendGameRequest {
     awards: string[];
 }
 
-// Funciones de adaptación
 const adaptBackendGameToFrontend = (backendGame: BackendGame): Game => {
     return {
         id: backendGame.id,
@@ -34,20 +33,39 @@ const adaptBackendGameToFrontend = (backendGame: BackendGame): Game => {
         genre: backendGame.genres?.length > 0 ? backendGame.genres[0] : '',
         releaseDate: backendGame.releaseDate,
         imageUrl: backendGame.coverImage,
-        awards: backendGame.awards?.join(', '),
+        awards: backendGame.awards, // Ya no necesitamos join aquí si el backend devuelve un string
         rating: backendGame.rating,
         likes: backendGame.likes
     };
 };
 
 const adaptFrontendGameToBackend = (frontendGame: GameFormData): BackendGameRequest => {
+    // Determinar cómo procesar el campo awards
+    let awardsString = '';
+    if (frontendGame.awards) {
+        // Si awards es una cadena, usarla directamente
+        if (typeof frontendGame.awards === 'string') {
+            awardsString = frontendGame.awards.trim();
+        }
+        // Si awards es un array, convertirlo a string
+        else if (Array.isArray(frontendGame.awards)) {
+            awardsString = frontendGame.awards.join(', ');
+        }
+    }
+
+    // Asegurar que genres siempre sea un array
+    let genresArray: string[] = [];
+    if (frontendGame.genre) {
+        genresArray = [frontendGame.genre.trim()];
+    }
+
     return {
         title: frontendGame.name,
         description: frontendGame.description,
         coverImage: frontendGame.imageUrl || '',
         releaseDate: frontendGame.releaseDate,
-        genres: [frontendGame.genre], // Convertimos el género único en un array
-        awards: frontendGame.awards ? frontendGame.awards.split(',').map(award => award.trim()) : []
+        genres: genresArray,
+        awards: awardsString // Enviar como string en lugar de array
     };
 };
 
@@ -90,10 +108,16 @@ const gameService = {
     createGame: async (gameData: GameFormData): Promise<Game> => {
         try {
             const backendGame = adaptFrontendGameToBackend(gameData);
+            console.log('Sending to backend:', JSON.stringify(backendGame)); // Log para debugging
             const response = await axios.post(`${API_URL}/games`, backendGame);
             return adaptBackendGameToFrontend(response.data);
         } catch (error) {
             console.error('Error creating game:', error);
+            // Capturar y mostrar el error específico de la API
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('API response error:', error.response.data);
+                console.error('Status code:', error.response.status);
+            }
             throw error;
         }
     },
@@ -102,10 +126,16 @@ const gameService = {
     updateGame: async (id: number, gameData: GameFormData): Promise<Game> => {
         try {
             const backendGame = adaptFrontendGameToBackend(gameData);
+            console.log('Updating game, sending:', JSON.stringify(backendGame)); // Log para debugging
             const response = await axios.put(`${API_URL}/games/${id}`, backendGame);
             return adaptBackendGameToFrontend(response.data);
         } catch (error) {
             console.error(`Error updating game with id ${id}:`, error);
+            // Capturar y mostrar el error específico de la API
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('API response error:', error.response.data);
+                console.error('Status code:', error.response.status);
+            }
             throw error;
         }
     },
