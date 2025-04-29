@@ -1,0 +1,49 @@
+.review-list-container {
+    margin-top: 20px;
+}
+
+.loading-reviews {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.review-prompt {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.write-review-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.write-review-button:hover {
+    background-color: #45a049;
+}
+
+.no-reviews {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+}
+
+.reviews-list {
+    margin-top: 20px;
+}
