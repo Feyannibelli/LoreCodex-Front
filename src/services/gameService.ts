@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Game, GameFormData } from '../interfaces/Game';
 
-const API_URL = 'http://localhost:8080/api';
+const API_URL = 'http://localhost:8081/api';
 
 // Interfaces para adaptar el backend al frontend
 interface BackendGame {
@@ -33,7 +33,7 @@ const adaptBackendGameToFrontend = (backendGame: BackendGame): Game => {
         genre: backendGame.genres?.length > 0 ? backendGame.genres[0] : '',
         releaseDate: backendGame.releaseDate,
         imageUrl: backendGame.coverImage,
-        awards: backendGame.awards,
+        awards: backendGame.awards.join(', '),
         rating: backendGame.rating,
         likes: backendGame.likes
     };
@@ -43,13 +43,13 @@ const adaptFrontendGameToBackend = (frontendGame: GameFormData): BackendGameRequ
     // Procesar awards correctamente como array
     let awardsArray: string[] = [];
     if (frontendGame.awards) {
-        awardsArray = [frontendGame.awards.trim()];
+        awardsArray = [frontendGame.awards];
     }
 
     // Procesar genres como array
     let genresArray: string[] = [];
     if (frontendGame.genre) {
-        genresArray = [frontendGame.genre.trim()];
+        genresArray = [frontendGame.genre];
     }
 
     return {

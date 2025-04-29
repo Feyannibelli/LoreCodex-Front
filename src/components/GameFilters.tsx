@@ -71,14 +71,14 @@ const GameFilters: React.FC<GameFiltersProps> = ({
 
     const handleSortChange = (sortBy: 'popularity' | 'releaseDate' | 'name') => {
         // If clicking the same sort option, toggle sort order
-        const newSortOrder = filters.sortBy === sortBy && filters.sortOrder === 'desc' ? 'asc' : 'desc';
+        const newSortOrder: 'asc' | 'desc' = filters.sortBy === sortBy && filters.sortOrder === 'desc' ? 'asc' : 'desc';
         const newFilters = { ...filters, sortBy, sortOrder: newSortOrder };
         setFilters(newFilters);
         onFilterChange(newFilters);
     };
 
     const resetFilters = () => {
-        const initialFilters = {
+        const initialFilters: FiltersState = {
             genres: [],
             dateFilter: {},
             hasAwards: false,
