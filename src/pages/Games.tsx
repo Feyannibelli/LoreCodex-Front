@@ -1,15 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Game } from "../interfaces/Game";
 import gameService from "../services/gameService";
+import searchService from "../services/searchService";
+import GameFilters, { FiltersState } from "../components/GameFilters";
 import "../css/Games.css";
+import "../css/GameFilters.css";
 
 const Games: React.FC = () => {
-    const [games, setGames] = useState<Game[]>([]);
+    const [allGames, setAllGames] = useState<Game[]>([]);
+    const [displayedGames, setDisplayedGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState<string>("");
+    const [availableGenres, setAvailableGenres] = useState<string[]>([]);
+    const [activeFilters, setActiveFilters] = useState<FiltersState | null>(null);
+
     const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         // Check if there's a search query in the URL
@@ -18,17 +26,32 @@ const Games: React.FC = () => {
 
         if (searchQuery) {
             setSearchTerm(searchQuery);
-            handleSearch(null, searchQuery);
-        } else {
-            loadGames();
         }
+
+        loadGames();
     }, [location.search]);
 
     const loadGames = async () => {
         try {
             setLoading(true);
             const data = await gameService.getAllGames();
-            setGames(data);
+            setAllGames(data);
+
+            // Extract available genres for filters
+            const genres = searchService.getAvailableGenres(data);
+            setAvailableGenres(genres);
+
+            // Initial filtering based on URL search param
+            const searchParams = new URLSearchParams(location.search);
+            const searchQuery = searchParams.get('search') || "";
+
+            if (searchQuery) {
+                const filtered = searchService.filterGames(data, searchQuery);
+                setDisplayedGames(filtered);
+            } else {
+                setDisplayedGames(data);
+            }
+
             setError(null);
         } catch (err) {
             console.error("Error loading games:", err);
@@ -38,39 +61,55 @@ const Games: React.FC = () => {
         }
     };
 
-    const handleSearch = async (e: React.FormEvent | null, inputSearchTerm?: string) => {
+    const handleSearch = async (e: React.FormEvent | null) => {
         if (e) e.preventDefault();
 
-        const term = inputSearchTerm || searchTerm;
-        if (!term.trim()) {
-            loadGames();
+        if (!searchTerm.trim() && !activeFilters) {
+            // If search is empty and no filters, show all games
+            setDisplayedGames(allGames);
+
+            // Update URL
+            navigate('/games');
             return;
         }
 
-        try {
-            setLoading(true);
-            const data = await gameService.searchGamesByName(term);
-            setGames(data);
-            setError(null);
-        } catch (err) {
-            console.error("Error searching games:", err);
-            setError("Error searching games. Please try again later.");
-        } finally {
-            setLoading(false);
+        // Update URL with search term
+        if (searchTerm.trim()) {
+            navigate(`/games?search=${encodeURIComponent(searchTerm)}`);
         }
+
+        // Apply filters to the games
+        const filtered = searchService.filterGames(allGames, searchTerm, activeFilters || undefined);
+        setDisplayedGames(filtered);
+    };
+
+    const handleFilterChange = (filters: FiltersState) => {
+        setActiveFilters(filters);
+
+        // Apply both search and filters
+        const filtered = searchService.filterGames(allGames, searchTerm, filters);
+        setDisplayedGames(filtered);
+    };
+
+    const resetFilters = () => {
+        setActiveFilters(null);
+
+        // Apply only search term without filters
+        const filtered = searchService.filterGames(allGames, searchTerm);
+        setDisplayedGames(filtered);
     };
 
     return (
         <div className="games-container">
-            <h1>General Games</h1>
+            <h1>Games</h1>
 
             {/* Search bar */}
             <div className="games-search-container">
-                <form className="games-search-bar" onSubmit={(e) => handleSearch(e)}>
+                <form className="games-search-bar" onSubmit={handleSearch}>
                     <input
                         type="text"
                         className="games-search-input"
-                        placeholder="Search"
+                        placeholder="Search game titles or descriptions"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -82,13 +121,27 @@ const Games: React.FC = () => {
                 </form>
             </div>
 
+            {/* Filters */}
+            <GameFilters
+                availableGenres={availableGenres}
+                onFilterChange={handleFilterChange}
+                onReset={resetFilters}
+            />
+
+            {/* Results summary */}
+            <div className="results-summary">
+                {!loading && (
+                    <p>Showing {displayedGames.length} of {allGames.length} games</p>
+                )}
+            </div>
+
             {error && <div className="error-message">{error}</div>}
 
             {loading ? (
                 <div className="loading">Loading games...</div>
-            ) : games.length > 0 ? (
+            ) : displayedGames.length > 0 ? (
                 <div className="games-grid">
-                    {games.map((game) => (
+                    {displayedGames.map((game) => (
                         <Link to={`/games/${game.id}`} className="game-card" key={game.id}>
                             <div className="game-image">
                                 {game.imageUrl ? (
@@ -102,14 +155,31 @@ const Games: React.FC = () => {
                                 <div className="game-genre">{game.genre}</div>
                                 <div className="game-meta">
                                     <span>{new Date(game.releaseDate).getFullYear()}</span>
+                                    {game.rating !== undefined && (
+                                        <span>★ {game.rating.toFixed(1)}</span>
+                                    )}
+                                    {game.likes !== undefined && (
+                                        <span>❤️ {game.likes}</span>
+                                    )}
                                 </div>
+                                {game.awards && (
+                                    <div className="game-awards">
+                                        <span>🏆</span>
+                                    </div>
+                                )}
                             </div>
                         </Link>
                     ))}
                 </div>
             ) : (
                 <div className="no-games-found">
-                    No games found.
+                    No games found with the current search criteria.
+                    <button
+                        onClick={resetFilters}
+                        className="clear-filters-button"
+                    >
+                        Clear all filters
+                    </button>
                 </div>
             )}
         </div>
