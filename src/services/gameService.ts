@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Game, GameFormData } from '../interfaces/Game';
 
-const API_URL = 'http://localhost:8080/api';
+const API_URL = 'http://localhost:8081/api';
 
 // Interfaces para adaptar el backend al frontend
 interface BackendGame {
@@ -40,20 +40,17 @@ const adaptBackendGameToFrontend = (backendGame: BackendGame): Game => {
 };
 
 const adaptFrontendGameToBackend = (frontendGame: GameFormData): BackendGameRequest => {
-    // Determinar cómo procesar el campo awards
-    let awardsString = '';
+    // Procesar awards correctamente como array
+    let awardsArray: string[] = [];
     if (frontendGame.awards) {
-        // Si awards es una cadena, usarla directamente
         if (typeof frontendGame.awards === 'string') {
-            awardsString = frontendGame.awards.trim();
-        }
-        // Si awards es un array, convertirlo a string
-        else if (Array.isArray(frontendGame.awards)) {
-            awardsString = frontendGame.awards.join(', ');
+            awardsArray = [frontendGame.awards.trim()];
+        } else if (Array.isArray(frontendGame.awards)) {
+            awardsArray = (frontendGame.awards as string[]).map(award => award.trim());
         }
     }
 
-    // Asegurar que genres siempre sea un array
+    // Procesar genres como array
     let genresArray: string[] = [];
     if (frontendGame.genre) {
         genresArray = [frontendGame.genre.trim()];
@@ -65,7 +62,7 @@ const adaptFrontendGameToBackend = (frontendGame: GameFormData): BackendGameRequ
         coverImage: frontendGame.imageUrl || '',
         releaseDate: frontendGame.releaseDate,
         genres: genresArray,
-        awards: awardsString
+        awards: awardsArray
     };
 };
 

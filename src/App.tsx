@@ -13,25 +13,16 @@ import AdminGames from './pages/AdminGames'
 import CreateGame from './pages/CreateGame.tsx'
 import EditGame from './pages/EditGame'
 import { useAuth } from './context/AuthContext'
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Header from './components/Header';
-import Profile from './pages/Profile';
-import AdminUsers from './pages/AdminUsers';
-import GuidePage from './pages/GuidePage';
-import CreateGuidePage from "./pages/CreateGuidePage";
-import GuideDetailPage from './pages/GuideDetailPage.tsx';
-import { useAuth } from './context/AuthContext';
 import PublicOnlyRoute from './components/PublicOnlyRoute';
-import PrivateRoute from './components/PrivateRoute'; // ⭐ AGREGAR ESTO
+import PrivateRoute from './components/PrivateRoute';
 import UserMenu from "./components/UserMenu";
 import GamesPage from './pages/GamesPage';
 import ListsPage from './pages/ListsPage';
 import MyDraftsPage from "@/pages/MyDraftsPage.tsx";
 import EditGuidePage from "@/pages/EditGuidePage.tsx";
+import GuidePage from "@/pages/GuidePage.tsx";
+import CreateGuidePage from "@/pages/CreateGuidePage.tsx";
+import GuideDetailPage from "@/pages/GuideDetailPage.tsx";
 
 // Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {

@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { Review, ReviewFormData } from '../interfaces/Review';
 
-const API_URL = 'http://localhost:8080/api';
+const API_URL = 'http://localhost:8081/api';
 
 const reviewService = {
     // Get all reviews for a game
