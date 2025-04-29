@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Game as GameType } from "../interfaces/Game";
 import gameService from "../services/gameService";
 import authService from "../services/authService";
+import ReviewList from "../components/ReviewList";
 import "../css/Game.css";
 
 const Game: React.FC = () => {
@@ -203,11 +204,8 @@ const Game: React.FC = () => {
 
                 <div className="tab-content">
                     {activeTab === "reviews" && (
-                        <div>
-                            <p>No reviews available for this game.</p>
-                            {isAuthenticated && (
-                                <button className="add-content-button">Write a review</button>
-                            )}
+                        <div className="reviews-tab-content">
+                            {id && <ReviewList gameId={parseInt(id)} />}
                         </div>
                     )}
 

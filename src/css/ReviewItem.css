@@ -1,8 +1,7 @@
 .review-item {
-    background-color: #fff;
+    background-color: #f5f5f5;
     border-radius: 8px;
-    margin-bottom: 15px;
-    padding: 15px;
+    padding: 16px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -10,25 +9,25 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .user-info {
     display: flex;
     align-items: center;
+    gap: 8px;
 }
 
 .user-circle {
-    width: 30px;
-    height: 30px;
-    background-color: #3f51b5;
-    color: white;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
+    background-color: #4a76a8;
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    margin-right: 10px;
 }
 
 .username {
@@ -37,89 +36,79 @@
 
 .review-rating {
     display: flex;
+    gap: 2px;
 }
 
-.review-rating .star {
+.star {
+    color: #ccc;
     font-size: 18px;
-    color: #ddd;
-    margin-right: 2px;
 }
 
-.review-rating .star.filled {
+.star.filled {
     color: #ffc107;
 }
 
 .review-content {
-    margin-bottom: 15px;
+    margin-bottom: 16px;
     line-height: 1.5;
-    color: #333;
 }
 
 .review-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: #666;
     font-size: 14px;
+    color: #666;
 }
 
 .review-actions {
     display: flex;
+    gap: 12px;
     align-items: center;
-    gap: 15px;
 }
 
 .reaction-buttons {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .like-button, .dislike-button {
-    background: none;
-    border: none;
-    cursor: pointer;
     display: flex;
     align-items: center;
-    color: #555;
-    padding: 5px;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 4px 8px;
     border-radius: 4px;
+    transition: background-color 0.2s;
 }
 
 .like-button:hover, .dislike-button:hover {
-    background-color: #f0f0f0;
+    background-color: #e0e0e0;
 }
 
-.like-button.active {
-    color: #4caf50;
-}
-
-.dislike-button.active {
-    color: #f44336;
-}
-
-.like-icon, .dislike-icon {
-    margin-right: 5px;
+.like-button.active, .dislike-button.active {
+    color: #4a76a8;
+    font-weight: 500;
 }
 
 .edit-button, .delete-button {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 5px;
+    padding: 4px;
     border-radius: 4px;
+    transition: background-color 0.2s;
 }
 
 .edit-button:hover, .delete-button:hover {
-    background-color: #f0f0f0;
+    background-color: #e0e0e0;
 }
 
 .reaction-counts {
     display: flex;
-    gap: 15px;
-}
-
-.likes-count, .dislikes-count {
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    gap: 12px;
+    color: #666;
 }

@@ -1,5 +1,12 @@
 .review-list-container {
+    padding: 20px 0;
+}
+
+.reviews-list {
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .loading-reviews {
@@ -9,41 +16,35 @@
 }
 
 .error-message {
+    color: #d32f2f;
     background-color: #ffebee;
-    color: #c62828;
     padding: 10px;
     border-radius: 4px;
-    margin-bottom: 15px;
-}
-
-.review-prompt {
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.write-review-button {
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.3s;
-}
-
-.write-review-button:hover {
-    background-color: #45a049;
+    margin: 10px 0;
 }
 
 .no-reviews {
     text-align: center;
-    padding: 20px;
+    padding: 30px 0;
     color: #666;
-    background-color: #f5f5f5;
-    border-radius: 8px;
 }
 
-.reviews-list {
-    margin-top: 20px;
+.review-prompt {
+    margin-bottom: 20px;
+    text-align: right;
+}
+
+.write-review-button {
+    background-color: #4a76a8;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.write-review-button:hover {
+    background-color: #3a5e89;
 }
