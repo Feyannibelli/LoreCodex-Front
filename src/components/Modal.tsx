@@ -15,25 +15,25 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, onConfirm, title, messag
 
     return (
         <div className="modal-overlay">
-        <div className="modal-container">
-        <div className="modal-header">
-            <h3>{title}</h3>
-            <button className="modal-close" onClick={onClose}>×</button>
-    </div>
-    <div className="modal-content">
-        <p>{message}</p>
+            <div className="modal-container">
+                <div className="modal-header">
+                    <h3>{title}</h3>
+                    <button className="modal-close" onClick={onClose}>×</button>
+                </div>
+                <div className="modal-content">
+                    <p>{message}</p>
+                </div>
+                <div className="modal-footer">
+                    <Button onClick={onClose} className="cancel-button">
+                        Cancel
+                    </Button>
+                    <Button onClick={onConfirm} className="confirm-button">
+                        Confirm
+                    </Button>
+                </div>
+            </div>
         </div>
-        <div className="modal-footer">
-    <Button onClick={onClose} className="cancel-button">
-        Cancelar
-        </Button>
-        <Button onClick={onConfirm} className="confirm-button">
-        Confirmar
-        </Button>
-        </div>
-        </div>
-        </div>
-);
+    );
 };
 
 export default Modal;

@@ -9,6 +9,21 @@
     transition: background-color 0.2s;
 }
 
+.custom-button.submit-button {
+    background-color: #4a76a8;
+    color: white;
+}
+
+.custom-button.cancel-button {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.custom-button.confirm-button {
+    background-color: #d32f2f;
+    color: white;
+}
+
 .custom-button:hover {
     background-color: #555;
 }

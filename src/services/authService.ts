@@ -53,8 +53,21 @@ export const setupAxiosInterceptors = () => {
             return response;
         },
         (error) => {
+            // Only redirect to login for auth-specific endpoints if token exists
             if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-                if (localStorage.getItem('token')) {
+                // Check if this is a secure/auth endpoint (not a public endpoint like getting game info)
+                const isSecureEndpoint = error.config && (
+                    error.config.url.includes('/auth/') ||
+                    error.config.url.includes('/user/') ||
+                    error.config.url.includes('/admin/') ||
+                    // Only redirect for authorized game actions, not for viewing games
+                    (error.config.url.includes('/games/') &&
+                        (error.config.url.includes('/like') ||
+                            error.config.url.includes('/rate') ||
+                            error.config.method !== 'get'))
+                );
+
+                if (localStorage.getItem('token') && isSecureEndpoint) {
                     localStorage.removeItem('token');
                     localStorage.removeItem('userId');
                     window.location.href = '/login';

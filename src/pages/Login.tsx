@@ -19,7 +19,7 @@ const Login: React.FC = () => {
             await login(username, password);
             navigate('/profile');
         } catch (err) {
-            setError('Usuario o contraseña incorrectos. Por favor, inténtalo de nuevo.');
+            setError('Incorrect username or password. Please try again.');
         }
     };
 

@@ -25,6 +25,13 @@ const Header: React.FC = () => {
                             <Link to="/admin/users" className="text-sm font-semibold text-[#0C0C0C] dark:text-white hover:underline">
                                 Admin
                             </Link>
+                            <div className="admin-dropdown">
+                                <span className="nav-link admin-link">Admin</span>
+                                <div className="admin-dropdown-content">
+                                    <Link to="/admin/users">Users</Link>
+                                    <Link to="/admin/games">Games</Link>
+                                </div>
+                            </div>
                         )}
 
                         {/* Notifications */}
