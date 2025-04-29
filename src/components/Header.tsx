@@ -5,10 +5,9 @@ import { Bell, ChevronDown } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 const Header: React.FC = () => {
-    const { isAuthenticated, user, isAdmin } = useAuth();
+    const { isAuthenticated, user, isAdmin, logout } = useAuth(); // AHORA también tenemos logout
+    const navigate = useNavigate();
     const userInitial = user?.username.charAt(0).toUpperCase() || 'U';
-    const username = user?.username || 'User';
-    const navigate = useNavigate(); //
 
     return (
         <header className="flex items-center justify-between p-4 shadow-md sticky top-0 bg-white dark:bg-[#313E3F] z-50 transition-colors">
@@ -37,11 +36,11 @@ const Header: React.FC = () => {
                         {/* User menu */}
                         <DropdownMenu>
                             <div className="flex items-center gap-2">
-                                {/* Círculo redondo que lleva al Profile */}
+                                {/* Círculo que lleva al profile */}
                                 <Link to="/profile" className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-300 text-black font-semibold overflow-hidden">
                                     {user?.profilePicture ? (
                                         <img
-                                            src={user.profilePicture}
+                                            src={user.profilePicture} //cuando querramos agregarle foto de perfil al usuario en el futurooo
                                             alt="Profile"
                                             className="h-full w-full object-cover"
                                         />
@@ -50,7 +49,7 @@ const Header: React.FC = () => {
                                     )}
                                 </Link>
 
-                                {/* Flechita que abre el Dropdown */}
+                                {/* Flechita que abre el dropdown */}
                                 <DropdownMenuTrigger className="flex items-center justify-center">
                                     <ChevronDown className="h-4 w-4 text-[#0C0C0C] dark:text-white cursor-pointer" />
                                 </DropdownMenuTrigger>
@@ -61,7 +60,14 @@ const Header: React.FC = () => {
                                     <Link to="/profile">Profile</Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>Settings</DropdownMenuItem>
-                                <DropdownMenuItem>Logout</DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => {
+                                        logout();
+                                        navigate('/login');
+                                    }}
+                                >
+                                    Logout
+                                </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </>

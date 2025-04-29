@@ -1,4 +1,3 @@
-// src/App.tsx
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
@@ -7,14 +6,17 @@ import Register from './pages/Register';
 import Header from './components/Header';
 import Profile from './pages/Profile';
 import AdminUsers from './pages/AdminUsers';
-import GuidePage from './pages/GuidePage'; // ⭐ Importamos GuidePage
-import CreateGuidePage from "./pages/CreateGuidePage"; // ⭐ Importamos la nueva página
-import GuideDetail from './pages/GuideDetail'; // ⭐ Importamos GuideDetail
+import GuidePage from './pages/GuidePage';
+import CreateGuidePage from "./pages/CreateGuidePage";
+import GuideDetailPage from './pages/GuideDetailPage.tsx';
 import { useAuth } from './context/AuthContext';
 import PublicOnlyRoute from './components/PublicOnlyRoute';
-import UserMenu from "./components/UserMenu.tsx";
+import PrivateRoute from './components/PrivateRoute'; // ⭐ AGREGAR ESTO
+import UserMenu from "./components/UserMenu";
 import GamesPage from './pages/GamesPage';
 import ListsPage from './pages/ListsPage';
+import MyDraftsPage from "@/pages/MyDraftsPage.tsx";
+import EditGuidePage from "@/pages/EditGuidePage.tsx";
 
 // Componente para rutas protegidas de admin
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -32,6 +34,8 @@ const App: React.FC = () => {
             <UserMenu />
             <Routes>
                 <Route path="/" element={<Home />} />
+
+                {/* Rutas públicas solo para no logueados */}
                 <Route
                     path="/login"
                     element={
@@ -48,7 +52,18 @@ const App: React.FC = () => {
                         </PublicOnlyRoute>
                     }
                 />
-                <Route path="/profile" element={<Profile />} />
+
+                {/* Ruta protegida para perfil personal */}
+                <Route
+                    path="/profile"
+                    element={
+                        <PrivateRoute>
+                            <Profile />
+                        </PrivateRoute>
+                    }
+                />
+
+                {/* Ruta protegida solo para admins */}
                 <Route
                     path="/admin/users"
                     element={
@@ -58,12 +73,26 @@ const App: React.FC = () => {
                     }
                 />
 
-                {/* NUEVAS RUTAS PARA GUÍAS */}
+                {/* Guías */}
                 <Route path="/guides" element={<GuidePage />} />
-                <Route path="/guides/create" element={<CreateGuidePage />} />
-                <Route path="/guides/:id" element={<GuideDetail />} />
+                <Route
+                    path="/guides/create"
+                    element={
+                        <PrivateRoute>
+                            <CreateGuidePage />
+                        </PrivateRoute>
+                    }
+                />
+                <Route path="/guides/:id" element={<GuideDetailPage />} />
+                <Route path="/my-drafts" element={<MyDraftsPage />} />
+                <Route path="/guides/edit/:id" element={<EditGuidePage />} />
+
+                {/* Juegos y listas - públicos de navegación */}
                 <Route path="/games" element={<GamesPage />} />
                 <Route path="/lists" element={<ListsPage />} />
+
+                {/* Si no existe ruta, redirige a home */}
+                <Route path="*" element={<Navigate to="/" />} />
             </Routes>
         </div>
     );
