@@ -191,12 +191,11 @@ const Home: React.FC = () => {
                 </div>
             </div>
 
-            {/* Guías populares */}
             {/* Popular guides */}
             <div className="content-section">
                 <div className="section-header">
                     <span className="section-title">Recently Published Guides</span>
-                    <a href="/guides" className="view-more">More +</a>
+                    <a href="/guides/published" className="view-more">More +</a>
                 </div>
                 <div className="reviews-grid">
                     {popularGuides.map((guide) => (

@@ -66,7 +66,7 @@ const gameService = {
     // Obtener todos los juegos
     getAllGames: async (): Promise<Game[]> => {
         try {
-            const response = await axios.get(`${API_URL}/games`);
+            const response = await axios.get(`${API_URL}/games/allGames`);
             return response.data.map(adaptBackendGameToFrontend);
         } catch (error) {
             console.error('Error fetching games:', error);
