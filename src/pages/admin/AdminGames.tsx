@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Game } from "../interfaces/Game";
-import gameService from "../services/gameService";
-import Modal from "../components/Modal";
-import "../css/AdminGames.css";
+import { Game } from "../../interfaces/Game.ts";
+import gameService from "../../services/gameService.ts";
+import Modal from "../../components/Modal.tsx";
+import "../../css/AdminGames.css";
 
 const AdminGames: React.FC = () => {
     const [games, setGames] = useState<Game[]>([]);

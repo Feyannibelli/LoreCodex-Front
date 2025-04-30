@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { GameFormData } from "../interfaces/Game";
-import gameService from "../services/gameService";
-import Button from "../components/Button";
-import "../css/AdminGames.css";
+import gameService from "../../services/gameService.ts";
+import Button from "../../components/Button.tsx";
+import "../../css/AdminGames.css";
+import {GameFormData} from "@/interfaces/Game.ts";
 
 const EditGame: React.FC = () => {
     const { id } = useParams<{ id: string }>();

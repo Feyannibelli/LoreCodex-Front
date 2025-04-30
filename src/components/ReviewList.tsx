@@ -26,7 +26,8 @@ const ReviewList: React.FC<ReviewListProps> = ({ gameId }) => {
     const loadReviews = async () => {
         try {
             setLoading(true);
-            const reviewsData = await reviewService.getGameReviews(gameId);
+            const [reviewsData] = await Promise.all([reviewService.getGameReviews(gameId)]);
+            console.log("Reviews loaded:", reviewsData); // <--- VERIFICA
             setReviews(reviewsData);
             setError(null);
         } catch (err) {
@@ -127,8 +128,8 @@ const ReviewList: React.FC<ReviewListProps> = ({ gameId }) => {
     };
 
     // Check if the current user has already submitted a review
-    const hasUserReviewed = isAuthenticated && reviews.some(review => review.userId === user?.id);
-
+    //const hasUserReviewed = isAuthenticated && reviews.some(review => review.userId === user?.id);
+    const hasUserReviewed = reviews.some(review => review.userId === user?.id);
     if (loading) return <div className="loading-reviews">Loading reviews...</div>;
 
     return (

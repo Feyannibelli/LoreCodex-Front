@@ -6,23 +6,23 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Header from './components/Header'
 import Profile from './pages/Profile'
-import AdminUsers from './pages/AdminUsers'
-import Games from './pages/Games'
-import Game from './pages/Game'
-import AdminGames from './pages/AdminGames'
-import CreateGame from './pages/CreateGame.tsx'
-import EditGame from './pages/EditGame'
+import AdminUsers from './pages/admin/AdminUsers.tsx'
+import Games from './pages/game/Games.tsx'
+import Game from './pages/game/Game.tsx'
+import AdminGames from './pages/admin/AdminGames.tsx'
+import CreateGame from './pages/game/CreateGame.tsx'
+import EditGame from './pages/admin/EditGame.tsx'
 import { useAuth } from './context/AuthContext'
 import PublicOnlyRoute from './components/PublicOnlyRoute';
 import PrivateRoute from './components/PrivateRoute';
 import UserMenu from "./components/UserMenu";
-import GamesPage from './pages/GamesPage';
+import GamesPage from './pages/game/GamesPage.tsx';
 import ListsPage from './pages/ListsPage';
 import MyDraftsPage from "@/pages/MyDraftsPage.tsx";
-import EditGuidePage from "@/pages/EditGuidePage.tsx";
-import GuidePage from "@/pages/GuidePage.tsx";
-import CreateGuidePage from "@/pages/CreateGuidePage.tsx";
-import GuideDetailPage from "@/pages/GuideDetailPage.tsx";
+import EditGuidePage from "@/pages/guide/EditGuidePage.tsx";
+import GuidePage from "@/pages/guide/GuidePage.tsx";
+import CreateGuidePage from "@/pages/guide/CreateGuidePage.tsx";
+import GuideDetailPage from "@/pages/guide/GuideDetailPage.tsx";
 
 // Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {

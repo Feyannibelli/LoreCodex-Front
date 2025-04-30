@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from '../components/Button';
-import Modal from '../components/Modal';
-import { useAuth } from '../context/AuthContext';
-import authService, { UserData } from '../services/authService';
-import '../css/AdminUsers.css';
+import Button from '../../components/Button.tsx';
+import Modal from '../../components/Modal.tsx';
+import { useAuth } from '../../context/AuthContext.tsx';
+import authService, { UserData } from '../../services/authService.ts';
+import '../../css/AdminUsers.css';
 
 const AdminUsers: React.FC = () => {
     const [users, setUsers] = useState<UserData[]>([]);

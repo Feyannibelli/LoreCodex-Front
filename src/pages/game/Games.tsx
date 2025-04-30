@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Game } from "../interfaces/Game";
-import gameService from "../services/gameService";
-import searchService from "../services/searchService";
-import GameFilters, { FiltersState } from "../components/GameFilters";
-import "../css/Games.css";
-import "../css/GameFilters.css";
+import { Game } from "../../interfaces/Game.ts";
+import gameService from "../../services/gameService.ts";
+import searchService from "../../services/searchService.ts";
+import GameFilters, { FiltersState } from "../../components/GameFilters.tsx";
+import "../../css/Games.css";
+import "../../css/GameFilters.css";
 
 const Games: React.FC = () => {
     const [allGames, setAllGames] = useState<Game[]>([]);

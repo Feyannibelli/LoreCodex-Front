@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import RichTextEditor from '@/components/RichTextEditor';
+import RichTextEditor from '@/components/RichTextEditor.tsx';
 
 const EditGuidePage = () => {
     const { id } = useParams<{ id: string }>();

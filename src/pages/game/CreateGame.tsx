@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GameFormData } from "../interfaces/Game";
-import gameService from "../services/gameService";
-import Button from "../components/Button";
-import "../css/AdminGames.css";
+import { GameFormData } from "../../interfaces/Game.ts";
+import gameService from "../../services/gameService.ts";
+import Button from "../../components/Button.tsx";
+import "../../css/AdminGames.css";
 
 const CreateGame: React.FC = () => {
     const initialFormData: GameFormData = {

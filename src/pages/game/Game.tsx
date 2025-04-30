@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Game as GameType } from "../interfaces/Game";
-import gameService from "../services/gameService";
-import { useAuth } from "../context/AuthContext"; // Import useAuth hook instead of authService
-import ReviewList from "../components/ReviewList";
-import "../css/Game.css";
+import { Game as GameType } from "../../interfaces/Game.ts";
+import gameService from "../../services/gameService.ts";
+import { useAuth } from "../../context/AuthContext.tsx"; // Import useAuth hook instead of authService
+import ReviewList from "../../components/ReviewList.tsx";
+import "../../css/Game.css";
 
 const Game: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -22,20 +22,17 @@ const Game: React.FC = () => {
     const { isAuthenticated, loading: authLoading } = useAuth();
 
     useEffect(() => {
-        // Only load the game once we have confirmed auth status
-        if (!authLoading) {
-            loadGame();
-        }
-    }, [id, authLoading]);
+        if (id) loadGame();
+    }, [id]);
 
     const loadGame = async () => {
         try {
             setLoading(true);
             if (id) {
                 const gameData = await gameService.getGameById(parseInt(id));
-                const avgRating = await gameService.getAverageRating(parseInt(id));
+                //const avgRating = await gameService.getAverageRating(parseInt(id));
                 setGame(gameData);
-                setAverageRating(avgRating);
+                //setAverageRating(avgRating);
                 setError(null);
             }
         } catch (err) {
@@ -91,7 +88,7 @@ const Game: React.FC = () => {
             if (id && userRating > 0) {
                 const updatedGame = await gameService.rateGame(parseInt(id), userRating);
                 setGame(updatedGame);
-                await fetchAverageRating(); // 👈 actualizar el promedio
+                await fetchAverageRating(); //actualizar el promedio
                 setRatingSuccess(true);
                 setTimeout(() => setRatingSuccess(false), 3000);
             }
