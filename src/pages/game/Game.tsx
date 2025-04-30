@@ -5,6 +5,9 @@ import gameService from "../../services/gameService.ts";
 import { useAuth } from "../../context/AuthContext.tsx"; // Import useAuth hook instead of authService
 import ReviewList from "../../components/ReviewList.tsx";
 import "../../css/Game.css";
+import AverageRatingDisplay from "@/components/AverageRatingDisplay.tsx";
+import ratingService from "@/services/ratingService.ts";
+import UserRatingDisplay from "@/components/UserRatingDisplay.tsx";
 
 const Game: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -24,6 +27,28 @@ const Game: React.FC = () => {
     useEffect(() => {
         if (id) loadGame();
     }, [id]);
+
+    useEffect(() => {
+        const fetchRatings = async () => {
+            if (id) {
+                fetchAverageRating(); // ya existente
+
+                if (isAuthenticated) {
+                    try {
+                        const response = await ratingService.getMyRating(parseInt(id));
+                        if (response.data) {
+                            setUserRating(response.data.rating);
+                        }
+                    } catch (err) {
+                        console.error("Error fetching user rating:", err);
+                    }
+                }
+            }
+        };
+
+        fetchRatings();
+    }, [id, isAuthenticated]);
+
 
     const loadGame = async () => {
         try {
@@ -119,11 +144,7 @@ const Game: React.FC = () => {
 
                     <div className="game-detail-rating">
                         <div className="star-rating">
-                            {Array.from({ length: 5 }).map((_, index) => (
-                                <span key={index} className={index < Math.round(averageRating ?? 0) ? "star filled" : "star"}>
-                ★
-            </span>
-                            ))}
+                            <AverageRatingDisplay rating={averageRating} />
                         </div>
                         <span>{averageRating !== null ? `${averageRating}/5` : "No rating"}</span>
                     </div>
@@ -144,6 +165,12 @@ const Game: React.FC = () => {
 
                     {isAuthenticated && (
                         <div className="user-rating">
+                            {userRating > 0 && (
+                                <p style={{ marginBottom: "4px" }}>Your rating: {userRating} / 5</p>
+                            )}
+                            {isAuthenticated && userRating > 0 && (
+                                <UserRatingDisplay rating={userRating} />
+                            )}
                             <h3>Rate this game:</h3>
                             <div className="rating-stars">
                                 {[1, 2, 3, 4, 5].map(star => (
