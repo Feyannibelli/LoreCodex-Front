@@ -1,0 +1,49 @@
+/* src/components/RichTextEditor.css */
+.editor-container {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.toolbar button {
+    background-color: #f47e00;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.toolbar button:hover {
+    background-color: #d56b00;
+}
+
+.editor-content {
+    min-height: 250px;
+    border: 1px solid #e2e2e2;
+    padding: 1rem;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+}
+
+.editor-content h1 {
+    font-size: 1.8rem;
+    color: #f47e00;
+}
+
+.editor-content h2 {
+    font-size: 1.5rem;
+}
+
+.editor-content h3 {
+    font-size: 1.2rem;
+}

@@ -1,33 +1,97 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "../css/Home.css";
+import axios from "axios";
+import { Game } from "../interfaces/Game";
+import gameService from "../services/gameService";
 
 const Home: React.FC = () => {
+    const [popularGuides, setPopularGuides] = useState<any[]>([]);
+
+    const [recentlyAdded, setRecentlyAdded] = useState<Game[]>([]);
+    const [popularGames, setPopularGames] = useState<Game[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState<string>("");
+    const navigate = useNavigate();
+
     const latestNews = [1, 2, 3, 4];
-    const recentlyAdded = Array(10).fill(0);
-    const popularGames = Array(8).fill(0);
     const popularReviews = [1, 2, 3];
+
+    useEffect(() => {
+        axios.get("http://localhost:8081/guides/published")
+            .then(response => {
+                setPopularGuides(response.data);
+            })
+            .catch(error => {
+                console.error("Error fetching popular guides:", error);
+            });
+    }, []);
+
+    useEffect(() => {
+        loadGames();
+    }, []);
+
+    const loadGames = async () => {
+        try {
+            setLoading(true);
+            const allGames = await gameService.getAllGames();
+
+            // Sort by release date (newest first) for recently added
+            const recent = [...allGames].sort((a, b) =>
+                new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime()
+            ).slice(0, 10);
+
+            // Sort by likes (highest first) for popular games
+            const popular = [...allGames].sort((a, b) =>
+                (b.likes || 0) - (a.likes || 0)
+            ).slice(0, 8);
+
+            setRecentlyAdded(recent);
+            setPopularGames(popular);
+            setError(null);
+        } catch (err) {
+            console.error("Error loading games:", err);
+            setError("Error loading games. Please try again later.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (searchTerm.trim()) {
+            navigate(`/games?search=${encodeURIComponent(searchTerm)}`);
+        }
+    };
 
     return (
         <div className="home-container">
-            {/* Barra de busqueda */}
+            {/* Barra de búsqueda */}
+            {/* Search bar */}
             <div className="search-container">
-                <div className="search-bar">
+                <form className="search-bar" onSubmit={handleSearch}>
                     <input
                         type="text"
                         className="search-input"
                         placeholder="Search"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                     />
-                    <button className="search-button">
+                    <button type="submit" className="search-button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                         </svg>
                     </button>
-                </div>
+                </form>
             </div>
 
-            {/* contenido general */}
+            {/* Contenido general */}
+            {error && <div className="error-message">{error}</div>}
+
+            {/* General content */}
             <div className="content-grid">
-                {/* Columna izquierda - noticias */}
+                {/* Left column - news */}
                 <div className="content-section">
                     <div className="section-header">
                         <span className="section-title">Latest News</span>
@@ -44,38 +108,69 @@ const Home: React.FC = () => {
                     </div>
                 </div>
 
-                {/* columna derecha - juegos recien añadidos */}
+                {/* Columna derecha - juegos recién añadidos */}
+                {/* Right column - recently added games */}
                 <div className="content-section">
                     <div className="section-header">
                         <span className="section-title">Recently Added</span>
-                        <a href="#" className="view-more">More +</a>
+                        <Link to="/games" className="view-more">More +</Link>
                     </div>
                     <div className="content-items">
-                        {recentlyAdded.map((_, index) => (
-                            <a href="#" key={index} className="item-card">
-                                <div className="item-title">Name</div>
-                            </a>
-                        ))}
+                        {loading ? (
+                            <div className="loading">Loading...</div>
+                        ) : recentlyAdded.length > 0 ? (
+                            recentlyAdded.map((game) => (
+                                <Link to={`/games/${game.id}`} key={game.id} className="item-card">
+                                    <div className="item-image">
+                                        {game.imageUrl ? (
+                                            <img src={game.imageUrl} alt={game.name} />
+                                        ) : (
+                                            "Game"
+                                        )}
+                                    </div>
+                                    <div className="item-title">{game.name}</div>
+                                    <div className="item-meta">{new Date(game.releaseDate).getFullYear()}</div>
+                                </Link>
+                            ))
+                        ) : (
+                            <div>No games found</div>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/* Juegos populares */}
+            {/* Popular games */}
             <div className="content-section">
                 <div className="section-header">
                     <span className="section-title">Popular Games</span>
-                    <a href="#" className="view-more">More +</a>
+                    <Link to="/games" className="view-more">More +</Link>
                 </div>
                 <div className="content-items">
-                    {popularGames.map((_, index) => (
-                        <a href="#" key={index} className="item-card">
-                            <div className="item-title">Name</div>
-                        </a>
-                    ))}
+                    {loading ? (
+                        <div className="loading">Loading...</div>
+                    ) : popularGames.length > 0 ? (
+                        popularGames.map((game) => (
+                            <Link to={`/games/${game.id}`} key={game.id} className="item-card">
+                                <div className="item-image">
+                                    {game.imageUrl ? (
+                                        <img src={game.imageUrl} alt={game.name} />
+                                    ) : (
+                                        "Game"
+                                    )}
+                                </div>
+                                <div className="item-title">{game.name}</div>
+                                <div className="item-meta">
+                                    <span>❤️ {game.likes || 0}</span>
+                                </div>
+                            </Link>
+                        ))
+                    ) : (
+                        <div>No games found</div>
+                    )}
                 </div>
             </div>
 
-            {/* Reviews populares */}
+            {/* Popular reviews */}
             <div className="content-section">
                 <div className="section-header">
                     <span className="section-title">Popular Reviews</span>
@@ -89,28 +184,30 @@ const Home: React.FC = () => {
                                 <div className="rating">User · Game</div>
                             </div>
                             <div className="review-content">
-                                Texto
+                                Text
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* Guias populares */}
+            {/* Popular guides */}
             <div className="content-section">
                 <div className="section-header">
-                    <span className="section-title">Popular Guides</span>
-                    <a href="#" className="view-more">More +</a>
+                    <span className="section-title">Recently Published Guides</span>
+                    <a href="/guides/published" className="view-more">More +</a>
                 </div>
                 <div className="reviews-grid">
-                    {popularReviews.map((_, index) => (
-                        <div key={index} className="review-card">
+                    {popularGuides.map((guide) => (
+                        <div key={guide.id} className="review-card">
                             <div className="review-header">
-                                <span className="item-title">Name</span>
+                                <Link to={`/guides/${guide.id}`} className="item-title">
+                                    {guide.title}
+                                </Link>
                                 <div className="rating">User · Game · Guide Name</div>
                             </div>
                             <div className="review-content">
-                                Texto
+                                Text
                             </div>
                         </div>
                     ))}

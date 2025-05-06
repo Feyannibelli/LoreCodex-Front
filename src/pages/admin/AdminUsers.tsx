@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from '../components/Button';
-import Modal from '../components/Modal';
-import { useAuth } from '../context/AuthContext';
-import authService, { UserData } from '../services/authService';
-import '../css/AdminUsers.css';
+import Button from '../../components/Button.tsx';
+import Modal from '../../components/Modal.tsx';
+import { useAuth } from '../../context/AuthContext.tsx';
+import authService, { UserData } from '../../services/authService.ts';
+import '../../css/AdminUsers.css';
 
 const AdminUsers: React.FC = () => {
     const [users, setUsers] = useState<UserData[]>([]);
@@ -17,7 +17,7 @@ const AdminUsers: React.FC = () => {
     const [userToDelete, setUserToDelete] = useState<number | null>(null);
 
     useEffect(() => {
-        // Redirigir si no es administrador
+        // Redirect if not an administrator
         if (!isAdmin) {
             navigate('/');
             return;
@@ -30,12 +30,12 @@ const AdminUsers: React.FC = () => {
                     setUsers(data);
                 } else {
                     console.error('Expected array but got:', data);
-                    setError('Error: Los datos de usuarios no tienen el formato esperado');
+                    setError('Error: User data does not have the expected format');
                 }
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching users:', err);
-                setError('Error al cargar los usuarios');
+                setError('Error loading users');
                 setLoading(false);
             }
         };
@@ -58,24 +58,24 @@ const AdminUsers: React.FC = () => {
 
         try {
             await authService.deleteUser(userToDelete);
-            // Actualizar la lista de usuarios después de eliminar
+            // Update user list after deletion
             setUsers(users.filter(user => user.id !== userToDelete));
             closeModal();
         } catch (err) {
-            setError('Error al eliminar el usuario');
+            setError('Error deleting user');
             closeModal();
         }
     };
 
-    if (loading) return <div>Cargando usuarios...</div>;
+    if (loading) return <div>Loading users...</div>;
 
     if (!Array.isArray(users)) {
-        return <div className="error-message">Error: No se pudieron cargar los usuarios correctamente</div>;
+        return <div className="error-message">Error: Users could not be loaded correctly</div>;
     }
 
     return (
         <div className="admin-users-container">
-            <h2>Administración de Usuarios</h2>
+            <h2>User Administration</h2>
 
             {error && <div className="error-message">{error}</div>}
 
@@ -83,9 +83,9 @@ const AdminUsers: React.FC = () => {
                 <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Usuario</th>
+                    <th>Username</th>
                     <th>Email</th>
-                    <th>Acciones</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -99,7 +99,7 @@ const AdminUsers: React.FC = () => {
                                 onClick={() => openDeleteModal(user.id)}
                                 className="delete-button"
                             >
-                                Eliminar
+                                Delete
                             </Button>
                         </td>
                     </tr>
@@ -111,8 +111,8 @@ const AdminUsers: React.FC = () => {
                 isOpen={isModalOpen}
                 onClose={closeModal}
                 onConfirm={confirmDelete}
-                title="Confirmar eliminación"
-                message="¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer."
+                title="Confirm deletion"
+                message="Are you sure you want to delete this user? This action cannot be undone."
             />
         </div>
     );

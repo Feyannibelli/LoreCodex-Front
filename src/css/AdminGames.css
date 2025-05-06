@@ -1,15 +1,35 @@
 /* src/css/AdminGames.css */
 .admin-games-container {
     padding: 20px;
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
 }
 
-.admin-header {
+.admin-games-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+}
+
+.Gcreate-game-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.create-game-button:hover {
+    background-color: #45a049;
+}
+
+.create-game-button svg {
+    margin-right: 8px;
 }
 
 .games-table {
@@ -20,7 +40,7 @@
 
 .games-table th,
 .games-table td {
-    padding: 12px;
+    padding: 10px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
@@ -36,12 +56,29 @@
 
 .action-buttons {
     display: flex;
-    gap: 10px;
+    gap: 5px;
+}
+
+.edit-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.edit-button:hover {
+    background-color: #2980b9;
 }
 
 .delete-button {
     background-color: #e74c3c;
     color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
 }
 
 .delete-button:hover {
@@ -56,54 +93,17 @@
     margin-bottom: 15px;
 }
 
-/* Form modal styles */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.form-modal {
-    background-color: white;
+.game-form {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
     border-radius: 5px;
-    width: 100%;
-    max-width: 600px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    border-bottom: 1px solid #eee;
-}
-
-.modal-header h3 {
-    margin: 0;
-    font-size: 18px;
-}
-
-.close-button {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #666;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .form-group {
     margin-bottom: 15px;
-    padding: 0 20px;
 }
 
 .form-group label {
@@ -113,22 +113,47 @@
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .form-group textarea {
-    resize: vertical;
+    min-height: 150px;
 }
 
 .form-buttons {
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 15px 20px;
-    border-top: 1px solid #eee;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.cancel-button {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cancel-button:hover {
+    background-color: #5a6268;
+}
+
+.submit-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background-color: #218838;
 }
