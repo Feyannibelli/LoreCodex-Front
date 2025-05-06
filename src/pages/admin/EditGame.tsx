@@ -28,14 +28,17 @@ const EditGame: React.FC = () => {
                     const gameData = await gameService.getGameById(parseInt(id));
 
                     // Format the date for the date input
-                    const releaseDate = new Date(gameData.releaseDate);
-                    const formattedDate = releaseDate.toISOString().split('T')[0];
+                    //const releaseDate = new Date(gameData.releaseDate);
+                    //const formattedDate = releaseDate.toISOString().split('T')[0];
+                    //console.log('releaseDate:', releaseDate);
+                    //console.log('formattedDate:', formattedDate);
+                    console.log('otiginalDate:', gameData.releaseDate);
 
                     setFormData({
                         name: gameData.name,
                         description: gameData.description,
                         genre: gameData.genre,
-                        releaseDate: formattedDate,
+                        releaseDate: gameData.releaseDate,
                         imageUrl: gameData.imageUrl || "",
                         awards: gameData.awards || ""
                     });
