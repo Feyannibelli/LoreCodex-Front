@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Game, GameFormData } from '../interfaces/Game';
+import api from "@/services/api.ts";
 
 const API_URL = 'http://localhost:8081/api';
 
@@ -33,7 +34,7 @@ const adaptBackendGameToFrontend = (backendGame: BackendGame): Game => {
         genre: backendGame.genres?.length > 0 ? backendGame.genres[0] : '',
         releaseDate: backendGame.releaseDate,
         imageUrl: backendGame.coverImage,
-        awards: backendGame.awards.join(', '),
+        //awards: backendGame.awards.join(', '),
         rating: backendGame.rating,
         likes: backendGame.likes
     };
@@ -66,7 +67,7 @@ const gameService = {
     // Obtener todos los juegos
     getAllGames: async (): Promise<Game[]> => {
         try {
-            const response = await axios.get(`${API_URL}/games/allGames`);
+            const response = await api.get(`/games/allGames`);
             return response.data.map(adaptBackendGameToFrontend);
         } catch (error) {
             console.error('Error fetching games:', error);
