@@ -84,7 +84,7 @@ const AdminGames: React.FC = () => {
                                 <td>{game.id}</td>
                                 <td>{game.name}</td>
                                 <td>{game.genre}</td>
-                                <td>{new Date(game.releaseDate).toLocaleDateString()}</td>
+                                <td>{game.releaseDate}</td>
                                 <td className="action-buttons">
                                     <button
                                         className="edit-button"
