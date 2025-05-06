@@ -132,7 +132,6 @@ const CreateGame: React.FC = () => {
                         type="submit"
                         className="submit-button"
                         onClick={() => {}}
-                        disabled={loading}
                     >
                         {loading ? "Creating..." : "Create Game"}
                     </Button>
