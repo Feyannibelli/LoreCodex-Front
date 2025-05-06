@@ -171,7 +171,6 @@ const EditGame: React.FC = () => {
                         type="submit"
                         className="submit-button"
                         onClick={() => {}}
-                        disabled={submitting}
                     >
                         {submitting ? "Saving..." : "Save Changes"}
                     </Button>
