@@ -18,7 +18,7 @@ import PrivateRoute from './components/PrivateRoute';
 import UserMenu from "./components/UserMenu";
 import GamesPage from './pages/game/GamesPage.tsx';
 import ListsPage from './pages/ListsPage';
-import MyDraftsPage from "@/pages/MyDraftsPage.tsx";
+import MyDraftsPage from "@/pages/guide/MyDraftsPage.tsx";
 import EditGuidePage from "@/pages/guide/EditGuidePage.tsx";
 import GuidePage from "@/pages/guide/GuidePage.tsx";
 import CreateGuidePage from "@/pages/guide/CreateGuidePage.tsx";

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../css/Home.css";
-import axios from "axios";
 import { Game } from "../interfaces/Game";
 import gameService from "../services/gameService";
+import api from "@/services/api.ts";
 
 const Home: React.FC = () => {
     const [popularGuides, setPopularGuides] = useState<any[]>([]);
@@ -19,7 +19,7 @@ const Home: React.FC = () => {
     const popularReviews = [1, 2, 3];
 
     useEffect(() => {
-        axios.get("http://localhost:8081/guides/published")
+        api.get("/guides/published")
             .then(response => {
                 setPopularGuides(response.data);
             })

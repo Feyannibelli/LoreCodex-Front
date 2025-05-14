@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { Game, GameFormData } from '../interfaces/Game';
 import api from "@/services/api.ts";
-
-const API_URL = 'http://localhost:8081/api';
+import apiAuth from "@/services/apiAuth.ts";
 
 // Interfaces para adaptar el backend al frontend
 interface BackendGame {
@@ -41,7 +40,7 @@ const adaptBackendGameToFrontend = (backendGame: BackendGame): Game => {
 };
 
 const adaptFrontendGameToBackend = (frontendGame: GameFormData): BackendGameRequest => {
-    // Procesar awards correctamente como array
+    // Procesar awards como array
     let awardsArray: string[] = [];
     if (frontendGame.awards) {
         awardsArray = [frontendGame.awards];
@@ -79,7 +78,7 @@ const gameService = {
     // Obtener un juego por ID
     getGameById: async (id: number): Promise<Game> => {
         try {
-            const response = await axios.get(`${API_URL}/games/${id}`);
+            const response = await api.get(`/games/${id}`);
             return adaptBackendGameToFrontend(response.data);
         } catch (error) {
             console.error(`Error fetching game with id ${id}:`, error);
@@ -87,10 +86,10 @@ const gameService = {
         }
     },
 
-    // Buscar juegos por nombre
+    // Buscar juegos por nombre (podriamos usarlo para lo de menciones?)
     searchGamesByName: async (name: string): Promise<Game[]> => {
         try {
-            const response = await axios.get(`${API_URL}/games?title=${name}`);
+            const response = await api.get(`/games?title=${name}`);
             return response.data.map(adaptBackendGameToFrontend);
         } catch (error) {
             console.error('Error searching games:', error);
@@ -102,7 +101,7 @@ const gameService = {
     createGame: async (gameData: GameFormData): Promise<Game> => {
         try {
             const backendGame = adaptFrontendGameToBackend(gameData);
-            const response = await axios.post(`${API_URL}/games`, backendGame);
+            const response = await apiAuth.post(`/games`, backendGame);
             return adaptBackendGameToFrontend(response.data);
         } catch (error) {
             console.error('Error creating game:', error);
@@ -117,7 +116,7 @@ const gameService = {
     updateGame: async (id: number, gameData: GameFormData): Promise<Game> => {
         try {
             const backendGame = adaptFrontendGameToBackend(gameData);
-            const response = await axios.put(`${API_URL}/games/${id}`, backendGame);
+            const response = await apiAuth.put(`/games/${id}`, backendGame);
             return adaptBackendGameToFrontend(response.data);
         } catch (error) {
             console.error(`Error updating game with id ${id}:`, error);
@@ -131,7 +130,7 @@ const gameService = {
     // Eliminar un juego (solo admin)
     deleteGame: async (id: number): Promise<void> => {
         try {
-            await axios.delete(`${API_URL}/games/${id}`);
+            await apiAuth.delete(`/games/${id}`);
         } catch (error) {
             console.error(`Error deleting game with id ${id}:`, error);
             throw error;
@@ -141,7 +140,7 @@ const gameService = {
     // Dar like a un juego
     likeGame: async (id: number): Promise<Game> => {
         try {
-            const response = await axios.post(`${API_URL}/games/${id}/like`);
+            const response = await apiAuth.post(`/games/${id}/like`);
             return adaptBackendGameToFrontend(response.data);
         } catch (error) {
             console.error(`Error liking game with id ${id}:`, error);
@@ -157,7 +156,7 @@ const gameService = {
     // Calificar un juego
     rateGame: async (id: number, rating: number): Promise<Game> => {
         try {
-            const response = await axios.post(`${API_URL}/games/${id}/rate?rating=${rating}`);
+            const response = await apiAuth.post(`/games/${id}/rate?rating=${rating}`);
             return adaptBackendGameToFrontend(response.data);
         } catch (error) {
             console.error(`Error rating game with id ${id}:`, error);
@@ -171,7 +170,7 @@ const gameService = {
     },
 
     getAverageRating: async (gameId: number): Promise<number> => {
-        const response = await axios.get(`${API_URL}/games/${gameId}/average-rating`);
+        const response = await api.get(`/games/${gameId}/average-rating`);
         return response.data;
     }
 };

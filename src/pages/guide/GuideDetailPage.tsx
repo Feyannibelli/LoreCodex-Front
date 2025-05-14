@@ -1,7 +1,8 @@
 // src/pages/GuideDetailPage.tsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import guideService from "@/services/guideService.ts";
+import '@/css/Guide.css';
 
 const GuideDetailPage = () => {
     const { id } = useParams();
@@ -9,15 +10,13 @@ const GuideDetailPage = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        axios.get(`http://localhost:8081/guides/${id}`)
-    .then(response => {
-            setGuide(response.data);
-            setLoading(false);
-        })
-            .catch(error => {
-                console.error("Error fetching guide:", error);
-                setLoading(false);
-            });
+        if (!id) return;
+        guideService.getGuideById(id)
+            .then(setGuide)
+            .catch(err => {
+                console.error("Error fetching guide:", err);
+            })
+            .finally(() => setLoading(false));
     }, [id]);
 
     if (loading) return <div className="p-6 text-center">Cargando guía...</div>;
@@ -26,8 +25,6 @@ const GuideDetailPage = () => {
     return (
         <div className="p-6 max-w-3xl mx-auto">
             <h1 className="text-3xl font-bold text-[#f47e00] mb-6">{guide.title}</h1>
-
-            {/* Mostrar cover image si existe */}
             {guide.coverImageUrl && (
                 <img
                     src={guide.coverImageUrl}
@@ -35,8 +32,6 @@ const GuideDetailPage = () => {
                     className="w-full max-h-80 object-cover rounded mb-6"
                 />
             )}
-
-            {/* Mostrar el contenido formateado */}
             <div
                 className="prose dark:prose-invert max-w-none"
                 dangerouslySetInnerHTML={{ __html: guide.content }}

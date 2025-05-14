@@ -1,25 +1,21 @@
 // src/pages/GuidePage.tsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import guideService from "@/services/guideService.ts";
+import '@/css/Guide.css';
 
 const GuidePage = () => {
     const [guides, setGuides] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        axios.get("http://localhost:8081/guides/published") // ⭐ Cambiamos a published
-            .then(response => {
-                setGuides(response.data);
-                setLoading(false);
-            })
-            .catch(error => {
-                console.error("Error fetching guides:", error);
-                setLoading(false);
-            });
+        guideService.getPublishedGuides()
+            .then(setGuides)
+            .catch(err => console.error("Error fetching guides:", err))
+            .finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <div className="p-6 text-center">Cargando guías...</div>;
+    if (loading) return <div className="p-6 text-center">Loading guides...</div>;
 
     return (
         <div className="p-6 max-w-5xl mx-auto">
@@ -38,20 +34,17 @@ const GuidePage = () => {
             ) : (
                 <div className="space-y-8">
                     {guides.map(guide => (
-                        <div
-                            key={guide.id}
-                            className="flex gap-6 items-start border rounded-lg p-4 hover:shadow-lg transition"
-                        >
+                        <div key={guide.id} className="guide-card">
                             {guide.coverImageUrl && (
                                 <img
                                     src={guide.coverImageUrl}
                                     alt="Cover"
-                                    className="w-40 h-28 object-cover rounded-md"
+                                    className="guide-cover"
                                 />
                             )}
                             <div className="flex-1">
-                                <h2 className="text-2xl font-semibold mb-1">{guide.title}</h2>
-                                <p className="text-gray-600 mb-2 text-sm">
+                                <h2 className="guide-title">{guide.title}</h2>
+                                <p className="guide-snippet">
                                     {guide.content.length > 150
                                         ? guide.content.slice(0, 150) + "..."
                                         : guide.content}

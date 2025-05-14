@@ -1,34 +1,32 @@
 // src/pages/CreateGuidePage.tsx
 import { useState, useEffect } from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 import RichTextEditor from '@/components/RichTextEditor.tsx';
+import apiAuth from "@/services/apiAuth.ts";
+import guideService from "@/services/guideService.ts";
+import '@/css/Guide.css';
 
 const CreateGuidePage = () => {
     const { id } = useParams<{ id: string }>();
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [coverImage, setCoverImage] = useState<File | null>(null);
-    const [gameId, setGameId] = useState(''); // Nuevo estado para Game
-    const [games, setGames] = useState<{ id: number; title: string }[]>([]); // Lista de juegos
+    const [gameId, setGameId] = useState('');
+    const [games, setGames] = useState<{ id: number; title: string }[]>([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-        // ⚡ Cuando tengas el endpoint real, ponelo acá
         const fetchGames = async () => {
             try {
-                const response = await axios.get('http://localhost:8081/games'); // ejemplo
+                const response = await apiAuth.get('/games');
                 setGames(response.data);
-            } catch (error) {
-                console.error('Error fetching games:', error);
-                // Para testear ahora, harcodeado
+            } catch {
                 setGames([
                     { id: 1, title: 'Elden Ring' },
                     { id: 2, title: 'Zelda Breath of the Wild' },
                 ]);
             }
         };
-
         fetchGames();
     }, []);
 
@@ -42,16 +40,9 @@ const CreateGuidePage = () => {
             formData.append('gameId', gameId);
             if (coverImage) formData.append('coverImage', coverImage);
 
-            await axios.post('http://localhost:8081/guides/create', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
+            await guideService.createGuide(formData);
 
-            if (isDraft) {
-                navigate('/my-drafts');
-            } else {
-                navigate(`/guides/${id}`);
-            }
-
+            navigate(isDraft ? '/my-drafts' : `/guides/${id}`);
         } catch (error) {
             console.error('Error creating guide:', error);
         }
@@ -67,7 +58,6 @@ const CreateGuidePage = () => {
                 className="w-full border border-gray-300 p-2 rounded mb-4"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter your guide title..."
             />
 
             <label className="block mb-2 font-semibold">Select Game *</label>
@@ -85,7 +75,7 @@ const CreateGuidePage = () => {
             </select>
 
             <label className="block mb-2 font-semibold">Body</label>
-            <RichTextEditor content={content} onChange={setContent}/>
+            <RichTextEditor content={content} onChange={setContent} />
 
             <label className="block mt-4 mb-2 font-semibold">Upload Cover Image</label>
             <div className="flex items-center gap-4">

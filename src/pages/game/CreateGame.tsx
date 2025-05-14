@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GameFormData } from "../../interfaces/Game.ts";
+import { GameFormData } from "@/interfaces/Game.ts";
 import gameService from "../../services/gameService.ts";
 import Button from "../../components/Button.tsx";
 import "../../css/AdminGames.css";
@@ -132,7 +132,6 @@ const CreateGame: React.FC = () => {
                         type="submit"
                         className="submit-button"
                         onClick={() => {}}
-                        disabled={loading}
                     >
                         {loading ? "Creating..." : "Create Game"}
                     </Button>

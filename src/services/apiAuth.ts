@@ -1,7 +1,6 @@
 // src/services/apiAuth.ts
 import axios from 'axios';
-
-const API_URL = 'http://localhost:8081/api';
+import { API_URL } from './api';
 
 const apiAuth = axios.create({
     baseURL: API_URL,
@@ -15,7 +14,31 @@ apiAuth.interceptors.request.use(
         }
         return config;
     },
+    (error) => Promise.reject(error)
+);
+
+// manejo de errores 401/403
+apiAuth.interceptors.response.use(
+    (response) => response,
     (error) => {
+        if (
+            error.response &&
+            (error.response.status === 401 || error.response.status === 403)
+        ) {
+            const isSecureEndpoint =
+                error.config?.url?.includes('/user') ||
+                error.config?.url?.includes('/admin') ||
+                (error.config?.url?.includes('/games') &&
+                    (error.config?.url?.includes('/like') ||
+                        error.config?.url?.includes('/rate') ||
+                        error.config?.method !== 'get'));
+
+            if (localStorage.getItem('token') && isSecureEndpoint) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('userId');
+                window.location.href = '/login';
+            }
+        }
         return Promise.reject(error);
     }
 );

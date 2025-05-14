@@ -4,32 +4,32 @@ import api from "@/services/api.ts";
 
 const reviewService = {
     getGameReviews: async (gameId: number): Promise<Review[]> => {
-        const response = await api.get(`/games/reviews/game/${gameId}`);
+        const response = await api.get(`/reviews/game/${gameId}`);
         console.log("API response for reviews", response.data)
         return response.data;
     },
 
     createReview: async (gameId: number, reviewData: ReviewFormData): Promise<Review> => {
-        const response = await apiAuth.post(`/games/reviews/game/${gameId}/createReview`, reviewData);
+        const response = await apiAuth.post(`/reviews/game/${gameId}/createReview`, reviewData);
         return response.data;
     },
 
     updateReview: async (reviewId: number, reviewData: ReviewFormData): Promise<Review> => {
-        const response = await apiAuth.put(`/games/reviews/${reviewId}`, reviewData);
+        const response = await apiAuth.put(`/reviews/${reviewId}`, reviewData);
         return response.data;
     },
 
     deleteReview: async (reviewId: number): Promise<void> => {
-        await apiAuth.delete(`/games/reviews/${reviewId}`);
+        await apiAuth.delete(`/reviews/${reviewId}`);
     },
 
     likeReview: async (reviewId: number): Promise<Review> => {
-        const response = await apiAuth.post(`/games/reviews/${reviewId}/like`);
+        const response = await apiAuth.post(`/reviews/${reviewId}/like`);
         return response.data;
     },
 
     dislikeReview: async (reviewId: number): Promise<Review> => {
-        const response = await apiAuth.post(`/games/reviews/${reviewId}/dislike`);
+        const response = await apiAuth.post(`/reviews/${reviewId}/dislike`);
         return response.data;
     },
 

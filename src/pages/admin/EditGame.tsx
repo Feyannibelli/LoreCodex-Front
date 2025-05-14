@@ -32,7 +32,7 @@ const EditGame: React.FC = () => {
                     //const formattedDate = releaseDate.toISOString().split('T')[0];
                     //console.log('releaseDate:', releaseDate);
                     //console.log('formattedDate:', formattedDate);
-                    console.log('otiginalDate:', gameData.releaseDate);
+                    console.log('originalDate:', gameData.releaseDate);
 
                     setFormData({
                         name: gameData.name,
@@ -171,7 +171,6 @@ const EditGame: React.FC = () => {
                         type="submit"
                         className="submit-button"
                         onClick={() => {}}
-                        disabled={submitting}
                     >
                         {submitting ? "Saving..." : "Save Changes"}
                     </Button>
