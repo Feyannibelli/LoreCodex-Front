@@ -1,7 +1,5 @@
-import axios from 'axios';
-import { getAuthHeader } from './AuthService';
-
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from './api';
+import apiAuth from './apiAuth';
 
 // Types for Challenge API
 export interface ChallengeRequest {
@@ -59,118 +57,85 @@ export enum ChallengeDifficultyLevel {
 class ChallengeService {
     // Get all challenges
     async getAllChallenges(): Promise<ChallengeResponse[]> {
-        const response = await axios.get<ChallengeResponse[]>(`${API_URL}/challenges`);
+        const response = await apiAuth.get<ChallengeResponse[]>(`challenges`);
         return response.data;
     }
 
     // Get challenge by ID
     async getChallengeById(id: number): Promise<ChallengeResponse> {
-        const response = await axios.get<ChallengeResponse>(`${API_URL}/challenges/${id}`);
+        const response = await apiAuth.get<ChallengeResponse>(`challenges/${id}`);
         return response.data;
     }
 
     // Get challenges by game
     async getChallengesByGame(gameId: number): Promise<ChallengeResponse[]> {
-        const response = await axios.get<ChallengeResponse[]>(`${API_URL}/challenges/game/${gameId}`);
+        const response = await apiAuth.get<ChallengeResponse[]>(`challenges/game/${gameId}`);
         return response.data;
     }
 
     // Get challenges created by current user (requires auth)
     async getMyChallenges(): Promise<ChallengeResponse[]> {
-        const response = await axios.get<ChallengeResponse[]>(
-            `${API_URL}/challenges/my-created`,
-            { headers: getAuthHeader() }
-        );
+        const response = await apiAuth.get<ChallengeResponse[]>(`challenges/my-created`);
         return response.data;
     }
 
     // Get challenges where current user is participating (requires auth)
     async getMyParticipatedChallenges(): Promise<ChallengeParticipationResponse[]> {
-        const response = await axios.get<ChallengeParticipationResponse[]>(
-            `${API_URL}/challenges/my-participated`,
-            { headers: getAuthHeader() }
-        );
+        const response = await apiAuth.get<ChallengeParticipationResponse[]>(`challenges/my-participated`);
         return response.data;
     }
 
     // Create a new challenge (requires auth)
     async createChallenge(challenge: ChallengeRequest): Promise<ChallengeResponse> {
-        const response = await axios.post<ChallengeResponse>(
-            `${API_URL}/challenges`,
-            challenge,
-            { headers: getAuthHeader() }
-        );
+        const response = await apiAuth.post<ChallengeResponse>(`challenges`, challenge);
         return response.data;
     }
 
     // Update a challenge (requires auth)
     async updateChallenge(id: number, challenge: ChallengeRequest): Promise<ChallengeResponse> {
-        const response = await axios.put<ChallengeResponse>(
-            `${API_URL}/challenges/${id}`,
-            challenge,
-            { headers: getAuthHeader() }
-        );
+        const response = await apiAuth.put<ChallengeResponse>(`challenges/${id}`, challenge);
         return response.data;
     }
 
     // Delete a challenge (requires auth)
     async deleteChallenge(id: number): Promise<void> {
-        await axios.delete(
-            `${API_URL}/challenges/${id}`,
-            { headers: getAuthHeader() }
-        );
+        await apiAuth.delete(`challenges/${id}`);
     }
 
     // Join a challenge (requires auth)
     async joinChallenge(id: number): Promise<ChallengeParticipationResponse> {
-        const response = await axios.post<ChallengeParticipationResponse>(
-            `${API_URL}/challenges/${id}/join`,
-            {},
-            { headers: getAuthHeader() }
-        );
+        const response = await apiAuth.post<ChallengeParticipationResponse>(`challenges/${id}/join`, {});
         return response.data;
     }
 
     // Complete a challenge (requires auth)
     async completeChallenge(id: number): Promise<ChallengeParticipationResponse> {
-        const response = await axios.post<ChallengeParticipationResponse>(
-            `${API_URL}/challenges/${id}/complete`,
-            {},
-            { headers: getAuthHeader() }
-        );
+        const response = await apiAuth.post<ChallengeParticipationResponse>(`challenges/${id}/complete`, {});
         return response.data;
     }
 
     // Leave a challenge (requires auth)
     async leaveChallenge(id: number): Promise<void> {
-        await axios.delete(
-            `${API_URL}/challenges/${id}/leave`,
-            { headers: getAuthHeader() }
-        );
+        await apiAuth.delete(`challenges/${id}/leave`);
     }
 
     // Rate challenge difficulty (requires auth)
     async rateDifficulty(id: number, difficultyLevel: number): Promise<void> {
-        await axios.post(
-            `${API_URL}/challenges/${id}/rate-difficulty`,
-            { difficultyLevel } as ChallengeDifficultyRequest,
-            { headers: getAuthHeader() }
+        await apiAuth.post(
+            `challenges/${id}/rate-difficulty`,
+            { difficultyLevel } as ChallengeDifficultyRequest
         );
     }
 
     // Get participants of a challenge
     async getChallengeParticipants(id: number): Promise<ChallengeParticipationResponse[]> {
-        const response = await axios.get<ChallengeParticipationResponse[]>(
-            `${API_URL}/challenges/${id}/participants`
-        );
+        const response = await apiAuth.get<ChallengeParticipationResponse[]>(`challenges/${id}/participants`);
         return response.data;
     }
 
     // Get average difficulty of a challenge
     async getAverageDifficulty(id: number): Promise<number> {
-        const response = await axios.get<number>(
-            `${API_URL}/challenges/${id}/average-difficulty`
-        );
+        const response = await apiAuth.get<number>(`challenges/${id}/average-difficulty`);
         return response.data;
     }
 
