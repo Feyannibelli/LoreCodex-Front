@@ -1,0 +1,51 @@
+.challenge-progress {
+    margin-bottom: 16px;
+}
+
+.challenge-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.challenge-progress-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.challenge-progress-percent {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.challenge-progress-bar-container {
+    width: 100%;
+    height: 10px;
+    background-color: #f0f0f0;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.challenge-progress-bar {
+    height: 100%;
+    background-color: #4caf50;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+
+.challenge-progress-stats {
+    font-size: 0.75rem;
+    color: #666;
+    text-align: right;
+    margin-top: 4px;
+}
+
+/* Dark mode */
+.dark .challenge-progress-bar-container {
+    background-color: #3a3a3a;
+}
+
+.dark .challenge-progress-stats {
+    color: #bbb;
+}
