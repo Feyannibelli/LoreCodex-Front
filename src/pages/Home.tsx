@@ -2,15 +2,19 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../css/Home.css";
 import { Game } from "../interfaces/Game";
+import { Challenge } from "../interfaces/Challenge";
 import gameService from "../services/gameService";
+import challengeService from "../services/challengeService";
 import api from "@/services/api.ts";
+import ChallengeCard from "../components/ChallengeCard";
 
 const Home: React.FC = () => {
     const [popularGuides, setPopularGuides] = useState<any[]>([]);
-
+    const [popularChallenges, setPopularChallenges] = useState<Challenge[]>([]);
     const [recentlyAdded, setRecentlyAdded] = useState<Game[]>([]);
     const [popularGames, setPopularGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [challengesLoading, setChallengesLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState<string>("");
     const navigate = useNavigate();
@@ -30,6 +34,7 @@ const Home: React.FC = () => {
 
     useEffect(() => {
         loadGames();
+        loadChallenges();
     }, []);
 
     const loadGames = async () => {
@@ -58,6 +63,23 @@ const Home: React.FC = () => {
         }
     };
 
+    const loadChallenges = async () => {
+        try {
+            setChallengesLoading(true);
+            // Get all challenges and sort by participation count to get most popular
+            const allChallenges = await challengeService.getAllChallenges();
+            const popular = [...allChallenges].sort((a, b) =>
+                (b.participantsCount || 0) - (a.participantsCount || 0)
+            ).slice(0, 4); // Get top 4 challenges
+
+            setPopularChallenges(popular);
+        } catch (err) {
+            console.error("Error loading challenges:", err);
+        } finally {
+            setChallengesLoading(false);
+        }
+    };
+
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         if (searchTerm.trim()) {
@@ -67,7 +89,6 @@ const Home: React.FC = () => {
 
     return (
         <div className="home-container">
-            {/* Barra de búsqueda */}
             {/* Search bar */}
             <div className="search-container">
                 <form className="search-bar" onSubmit={handleSearch}>
@@ -86,10 +107,9 @@ const Home: React.FC = () => {
                 </form>
             </div>
 
-            {/* Contenido general */}
+            {/* General content */}
             {error && <div className="error-message">{error}</div>}
 
-            {/* General content */}
             <div className="content-grid">
                 {/* Left column - news */}
                 <div className="content-section">
@@ -108,7 +128,6 @@ const Home: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Columna derecha - juegos recién añadidos */}
                 {/* Right column - recently added games */}
                 <div className="content-section">
                     <div className="section-header">
@@ -139,7 +158,7 @@ const Home: React.FC = () => {
                 </div>
             </div>
 
-            {/* Popular games */}
+            {/* Popular Games */}
             <div className="content-section">
                 <div className="section-header">
                     <span className="section-title">Popular Games</span>
@@ -166,6 +185,25 @@ const Home: React.FC = () => {
                         ))
                     ) : (
                         <div>No games found</div>
+                    )}
+                </div>
+            </div>
+
+            {/* Popular Challenges - NEW SECTION */}
+            <div className="content-section">
+                <div className="section-header">
+                    <span className="section-title">Popular Challenges</span>
+                    <Link to="/challenges" className="view-more">More +</Link>
+                </div>
+                <div className="content-items challenges-grid">
+                    {challengesLoading ? (
+                        <div className="loading">Loading...</div>
+                    ) : popularChallenges.length > 0 ? (
+                        popularChallenges.map((challenge) => (
+                            <ChallengeCard key={challenge.id} challenge={challenge} />
+                        ))
+                    ) : (
+                        <div>No challenges found</div>
                     )}
                 </div>
             </div>
