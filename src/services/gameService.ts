@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Game, GameFormData } from '../interfaces/Game';
-import api from "@/services/api.ts";
-import apiAuth from "@/services/apiAuth.ts";
+import api from "../services/api.ts";
+import apiAuth from "../services/apiAuth.ts";
 
 // Interfaces para adaptar el backend al frontend
 interface BackendGame {

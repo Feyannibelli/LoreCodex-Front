@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "../css/Home.css";
 import { Game } from "../interfaces/Game";
 import gameService from "../services/gameService";
-import api from "@/services/api.ts";
+import api from "../services/api.ts";
 
 const Home: React.FC = () => {
     const [popularGuides, setPopularGuides] = useState<any[]>([]);
