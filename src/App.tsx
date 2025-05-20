@@ -1,4 +1,3 @@
-// src/App.tsx
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
@@ -23,6 +22,9 @@ import EditGuidePage from "@/pages/guide/EditGuidePage.tsx";
 import GuidePage from "@/pages/guide/GuidePage.tsx";
 import CreateGuidePage from "@/pages/guide/CreateGuidePage.tsx";
 import GuideDetailPage from "@/pages/guide/GuideDetailPage.tsx";
+import ChallengesPage from './pages/challenge/ChallengesPage';
+import ChallengeDetailPage from './pages/challenge/ChallengeDetailPage';
+import CreateChallengePage from './pages/challenge/CreateChallengePage';
 
 // Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -119,6 +121,18 @@ const App: React.FC = () => {
                 <Route path="/guides/:id" element={<GuideDetailPage />} />
                 <Route path="/my-drafts" element={<MyDraftsPage />} />
                 <Route path="/guides/edit/:id" element={<EditGuidePage />} />
+
+                {/* Challenges */}
+                <Route path="/challenges" element={<ChallengesPage />} />
+                <Route path="/challenges/:id" element={<ChallengeDetailPage />} />
+                <Route
+                    path="/challenges/create"
+                    element={
+                        <PrivateRoute>
+                            <CreateChallengePage />
+                        </PrivateRoute>
+                    }
+                />
 
                 {/* Juegos y listas - públicos de navegación */}
                 <Route path="/games" element={<GamesPage />} />

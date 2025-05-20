@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Challenge, ChallengeTask } from '../../interfaces/Challenge';
+import { Challenge, UserChallenge, difficultyLevels, ChecklistItem } from '../../interfaces/Challenge';
 import challengeService from '../../services/challengeService';
 import { useAuth } from '../../context/AuthContext';
 import ChallengeProgress from '../../components/ChallengeProgress';
@@ -11,12 +11,11 @@ const ChallengeDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const challengeId = parseInt(id || '0');
     const [challenge, setChallenge] = useState<Challenge | null>(null);
-    const [userProgress, setUserProgress] = useState<{
-        completedTasks: number[];
-        totalTasks: number;
-    } | null>(null);
+    const [userChallenge, setUserChallenge] = useState<UserChallenge | null>(null);
+    const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [progress, setProgress] = useState<number>(0);
     const { isAuthenticated, isAdmin } = useAuth();
     const navigate = useNavigate();
 
@@ -32,24 +31,28 @@ const ChallengeDetailPage: React.FC = () => {
             const challengeData = await challengeService.getChallengeById(challengeId);
             setChallenge(challengeData);
 
-            // If user is authenticated, check if they've joined this challenge
-            if (isAuthenticated) {
-                try {
-                    // This would be a call to get user progress for the specific challenge
-                    // For now, we'll mock this functionality since the service doesn't have it yet
-                    const participations = await challengeService.getUserParticipations();
-                    const userChallenge = participations.find(c => c.id === challengeId);
+            // Initialize checklist items from challenge data
+            setChecklistItems(challengeData.checklistItems.map(item => ({
+                ...item,
+                completed: false
+            })));
 
-                    if (userChallenge) {
-                        // Set user progress - this would normally come from backend
-                        // For now we'll set it to empty array if they've joined
-                        setUserProgress({
-                            completedTasks: [], // This would be populated from actual user data
-                            totalTasks: challengeData.tasks.length
-                        });
-                    }
-                } catch (err) {
-                    console.error("Error loading user progress:", err);
+            // If user is authenticated, load their progress
+            if (isAuthenticated) {
+                const userProgress = await challengeService.getUserChallenge(challengeId);
+                if (userProgress) {
+                    setUserChallenge(userProgress);
+
+                    // Update checklist items with user progress
+                    setChecklistItems(challengeData.checklistItems.map(item => ({
+                        ...item,
+                        completed: userProgress.completedItems.includes(item.id)
+                    })));
+
+                    // Calculate progress percentage
+                    const completedCount = userProgress.completedItems.length;
+                    const totalItems = challengeData.checklistItems.length;
+                    setProgress(totalItems > 0 ? (completedCount / totalItems) * 100 : 0);
                 }
             }
 
@@ -62,34 +65,34 @@ const ChallengeDetailPage: React.FC = () => {
         }
     };
 
-    const handleChecklistItemToggle = async (taskId: number, completed: boolean) => {
+    const handleChecklistItemToggle = async (itemId: number, completed: boolean) => {
         if (!isAuthenticated) {
             navigate('/login', { state: { from: `/challenges/${challengeId}` } });
             return;
         }
 
-        if (!challenge) return;
-
         try {
-            // Update locally first for immediate feedback
-            const updatedProgress = { ...userProgress };
-            if (!updatedProgress) return;
+            // Update UI immediately for responsiveness
+            const updatedItems = checklistItems.map(item =>
+                item.id === itemId ? { ...item, completed } : item
+            );
+            setChecklistItems(updatedItems);
 
-            if (completed) {
-                // Add task ID to completed tasks
-                updatedProgress.completedTasks.push(taskId);
-            } else {
-                // Remove task ID from completed tasks
-                updatedProgress.completedTasks = updatedProgress.completedTasks.filter(id => id !== taskId);
-            }
+            // Calculate new completed items array
+            const completedItemIds = updatedItems
+                .filter(item => item.completed)
+                .map(item => item.id);
 
-            setUserProgress(updatedProgress);
+            // Calculate new progress
+            const newProgress = (completedItemIds.length / updatedItems.length) * 100;
+            setProgress(newProgress);
 
-            // Update task completion on the server
-            await challengeService.updateTaskCompletion(challengeId, taskId, completed);
+            // Send update to server
+            const updated = await challengeService.updateProgress(challengeId, completedItemIds);
+            setUserChallenge(updated);
         } catch (err) {
-            console.error("Error updating task status:", err);
-            // Refresh data if there was an error
+            console.error("Error updating progress:", err);
+            // Revert changes on error
             loadChallengeData();
         }
     };
@@ -101,15 +104,8 @@ const ChallengeDetailPage: React.FC = () => {
         }
 
         try {
-            await challengeService.participateInChallenge(challengeId);
-
-            // After joining, set up initial progress
-            if (challenge) {
-                setUserProgress({
-                    completedTasks: [],
-                    totalTasks: challenge.tasks.length
-                });
-            }
+            await challengeService.joinChallenge(challengeId);
+            loadChallengeData(); // Reload data to show join status
         } catch (err) {
             console.error("Error joining challenge:", err);
         }
@@ -161,10 +157,10 @@ const ChallengeDetailPage: React.FC = () => {
 
             {/* Game info and header */}
             <div className="challenge-detail-header">
-                {challenge.gameCoverImage && (
+                {challenge.gameImageUrl && (
                     <div className="challenge-detail-image">
                         <img
-                            src={challenge.gameCoverImage}
+                            src={challenge.gameImageUrl}
                             alt={challenge.gameName}
                         />
                     </div>
@@ -181,8 +177,8 @@ const ChallengeDetailPage: React.FC = () => {
                     </div>
 
                     <div className="challenge-detail-meta">
-                        <div className="difficulty-badge">
-                            Difficulty: {challenge.difficultyRating}/6
+                        <div className={`difficulty-badge badge-difficulty-${challenge.difficulty}`}>
+                            Difficulty: {difficultyLevels[challenge.difficulty]}
                         </div>
                         <div className="challenge-detail-stats">
                             <span>{challenge.participantsCount} Participants</span>
@@ -202,10 +198,11 @@ const ChallengeDetailPage: React.FC = () => {
             </div>
 
             {/* Progress bar for authenticated users who joined */}
-            {userProgress && (
+            {userChallenge && (
                 <ChallengeProgress
-                    completed={userProgress.completedTasks.length}
-                    total={userProgress.totalTasks}
+                    completed={checklistItems.filter(item => item.completed).length}
+                    total={checklistItems.length}
+                    progress={progress}
                 />
             )}
 
@@ -218,15 +215,19 @@ const ChallengeDetailPage: React.FC = () => {
             </div>
 
             {/* Media section (if any) */}
-            {challenge.mediaItems && challenge.mediaItems.length > 0 && (
+            {challenge.mediaUrls && challenge.mediaUrls.length > 0 && (
                 <div className="challenge-detail-section">
                     <h2 className="challenge-detail-section-title">Media</h2>
                     <div className="challenge-media-grid">
-                        {challenge.mediaItems.map((media, index) => {
-                            return media.type === 'video' ? (
+                        {challenge.mediaUrls.map((url, index) => {
+                            // Check if it's a video URL (simplified check)
+                            const isVideo = url.includes('youtube.com') || url.includes('youtu.be') ||
+                                url.includes('vimeo.com') || url.endsWith('.mp4');
+
+                            return isVideo ? (
                                 <div key={index} className="challenge-media-item challenge-media-video">
                                     <iframe
-                                        src={media.url}
+                                        src={url}
                                         frameBorder="0"
                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                         allowFullScreen
@@ -234,7 +235,7 @@ const ChallengeDetailPage: React.FC = () => {
                                 </div>
                             ) : (
                                 <div key={index} className="challenge-media-item">
-                                    <img src={media.url} alt={`Media ${index+1}`} />
+                                    <img src={url} alt={`Media ${index+1}`} />
                                 </div>
                             );
                         })}
@@ -246,18 +247,18 @@ const ChallengeDetailPage: React.FC = () => {
             <div className="challenge-detail-section">
                 <h2 className="challenge-detail-section-title">Challenge Checklist</h2>
                 <div className="challenge-checklist">
-                    {challenge.tasks.map((task: ChallengeTask) => (
-                        <div key={task.id} className="challenge-checklist-item">
+                    {checklistItems.map((item) => (
+                        <div key={item.id} className="challenge-checklist-item">
                             <input
-                                id={`item-${task.id}`}
+                                id={`item-${item.id}`}
                                 type="checkbox"
-                                checked={userProgress?.completedTasks.includes(task.id) || false}
-                                onChange={(e) => handleChecklistItemToggle(task.id, e.target.checked)}
-                                disabled={!userProgress}
+                                checked={item.completed}
+                                onChange={(e) => handleChecklistItemToggle(item.id, e.target.checked)}
+                                disabled={!userChallenge}
                                 className="challenge-checklist-checkbox"
                             />
-                            <label htmlFor={`item-${task.id}`}>
-                                {task.description}
+                            <label htmlFor={`item-${item.id}`}>
+                                {item.description}
                             </label>
                         </div>
                     ))}
@@ -265,7 +266,7 @@ const ChallengeDetailPage: React.FC = () => {
             </div>
 
             {/* Join button for non-participants */}
-            {isAuthenticated && !userProgress && (
+            {isAuthenticated && !userChallenge && (
                 <Button
                     onClick={joinChallenge}
                     className="join-button"
