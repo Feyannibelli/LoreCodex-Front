@@ -4,25 +4,28 @@ import '../css/ChallengeProgress.css';
 interface ChallengeProgressProps {
     completed: number;
     total: number;
+    progress: number;
 }
 
-const ChallengeProgress: React.FC<ChallengeProgressProps> = ({ completed, total }) => {
-    const progressPercent = total > 0 ? Math.round((completed / total) * 100) : 0;
-
+const ChallengeProgress: React.FC<ChallengeProgressProps> = ({ completed, total, progress }) => {
     return (
-        <div className="challenge-progress">
-            <div className="challenge-progress-header">
-                <span className="challenge-progress-label">Challenge Progress</span>
-                <span className="challenge-progress-percent">{progressPercent}%</span>
+        <div className="challenge-progress-container">
+            <div className="challenge-progress-info">
+                <div className="challenge-progress-status">
+                    <span className="challenge-progress-completed">{completed}</span>
+                    <span className="challenge-progress-separator">/</span>
+                    <span className="challenge-progress-total">{total}</span>
+                    <span className="challenge-progress-label">tasks completed</span>
+                </div>
+                <div className="challenge-progress-percentage">
+                    {Math.round(progress)}%
+                </div>
             </div>
             <div className="challenge-progress-bar-container">
                 <div
                     className="challenge-progress-bar"
-                    style={{ width: `${progressPercent}%` }}
+                    style={{ width: `${progress}%` }}
                 ></div>
-            </div>
-            <div className="challenge-progress-stats">
-                {completed} of {total} tasks completed
             </div>
         </div>
     );

@@ -17,14 +17,14 @@ import PrivateRoute from './components/PrivateRoute';
 import UserMenu from "./components/UserMenu";
 import GamesPage from './pages/game/GamesPage.tsx';
 import ListsPage from './pages/ListsPage';
-import MyDraftsPage from "@/pages/guide/MyDraftsPage.tsx";
-import EditGuidePage from "@/pages/guide/EditGuidePage.tsx";
-import GuidePage from "@/pages/guide/GuidePage.tsx";
-import CreateGuidePage from "@/pages/guide/CreateGuidePage.tsx";
-import GuideDetailPage from "@/pages/guide/GuideDetailPage.tsx";
 import ChallengesPage from './pages/challenge/ChallengesPage';
 import ChallengeDetailPage from './pages/challenge/ChallengeDetailPage';
 import CreateChallengePage from './pages/challenge/CreateChallengePage';
+import EditGuidePage from "./pages/guide/EditGuidePage.tsx";
+import MyDraftsPage from "./pages/guide/MyDraftsPage.tsx";
+import GuidePage from "./pages/guide/GuidePage.tsx";
+import CreateGuidePage from "./pages/guide/CreateGuidePage.tsx";
+import GuideDetailPage from "./pages/guide/GuideDetailPage.tsx";
 
 // Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {

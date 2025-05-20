@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChallengeFormData, difficultyLevels } from '../../interfaces/Challenge';
+import { ChallengeFormData, DifficultyLevel, difficultyLabels, MediaItem } from '../../interfaces/Challenge';
 import challengeService from '../../services/challengeService';
 import gameService from '../../services/gameService';
 import { Game } from '../../interfaces/Game';
-import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/Button';
 import '../../css/ChallengeCreate.css';
 
 const CreateChallengePage: React.FC = () => {
     const navigate = useNavigate();
-    const { user } = useAuth();
     const [games, setGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [submitting, setSubmitting] = useState<boolean>(false);
@@ -22,9 +20,9 @@ const CreateChallengePage: React.FC = () => {
         title: '',
         description: '',
         gameId: 0,
-        difficulty: 3, // Default to Medium
-        checklistItems: [''],
-        mediaUrls: [''],
+        difficultyRating: 3, // Default to Medium
+        tasks: [{ description: '' }],
+        mediaItems: []
     });
 
     useEffect(() => {
@@ -50,57 +48,61 @@ const CreateChallengePage: React.FC = () => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'gameId' ? parseInt(value) : value
+            [name]: name === 'gameId' || name === 'difficultyRating' ? parseInt(value) : value
         }));
     };
 
-    const handleChecklistChange = (index: number, value: string) => {
-        const updatedItems = [...formData.checklistItems];
-        updatedItems[index] = value;
+    const handleTaskChange = (index: number, value: string) => {
+        const updatedTasks = [...formData.tasks];
+        updatedTasks[index] = { ...updatedTasks[index], description: value };
         setFormData(prev => ({
             ...prev,
-            checklistItems: updatedItems
+            tasks: updatedTasks
         }));
     };
 
-    const addChecklistItem = () => {
+    const addTask = () => {
         setFormData(prev => ({
             ...prev,
-            checklistItems: [...prev.checklistItems, '']
+            tasks: [...prev.tasks, { description: '' }]
         }));
     };
 
-    const removeChecklistItem = (index: number) => {
-        const updatedItems = [...formData.checklistItems];
-        updatedItems.splice(index, 1);
+    const removeTask = (index: number) => {
+        const updatedTasks = [...formData.tasks];
+        updatedTasks.splice(index, 1);
         setFormData(prev => ({
             ...prev,
-            checklistItems: updatedItems
+            tasks: updatedTasks
         }));
     };
 
-    const handleMediaChange = (index: number, value: string) => {
-        const updatedUrls = [...(formData.mediaUrls || [''])];
-        updatedUrls[index] = value;
+    const handleMediaChange = (index: number, field: keyof MediaItem, value: string) => {
+        const updatedMediaItems = [...(formData.mediaItems || [])];
+        updatedMediaItems[index] = {
+            ...updatedMediaItems[index],
+            [field]: value
+        };
+
         setFormData(prev => ({
             ...prev,
-            mediaUrls: updatedUrls
+            mediaItems: updatedMediaItems
         }));
     };
 
-    const addMediaUrl = () => {
+    const addMediaItem = () => {
         setFormData(prev => ({
             ...prev,
-            mediaUrls: [...(prev.mediaUrls || []), '']
+            mediaItems: [...(prev.mediaItems || []), { type: 'image', url: '' }]
         }));
     };
 
-    const removeMediaUrl = (index: number) => {
-        const updatedUrls = [...(formData.mediaUrls || [])];
-        updatedUrls.splice(index, 1);
+    const removeMediaItem = (index: number) => {
+        const updatedMediaItems = [...(formData.mediaItems || [])];
+        updatedMediaItems.splice(index, 1);
         setFormData(prev => ({
             ...prev,
-            mediaUrls: updatedUrls
+            mediaItems: updatedMediaItems
         }));
     };
 
@@ -123,13 +125,13 @@ const CreateChallengePage: React.FC = () => {
             return;
         }
 
-        if (formData.checklistItems.some(item => !item.trim())) {
-            setError("Checklist items cannot be empty");
+        if (formData.tasks.some(task => !task.description.trim())) {
+            setError("Task descriptions cannot be empty");
             return;
         }
 
         // Filter out empty media URLs
-        const filteredMediaUrls = formData.mediaUrls?.filter(url => url.trim()) || [];
+        const filteredMediaItems = formData.mediaItems?.filter(item => item.url.trim()) || [];
 
         try {
             setSubmitting(true);
@@ -138,8 +140,8 @@ const CreateChallengePage: React.FC = () => {
             // Create challenge with filtered data
             const challengeToSubmit = {
                 ...formData,
-                mediaUrls: filteredMediaUrls.length > 0 ? filteredMediaUrls : undefined,
-                checklistItems: formData.checklistItems.filter(item => item.trim())
+                mediaItems: filteredMediaItems.length > 0 ? filteredMediaItems : undefined,
+                tasks: formData.tasks.filter(task => task.description.trim())
             };
 
             const createdChallenge = await challengeService.createChallenge(challengeToSubmit);
@@ -217,15 +219,15 @@ const CreateChallengePage: React.FC = () => {
                     </div>
 
                     <div className="challenge-form-field">
-                        <label htmlFor="difficulty" className="challenge-form-label">Difficulty Level</label>
+                        <label htmlFor="difficultyRating" className="challenge-form-label">Difficulty Level</label>
                         <select
-                            id="difficulty"
-                            name="difficulty"
-                            value={formData.difficulty}
+                            id="difficultyRating"
+                            name="difficultyRating"
+                            value={formData.difficultyRating}
                             onChange={handleChange}
                             className="challenge-form-select"
                         >
-                            {Object.entries(difficultyLevels).map(([value, label]) => (
+                            {Object.entries(difficultyLabels).map(([value, label]) => (
                                 <option key={value} value={value}>
                                     {value} - {label}
                                 </option>
@@ -257,7 +259,7 @@ const CreateChallengePage: React.FC = () => {
                         <h2 className="challenge-form-section-title">Media (Optional)</h2>
                         <button
                             type="button"
-                            onClick={addMediaUrl}
+                            onClick={addMediaItem}
                             className="challenge-form-add-button"
                         >
                             + Add Media
@@ -265,23 +267,30 @@ const CreateChallengePage: React.FC = () => {
                     </div>
 
                     <p className="challenge-form-help-text">
-                        Add images or videos to illustrate your challenge. For videos, paste YouTube, Vimeo, or direct video URLs.
+                        Add images or videos to illustrate your challenge.
                     </p>
 
-                    {formData.mediaUrls?.map((url, index) => (
+                    {formData.mediaItems && formData.mediaItems.map((item, index) => (
                         <div key={`media-${index}`} className="challenge-form-item-row">
+                            <select
+                                value={item.type}
+                                onChange={(e) => handleMediaChange(index, 'type', e.target.value as 'image' | 'video')}
+                                className="challenge-form-select-small"
+                            >
+                                <option value="image">Image</option>
+                                <option value="video">Video</option>
+                            </select>
                             <input
                                 type="text"
-                                value={url}
-                                onChange={(e) => handleMediaChange(index, e.target.value)}
-                                placeholder="Enter image or video URL"
+                                value={item.url}
+                                onChange={(e) => handleMediaChange(index, 'url', e.target.value)}
+                                placeholder={`Enter ${item.type} URL`}
                                 className="challenge-form-item-input"
                             />
                             <button
                                 type="button"
-                                onClick={() => removeMediaUrl(index)}
+                                onClick={() => removeMediaItem(index)}
                                 className="challenge-form-remove-button"
-                                disabled={formData.mediaUrls?.length === 1}
                             >
                                 Remove
                             </button>
@@ -289,16 +298,16 @@ const CreateChallengePage: React.FC = () => {
                     ))}
                 </div>
 
-                {/* Checklist Section */}
+                {/* Tasks Section */}
                 <div className="challenge-form-section">
                     <div className="challenge-form-section-header">
-                        <h2 className="challenge-form-section-title">Challenge Checklist</h2>
+                        <h2 className="challenge-form-section-title">Challenge Tasks</h2>
                         <button
                             type="button"
-                            onClick={addChecklistItem}
+                            onClick={addTask}
                             className="challenge-form-add-button"
                         >
-                            + Add Item
+                            + Add Task
                         </button>
                     </div>
 
@@ -306,20 +315,20 @@ const CreateChallengePage: React.FC = () => {
                         Add tasks that users need to complete for this challenge.
                     </p>
 
-                    {formData.checklistItems.map((item, index) => (
-                        <div key={`checklist-${index}`} className="challenge-form-item-row">
+                    {formData.tasks.map((task, index) => (
+                        <div key={`task-${index}`} className="challenge-form-item-row">
                             <input
                                 type="text"
-                                value={item}
-                                onChange={(e) => handleChecklistChange(index, e.target.value)}
-                                placeholder="Enter checklist item"
+                                value={task.description}
+                                onChange={(e) => handleTaskChange(index, e.target.value)}
+                                placeholder="Enter task description"
                                 className="challenge-form-item-input"
                             />
                             <button
                                 type="button"
-                                onClick={() => removeChecklistItem(index)}
+                                onClick={() => removeTask(index)}
                                 className="challenge-form-remove-button"
-                                disabled={formData.checklistItems.length === 1}
+                                disabled={formData.tasks.length === 1}
                             >
                                 Remove
                             </button>
