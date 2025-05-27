@@ -1,9 +1,9 @@
 // src/pages/CreateGuidePage.tsx
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import RichTextEditor from '@/components/RichTextEditor.tsx';
-import apiAuth from "@/services/apiAuth.ts";
-import guideService from "@/services/guideService.ts";
+import RichTextEditor from '../../components/RichTextEditor.tsx';
+import apiAuth from "../../services/apiAuth.ts";
+import guideService from "../../services/guideService.ts";
 import '@/css/Guide.css';
 
 const CreateGuidePage = () => {

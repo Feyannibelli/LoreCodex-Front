@@ -1,7 +1,7 @@
 // src/pages/GuideDetailPage.tsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import guideService from "@/services/guideService.ts";
+import guideService from "../../services/guideService.ts";
 import '@/css/Guide.css';
 
 const GuideDetailPage = () => {
