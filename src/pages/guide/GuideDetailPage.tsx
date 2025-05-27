@@ -1,43 +1,290 @@
-// src/pages/GuideDetailPage.tsx
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import guideService from "../../services/guideService.ts";
-import '@/css/Guide.css';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Challenge, ChallengeTask, difficultyLabels, DifficultyLevel } from '../../interfaces/Challenge';
+import challengeService from '../../services/challengeService';
+import { useAuth } from '../../context/AuthContext';
+import ChallengeProgress from '../../components/ChallengeProgress';
+import Button from '../../components/Button';
+import '../../css/ChallengeDetail.css';
 
-const GuideDetailPage = () => {
-    const { id } = useParams();
-    const [guide, setGuide] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+const ChallengeDetailPage: React.FC = () => {
+    const { id } = useParams<{ id: string }>();
+    const challengeId = parseInt(id || '0');
+    const [challenge, setChallenge] = useState<Challenge | null>(null);
+    const [tasks, setTasks] = useState<ChallengeTask[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const [progress, setProgress] = useState<number>(0);
+    const { isAuthenticated, isAdmin } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        if (!id) return;
-        guideService.getGuideById(id)
-            .then(setGuide)
-            .catch(err => {
-                console.error("Error fetching guide:", err);
-            })
-            .finally(() => setLoading(false));
-    }, [id]);
+        if (challengeId > 0) {
+            loadChallengeData();
+        }
+    }, [challengeId]);
 
-    if (loading) return <div className="p-6 text-center">Cargando guía...</div>;
-    if (!guide) return <div className="p-6 text-center">No se encontró la guía</div>;
+    const loadChallengeData = async () => {
+        try {
+            setLoading(true);
+            console.log(`Loading challenge ${challengeId}...`); // Debug log
+
+            const challengeData = await challengeService.getChallengeById(challengeId);
+            console.log('Loaded challenge data:', challengeData); // Debug log
+
+            if (!challengeData) {
+                throw new Error('Challenge not found');
+            }
+
+            setChallenge(challengeData);
+
+            // Safely handle tasks
+            const challengeTasks = Array.isArray(challengeData.tasks) ? challengeData.tasks : [];
+            setTasks(challengeTasks);
+
+            // If tasks have completion status, calculate progress
+            if (challengeTasks.some(task => task.isCompleted !== undefined)) {
+                const completedCount = challengeTasks.filter(task => task.isCompleted).length;
+                const totalItems = challengeTasks.length;
+                setProgress(totalItems > 0 ? (completedCount / totalItems) * 100 : 0);
+            }
+
+            setError(null);
+        } catch (err) {
+            console.error("Error loading challenge:", err);
+            setError("Failed to load challenge details. Please try again later.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleTaskToggle = async (taskId: number, completed: boolean) => {
+        if (!isAuthenticated) {
+            navigate('/login', { state: { from: `/challenges/${challengeId}` } });
+            return;
+        }
+
+        try {
+            // Update UI immediately for responsiveness
+            const updatedTasks = tasks.map(task =>
+                task.id === taskId ? { ...task, isCompleted: completed } : task
+            );
+            setTasks(updatedTasks);
+
+            // Calculate new progress
+            const completedCount = updatedTasks.filter(task => task.isCompleted).length;
+            const newProgress = updatedTasks.length > 0 ? (completedCount / updatedTasks.length) * 100 : 0;
+            setProgress(newProgress);
+
+            // Send update to server
+            await challengeService.updateTaskCompletion(challengeId, taskId, completed);
+        } catch (err) {
+            console.error("Error updating task completion:", err);
+            // Revert changes on error
+            loadChallengeData();
+        }
+    };
+
+    const joinChallenge = async () => {
+        if (!isAuthenticated) {
+            navigate('/login', { state: { from: `/challenges/${challengeId}` } });
+            return;
+        }
+
+        try {
+            await challengeService.participateInChallenge(challengeId);
+            loadChallengeData(); // Reload data to show join status
+        } catch (err) {
+            console.error("Error joining challenge:", err);
+        }
+    };
+
+    const handleDeleteChallenge = async () => {
+        if (!isAdmin || !window.confirm("Are you sure you want to delete this challenge?")) {
+            return;
+        }
+
+        try {
+            await challengeService.deleteChallenge(challengeId);
+            navigate('/challenges');
+        } catch (err) {
+            console.error("Error deleting challenge:", err);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="challenge-loading">
+                <div className="loading-spinner"></div>
+            </div>
+        );
+    }
+
+    if (error || !challenge) {
+        return (
+            <div className="challenge-detail-container">
+                <div className="error-message">
+                    {error || "Challenge not found"}
+                </div>
+                <div className="challenge-detail-back">
+                    <Link to="/challenges">
+                        Back to Challenges
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    // Determine if user is participating (has task completion data)
+    const isParticipating = tasks.some(task => task.isCompleted !== undefined);
+    const difficulty = (challenge.difficultyRating || 3) as DifficultyLevel;
+    const participantsCount = challenge.participantsCount || 0;
+    const completionsCount = challenge.completionsCount || 0;
 
     return (
-        <div className="p-6 max-w-3xl mx-auto">
-            <h1 className="text-3xl font-bold text-[#f47e00] mb-6">{guide.title}</h1>
-            {guide.coverImageUrl && (
-                <img
-                    src={guide.coverImageUrl}
-                    alt="Cover"
-                    className="w-full max-h-80 object-cover rounded mb-6"
+        <div className="challenge-detail-container">
+            <div className="challenge-detail-back">
+                <Link to="/challenges">
+                    ← Back to Challenges
+                </Link>
+            </div>
+
+            {/* Game info and header */}
+            <div className="challenge-detail-header">
+                {challenge.gameCoverImage && (
+                    <div className="challenge-detail-image">
+                        <img
+                            src={challenge.gameCoverImage}
+                            alt={challenge.gameName || 'Game cover'}
+                        />
+                    </div>
+                )}
+
+                <div className="challenge-detail-info">
+                    <h1 className="challenge-detail-title">{challenge.title || 'Untitled Challenge'}</h1>
+                    <div className="challenge-detail-game">
+                        <Link to={`/games/${challenge.gameId}`}>
+                            {challenge.gameName || 'Unknown Game'}
+                        </Link>
+                        <span className="separator">•</span>
+                        <span>Created by {challenge.creatorName || 'Unknown'}</span>
+                    </div>
+
+                    <div className="challenge-detail-meta">
+                        <div className={`difficulty-badge badge-difficulty-${difficulty}`}>
+                            Difficulty: {difficultyLabels[difficulty] || 'Medium'}
+                        </div>
+                        <div className="challenge-detail-stats">
+                            <span>{participantsCount} Participants</span>
+                            <span>{completionsCount} Completions</span>
+                        </div>
+                    </div>
+
+                    {isAdmin && (
+                        <Button
+                            onClick={handleDeleteChallenge}
+                            className="delete-button"
+                        >
+                            Delete Challenge
+                        </Button>
+                    )}
+                </div>
+            </div>
+
+            {/* Progress bar for authenticated users who joined */}
+            {isParticipating && (
+                <ChallengeProgress
+                    completed={tasks.filter(task => task.isCompleted).length}
+                    total={tasks.length}
+                    progress={progress}
                 />
             )}
-            <div
-                className="prose dark:prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: guide.content }}
-            />
+
+            {/* Description */}
+            <div className="challenge-detail-section">
+                <h2 className="challenge-detail-section-title">Description</h2>
+                <div className="challenge-detail-content">
+                    {challenge.description || 'No description available.'}
+                </div>
+            </div>
+
+            {/* Media section (if any) */}
+            {challenge.mediaItems && Array.isArray(challenge.mediaItems) && challenge.mediaItems.length > 0 && (
+                <div className="challenge-detail-section">
+                    <h2 className="challenge-detail-section-title">Media</h2>
+                    <div className="challenge-media-grid">
+                        {challenge.mediaItems.map((item, index) => {
+                            return item.type === 'video' ? (
+                                <div key={index} className="challenge-media-item challenge-media-video">
+                                    <iframe
+                                        src={item.url}
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                    ></iframe>
+                                </div>
+                            ) : (
+                                <div key={index} className="challenge-media-item">
+                                    <img src={item.url} alt={`Media ${index+1}`} />
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
+            {/* Checklist */}
+            <div className="challenge-detail-section">
+                <h2 className="challenge-detail-section-title">Challenge Checklist</h2>
+                {tasks.length > 0 ? (
+                    <div className="challenge-checklist">
+                        {tasks.map((task) => (
+                            <div key={task.id} className="challenge-checklist-item">
+                                <input
+                                    id={`task-${task.id}`}
+                                    type="checkbox"
+                                    checked={!!task.isCompleted}
+                                    onChange={(e) => handleTaskToggle(task.id, e.target.checked)}
+                                    disabled={!isAuthenticated}
+                                    className="challenge-checklist-checkbox"
+                                />
+                                <label htmlFor={`task-${task.id}`}>
+                                    {task.description || 'No description'}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="challenge-checklist">
+                        <p>No tasks available for this challenge.</p>
+                    </div>
+                )}
+            </div>
+
+            {/* Join button for non-participants */}
+            {isAuthenticated && !isParticipating && (
+                <Button
+                    onClick={joinChallenge}
+                    className="join-button"
+                >
+                    Accept Challenge
+                </Button>
+            )}
+
+            {/* Login prompt for non-authenticated users */}
+            {!isAuthenticated && (
+                <div className="challenge-join-prompt">
+                    <p>
+                        <Link to="/login" className="prompt-link">
+                            Log in
+                        </Link> or <Link to="/register" className="prompt-link">
+                        create an account
+                    </Link> to join this challenge and track your progress!
+                    </p>
+                </div>
+            )}
         </div>
     );
 };
 
-export default GuideDetailPage;
+export default ChallengeDetailPage;

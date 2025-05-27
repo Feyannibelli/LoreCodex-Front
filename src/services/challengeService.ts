@@ -45,20 +45,23 @@ interface BackendChallengeRequest {
 
 // Adapters to convert between frontend and backend data structures
 const adaptBackendChallengeToFrontend = (backendChallenge: BackendChallenge): Challenge => {
+    // Ensure tasks is always an array
+    const tasks = Array.isArray(backendChallenge.tasks) ? backendChallenge.tasks : [];
+
     return {
         id: backendChallenge.id,
-        title: backendChallenge.title,
-        description: backendChallenge.description,
+        title: backendChallenge.title || '',
+        description: backendChallenge.description || '',
         creatorId: backendChallenge.creatorId,
-        creatorName: backendChallenge.creatorName,
+        creatorName: backendChallenge.creatorName || '',
         gameId: backendChallenge.gameId,
-        gameName: backendChallenge.gameName,
-        gameCoverImage: backendChallenge.gameCoverImage,
-        difficultyRating: backendChallenge.difficultyRating,
-        tasks: backendChallenge.tasks,
-        completionsCount: backendChallenge.completionsCount,
-        participantsCount: backendChallenge.participantsCount,
-        mediaItems: backendChallenge.mediaItems || [],
+        gameName: backendChallenge.gameName || '',
+        gameCoverImage: backendChallenge.gameCoverImage || '',
+        difficultyRating: backendChallenge.difficultyRating || 3,
+        tasks: tasks,
+        completionsCount: backendChallenge.completionsCount || 0,
+        participantsCount: backendChallenge.participantsCount || 0,
+        mediaItems: Array.isArray(backendChallenge.mediaItems) ? backendChallenge.mediaItems : [],
         createdAt: new Date(backendChallenge.createdAt),
         updatedAt: new Date(backendChallenge.updatedAt)
     };
@@ -80,6 +83,13 @@ const challengeService = {
     getAllChallenges: async (): Promise<Challenge[]> => {
         try {
             const response = await api.get('/challenges');
+            console.log('Raw challenges response:', response.data); // Debug log
+
+            if (!Array.isArray(response.data)) {
+                console.warn('Challenges response is not an array:', response.data);
+                return [];
+            }
+
             return response.data.map(adaptBackendChallengeToFrontend);
         } catch (error) {
             console.error('Error fetching challenges:', error);
@@ -91,6 +101,12 @@ const challengeService = {
     getChallengeById: async (id: number): Promise<Challenge> => {
         try {
             const response = await api.get(`/challenges/${id}`);
+            console.log(`Raw challenge ${id} response:`, response.data); // Debug log
+
+            if (!response.data) {
+                throw new Error('Challenge not found');
+            }
+
             return adaptBackendChallengeToFrontend(response.data);
         } catch (error) {
             console.error(`Error fetching challenge with id ${id}:`, error);
@@ -102,7 +118,15 @@ const challengeService = {
     createChallenge: async (challengeData: ChallengeFormData): Promise<Challenge> => {
         try {
             const backendChallenge = adaptFrontendChallengeToBackend(challengeData);
+            console.log('Creating challenge with data:', backendChallenge); // Debug log
+
             const response = await apiAuth.post('/challenges', backendChallenge);
+            console.log('Challenge creation response:', response.data); // Debug log
+
+            if (!response.data) {
+                throw new Error('Failed to create challenge - no data returned');
+            }
+
             return adaptBackendChallengeToFrontend(response.data);
         } catch (error) {
             console.error('Error creating challenge:', error);
@@ -115,6 +139,11 @@ const challengeService = {
         try {
             const backendChallenge = adaptFrontendChallengeToBackend(challengeData);
             const response = await apiAuth.put(`/challenges/${id}`, backendChallenge);
+
+            if (!response.data) {
+                throw new Error('Failed to update challenge - no data returned');
+            }
+
             return adaptBackendChallengeToFrontend(response.data);
         } catch (error) {
             console.error(`Error updating challenge with id ${id}:`, error);
@@ -136,6 +165,11 @@ const challengeService = {
     participateInChallenge: async (id: number): Promise<Challenge> => {
         try {
             const response = await apiAuth.post(`/challenges/${id}/participate`);
+
+            if (!response.data) {
+                throw new Error('Failed to participate in challenge - no data returned');
+            }
+
             return adaptBackendChallengeToFrontend(response.data);
         } catch (error) {
             console.error(`Error participating in challenge with id ${id}:`, error);
@@ -153,6 +187,11 @@ const challengeService = {
             const response = await apiAuth.post(`/challenges/${challengeId}/tasks/${taskId}`, {
                 isCompleted
             });
+
+            if (!response.data) {
+                throw new Error('Failed to update task completion - no data returned');
+            }
+
             return adaptBackendChallengeToFrontend(response.data);
         } catch (error) {
             console.error(`Error updating task completion for challenge ${challengeId}:`, error);
@@ -166,6 +205,11 @@ const challengeService = {
             const response = await apiAuth.post(`/challenges/${challengeId}/rate-difficulty`, {
                 rating
             });
+
+            if (!response.data) {
+                throw new Error('Failed to rate difficulty - no data returned');
+            }
+
             return adaptBackendChallengeToFrontend(response.data);
         } catch (error) {
             console.error(`Error rating difficulty for challenge ${challengeId}:`, error);
@@ -177,6 +221,12 @@ const challengeService = {
     getChallengesByGameId: async (gameId: number): Promise<Challenge[]> => {
         try {
             const response = await api.get(`/challenges/game/${gameId}`);
+
+            if (!Array.isArray(response.data)) {
+                console.warn('Game challenges response is not an array:', response.data);
+                return [];
+            }
+
             return response.data.map(adaptBackendChallengeToFrontend);
         } catch (error) {
             console.error(`Error fetching challenges for game ${gameId}:`, error);
@@ -188,6 +238,12 @@ const challengeService = {
     getUserChallenges: async (): Promise<Challenge[]> => {
         try {
             const response = await apiAuth.get('/challenges/created');
+
+            if (!Array.isArray(response.data)) {
+                console.warn('User challenges response is not an array:', response.data);
+                return [];
+            }
+
             return response.data.map(adaptBackendChallengeToFrontend);
         } catch (error) {
             console.error('Error fetching user challenges:', error);
@@ -199,6 +255,12 @@ const challengeService = {
     getUserParticipations: async (): Promise<Challenge[]> => {
         try {
             const response = await apiAuth.get('/challenges/participated');
+
+            if (!Array.isArray(response.data)) {
+                console.warn('User participations response is not an array:', response.data);
+                return [];
+            }
+
             return response.data.map(adaptBackendChallengeToFrontend);
         } catch (error) {
             console.error('Error fetching user participations:', error);
