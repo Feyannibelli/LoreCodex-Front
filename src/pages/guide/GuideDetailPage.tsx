@@ -1,290 +1,218 @@
+// src/pages/guide/GuideDetailPage.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Challenge, ChallengeTask, difficultyLabels, DifficultyLevel } from '../../interfaces/Challenge';
-import challengeService from '../../services/challengeService';
+import guideService from '../../services/guideService';
+import MarkdownViewer from '../../components/MarkdownViewer';
 import { useAuth } from '../../context/AuthContext';
-import ChallengeProgress from '../../components/ChallengeProgress';
-import Button from '../../components/Button';
-import '../../css/ChallengeDetail.css';
+import '@/css/Guide.css';
 
-const ChallengeDetailPage: React.FC = () => {
+interface Guide {
+    id: number;
+    title: string;
+    content: string;
+    coverImageUrl?: string;
+    gameId: number;
+    gameName?: string;
+    authorName?: string;
+    createdAt: string;
+    updatedAt: string;
+    isDraft?: boolean;
+    isPublished?: boolean;
+}
+
+const GuideDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const challengeId = parseInt(id || '0');
-    const [challenge, setChallenge] = useState<Challenge | null>(null);
-    const [tasks, setTasks] = useState<ChallengeTask[]>([]);
+    const [guide, setGuide] = useState<Guide | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [progress, setProgress] = useState<number>(0);
-    const { isAuthenticated, isAdmin } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (challengeId > 0) {
-            loadChallengeData();
+        if (id) {
+            loadGuideData();
         }
-    }, [challengeId]);
+    }, [id]);
 
-    const loadChallengeData = async () => {
+    const loadGuideData = async () => {
         try {
             setLoading(true);
-            console.log(`Loading challenge ${challengeId}...`); // Debug log
+            console.log(`Loading guide ${id}...`);
 
-            const challengeData = await challengeService.getChallengeById(challengeId);
-            console.log('Loaded challenge data:', challengeData); // Debug log
+            const guideData = await guideService.getGuideById(id!);
+            console.log('Loaded guide data:', guideData);
 
-            if (!challengeData) {
-                throw new Error('Challenge not found');
+            if (!guideData) {
+                throw new Error('Guide not found');
             }
 
-            setChallenge(challengeData);
-
-            // Safely handle tasks
-            const challengeTasks = Array.isArray(challengeData.tasks) ? challengeData.tasks : [];
-            setTasks(challengeTasks);
-
-            // If tasks have completion status, calculate progress
-            if (challengeTasks.some(task => task.isCompleted !== undefined)) {
-                const completedCount = challengeTasks.filter(task => task.isCompleted).length;
-                const totalItems = challengeTasks.length;
-                setProgress(totalItems > 0 ? (completedCount / totalItems) * 100 : 0);
-            }
-
+            setGuide(guideData);
             setError(null);
         } catch (err) {
-            console.error("Error loading challenge:", err);
-            setError("Failed to load challenge details. Please try again later.");
+            console.error("Error loading guide:", err);
+            setError("Failed to load guide details. Please try again later.");
         } finally {
             setLoading(false);
         }
     };
 
-    const handleTaskToggle = async (taskId: number, completed: boolean) => {
-        if (!isAuthenticated) {
-            navigate('/login', { state: { from: `/challenges/${challengeId}` } });
+    const handleEditGuide = () => {
+        navigate(`/guides/edit/${id}`);
+    };
+
+    const handleDeleteGuide = async () => {
+        if (!window.confirm("Are you sure you want to delete this guide?")) {
             return;
         }
 
         try {
-            // Update UI immediately for responsiveness
-            const updatedTasks = tasks.map(task =>
-                task.id === taskId ? { ...task, isCompleted: completed } : task
-            );
-            setTasks(updatedTasks);
-
-            // Calculate new progress
-            const completedCount = updatedTasks.filter(task => task.isCompleted).length;
-            const newProgress = updatedTasks.length > 0 ? (completedCount / updatedTasks.length) * 100 : 0;
-            setProgress(newProgress);
-
-            // Send update to server
-            await challengeService.updateTaskCompletion(challengeId, taskId, completed);
+            await guideService.deleteGuide(parseInt(id!));
+            navigate('/guides');
         } catch (err) {
-            console.error("Error updating task completion:", err);
-            // Revert changes on error
-            loadChallengeData();
+            console.error("Error deleting guide:", err);
+            setError("Failed to delete guide. Please try again.");
         }
     };
 
-    const joinChallenge = async () => {
-        if (!isAuthenticated) {
-            navigate('/login', { state: { from: `/challenges/${challengeId}` } });
-            return;
-        }
-
-        try {
-            await challengeService.participateInChallenge(challengeId);
-            loadChallengeData(); // Reload data to show join status
-        } catch (err) {
-            console.error("Error joining challenge:", err);
-        }
-    };
-
-    const handleDeleteChallenge = async () => {
-        if (!isAdmin || !window.confirm("Are you sure you want to delete this challenge?")) {
-            return;
-        }
-
-        try {
-            await challengeService.deleteChallenge(challengeId);
-            navigate('/challenges');
-        } catch (err) {
-            console.error("Error deleting challenge:", err);
-        }
+    const formatDate = (dateString: string): string => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
     };
 
     if (loading) {
         return (
-            <div className="challenge-loading">
-                <div className="loading-spinner"></div>
+            <div className="p-6 text-center">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#f47e00]"></div>
+                <div className="mt-2 text-gray-600">Loading guide...</div>
             </div>
         );
     }
 
-    if (error || !challenge) {
+    if (error || !guide) {
         return (
-            <div className="challenge-detail-container">
-                <div className="error-message">
-                    {error || "Challenge not found"}
+            <div className="p-6 max-w-4xl mx-auto">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div className="text-red-800">
+                        {error || "Guide not found"}
+                    </div>
                 </div>
-                <div className="challenge-detail-back">
-                    <Link to="/challenges">
-                        Back to Challenges
-                    </Link>
-                </div>
-            </div>
-        );
-    }
-
-    // Determine if user is participating (has task completion data)
-    const isParticipating = tasks.some(task => task.isCompleted !== undefined);
-    const difficulty = (challenge.difficultyRating || 3) as DifficultyLevel;
-    const participantsCount = challenge.participantsCount || 0;
-    const completionsCount = challenge.completionsCount || 0;
-
-    return (
-        <div className="challenge-detail-container">
-            <div className="challenge-detail-back">
-                <Link to="/challenges">
-                    ← Back to Challenges
+                <Link
+                    to="/guides"
+                    className="text-[#f47e00] hover:underline flex items-center gap-2"
+                >
+                    <span className="text-lg">←</span> Back to Guides
                 </Link>
             </div>
+        );
+    }
 
-            {/* Game info and header */}
-            <div className="challenge-detail-header">
-                {challenge.gameCoverImage && (
-                    <div className="challenge-detail-image">
-                        <img
-                            src={challenge.gameCoverImage}
-                            alt={challenge.gameName || 'Game cover'}
-                        />
-                    </div>
-                )}
+    // For now, let's allow any authenticated user to edit guides
+    // You can refine this later based on your user system
+    const isAuthor = isAuthenticated;
 
-                <div className="challenge-detail-info">
-                    <h1 className="challenge-detail-title">{challenge.title || 'Untitled Challenge'}</h1>
-                    <div className="challenge-detail-game">
-                        <Link to={`/games/${challenge.gameId}`}>
-                            {challenge.gameName || 'Unknown Game'}
-                        </Link>
-                        <span className="separator">•</span>
-                        <span>Created by {challenge.creatorName || 'Unknown'}</span>
-                    </div>
+    return (
+        <div className="p-6 max-w-4xl mx-auto">
+            {/* Back Navigation */}
+            <Link
+                to="/guides"
+                className="mb-6 text-[#f47e00] hover:underline flex items-center gap-2 transition-colors"
+            >
+                <span className="text-lg">←</span> Back to Guides
+            </Link>
 
-                    <div className="challenge-detail-meta">
-                        <div className={`difficulty-badge badge-difficulty-${difficulty}`}>
-                            Difficulty: {difficultyLabels[difficulty] || 'Medium'}
+            {/* Guide Header */}
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div className="flex gap-6 items-start mb-4">
+                    {/* Cover Image */}
+                    {guide.coverImageUrl && (
+                        <div className="flex-shrink-0">
+                            <img
+                                src={guide.coverImageUrl}
+                                alt={guide.title}
+                                className="w-48 h-32 object-cover rounded-lg shadow-sm"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                }}
+                            />
                         </div>
-                        <div className="challenge-detail-stats">
-                            <span>{participantsCount} Participants</span>
-                            <span>{completionsCount} Completions</span>
-                        </div>
-                    </div>
-
-                    {isAdmin && (
-                        <Button
-                            onClick={handleDeleteChallenge}
-                            className="delete-button"
-                        >
-                            Delete Challenge
-                        </Button>
                     )}
-                </div>
-            </div>
 
-            {/* Progress bar for authenticated users who joined */}
-            {isParticipating && (
-                <ChallengeProgress
-                    completed={tasks.filter(task => task.isCompleted).length}
-                    total={tasks.length}
-                    progress={progress}
-                />
-            )}
+                    {/* Guide Info */}
+                    <div className="flex-1 min-w-0">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                            {guide.title}
+                        </h1>
 
-            {/* Description */}
-            <div className="challenge-detail-section">
-                <h2 className="challenge-detail-section-title">Description</h2>
-                <div className="challenge-detail-content">
-                    {challenge.description || 'No description available.'}
-                </div>
-            </div>
+                        <div className="flex items-center gap-3 mb-3 text-sm text-gray-600">
+                            {guide.gameName && (
+                                <Link
+                                    to={`/games/${guide.gameId}`}
+                                    className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors"
+                                >
+                                    {guide.gameName}
+                                </Link>
+                            )}
+                            {guide.authorName && (
+                                <span>by <strong>{guide.authorName}</strong></span>
+                            )}
+                        </div>
 
-            {/* Media section (if any) */}
-            {challenge.mediaItems && Array.isArray(challenge.mediaItems) && challenge.mediaItems.length > 0 && (
-                <div className="challenge-detail-section">
-                    <h2 className="challenge-detail-section-title">Media</h2>
-                    <div className="challenge-media-grid">
-                        {challenge.mediaItems.map((item, index) => {
-                            return item.type === 'video' ? (
-                                <div key={index} className="challenge-media-item challenge-media-video">
-                                    <iframe
-                                        src={item.url}
-                                        frameBorder="0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowFullScreen
-                                    ></iframe>
-                                </div>
-                            ) : (
-                                <div key={index} className="challenge-media-item">
-                                    <img src={item.url} alt={`Media ${index+1}`} />
-                                </div>
-                            );
-                        })}
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                            <span>Created: {formatDate(guide.createdAt)}</span>
+                            {guide.updatedAt !== guide.createdAt && (
+                                <span>Updated: {formatDate(guide.updatedAt)}</span>
+                            )}
+                        </div>
                     </div>
                 </div>
-            )}
 
-            {/* Checklist */}
-            <div className="challenge-detail-section">
-                <h2 className="challenge-detail-section-title">Challenge Checklist</h2>
-                {tasks.length > 0 ? (
-                    <div className="challenge-checklist">
-                        {tasks.map((task) => (
-                            <div key={task.id} className="challenge-checklist-item">
-                                <input
-                                    id={`task-${task.id}`}
-                                    type="checkbox"
-                                    checked={!!task.isCompleted}
-                                    onChange={(e) => handleTaskToggle(task.id, e.target.checked)}
-                                    disabled={!isAuthenticated}
-                                    className="challenge-checklist-checkbox"
-                                />
-                                <label htmlFor={`task-${task.id}`}>
-                                    {task.description || 'No description'}
-                                </label>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="challenge-checklist">
-                        <p>No tasks available for this challenge.</p>
+                {/* Action Buttons */}
+                {isAuthor && (
+                    <div className="flex gap-3 pt-4 border-t border-gray-200">
+                        <button
+                            onClick={handleEditGuide}
+                            className="bg-[#f47e00] hover:bg-[#d56b00] text-white py-2 px-4 rounded-lg transition-colors"
+                        >
+                            Edit Guide
+                        </button>
+                        <button
+                            onClick={handleDeleteGuide}
+                            className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg transition-colors"
+                        >
+                            Delete Guide
+                        </button>
                     </div>
                 )}
             </div>
 
-            {/* Join button for non-participants */}
-            {isAuthenticated && !isParticipating && (
-                <Button
-                    onClick={joinChallenge}
-                    className="join-button"
-                >
-                    Accept Challenge
-                </Button>
-            )}
+            {/* Guide Content */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Guide Content</h2>
+                <div className="prose max-w-none">
+                    <MarkdownViewer content={guide.content} />
+                </div>
+            </div>
 
-            {/* Login prompt for non-authenticated users */}
-            {!isAuthenticated && (
-                <div className="challenge-join-prompt">
-                    <p>
-                        <Link to="/login" className="prompt-link">
-                            Log in
-                        </Link> or <Link to="/register" className="prompt-link">
-                        create an account
-                    </Link> to join this challenge and track your progress!
-                    </p>
+            {/* Related Guides Section (Optional) */}
+            {guide.gameId && (
+                <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        More guides for {guide.gameName}
+                    </h3>
+                    <Link
+                        to={`/games/${guide.gameId}/guides`}
+                        className="text-[#f47e00] hover:underline"
+                    >
+                        View all guides for this game →
+                    </Link>
                 </div>
             )}
         </div>
     );
 };
 
-export default ChallengeDetailPage;
+export default GuideDetailPage;
