@@ -8,6 +8,7 @@ import "../../css/Game.css";
 import AverageRatingDisplay from "@/components/AverageRatingDisplay.tsx";
 import ratingService from "@/services/ratingService.ts";
 import UserRatingDisplay from "@/components/UserRatingDisplay.tsx";
+import GameNotesSection from "@/components/GameNotesSection.tsx";
 
 const Game: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -247,6 +248,12 @@ const Game: React.FC = () => {
                     >
                         More Info
                     </button>
+                    <button
+                        className={`tab-button ${activeTab === "notes" ? "active" : ""}`}
+                        onClick={() => setActiveTab("notes")}
+                    >
+                        Notes
+                    </button>
                 </div>
 
                 <div className="tab-content">
@@ -254,6 +261,10 @@ const Game: React.FC = () => {
                         <div className="reviews-tab-content">
                             {id && <ReviewList gameId={parseInt(id)} />}
                         </div>
+                    )}
+
+                    {activeTab === "notes" && id && (
+                        <GameNotesSection gameId={parseInt(id)} />
                     )}
 
                     {activeTab === "guides" && (
@@ -282,6 +293,8 @@ const Game: React.FC = () => {
                             <p>No additional information available for this game.</p>
                         </div>
                     )}
+
+
                 </div>
             </div>
         </div>
