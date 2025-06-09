@@ -25,6 +25,10 @@ import MyDraftsPage from "./pages/guide/MyDraftsPage.tsx";
 import GuidePage from "./pages/guide/GuidePage.tsx";
 import CreateGuidePage from "./pages/guide/CreateGuidePage.tsx";
 import GuideDetailPage from "./pages/guide/GuideDetailPage.tsx";
+import CreateListPage from './pages/list/CreateListPage.tsx';
+import MyListsPage from './pages/list/MyListsPage.tsx';
+import ListDetailPage from './pages/list/ListDetailPage.tsx';
+import EditListPage from './pages/list/EditListPage.tsx';
 
 // Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -134,9 +138,36 @@ const App: React.FC = () => {
                     }
                 />
 
+                {/* Listas */}
+                <Route path="/lists" element={<ListsPage />} />
+                <Route path="/lists/:id" element={<ListDetailPage />} />
+                <Route
+                    path="/lists/create"
+                    element={
+                        <PrivateRoute>
+                            <CreateListPage />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/my-lists"
+                    element={
+                        <PrivateRoute>
+                            <MyListsPage />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/lists/edit/:id"
+                    element={
+                        <PrivateRoute>
+                            <EditListPage />
+                        </PrivateRoute>
+                    }
+                />
+
                 {/* Juegos y listas - públicos de navegación */}
                 <Route path="/games" element={<GamesPage />} />
-                <Route path="/lists" element={<ListsPage />} />
 
                 {/* Si no existe ruta, redirige a home */}
                 <Route path="*" element={<Navigate to="/" />} />
