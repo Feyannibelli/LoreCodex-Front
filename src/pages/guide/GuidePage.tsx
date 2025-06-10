@@ -1,64 +1,53 @@
-// src/pages/GuidePage.tsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import guideService from "@/services/guideService.ts";
-import '@/css/Guide.css';
+import guideService from "@/services/guideService";
+import { Guide } from "@/interfaces/Guide";
+import { useAuth } from "@/context/AuthContext";
 
-const GuidePage = () => {
-    const [guides, setGuides] = useState<any[]>([]);
+const GuidePage: React.FC = () => {
+    const [guides, setGuides] = useState<Guide[]>([]);
     const [loading, setLoading] = useState(true);
+    const { isAuthenticated } = useAuth();
 
     useEffect(() => {
-        guideService.getPublishedGuides()
-            .then(setGuides)
-            .catch(err => console.error("Error fetching guides:", err))
-            .finally(() => setLoading(false));
+        guideService.getPublic().then(setGuides).finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <div className="p-6 text-center">Loading guides...</div>;
+    if (loading) return <div className="p-4">Loading…</div>;
 
     return (
-        <div className="p-6 max-w-5xl mx-auto">
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-[#f47e00]">Guides</h1>
-                <Link
-                    to="/guides/create"
-                    className="bg-[#f47e00] hover:bg-[#d56b00] text-white py-2 px-4 rounded"
-                >
-                    Create Guide
-                </Link>
+        <div className="p-4">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold">Guides</h1>
+                {isAuthenticated && (
+                    <Link
+                        to="/guides/create"
+                        className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+                    >
+                        + New Guide
+                    </Link>
+                )}
             </div>
 
             {guides.length === 0 ? (
-                <p>No published guides yet.</p>
+                <p>No guides yet.</p>
             ) : (
-                <div className="space-y-8">
-                    {guides.map(guide => (
-                        <div key={guide.id} className="guide-card">
-                            {guide.coverImageUrl && (
-                                <img
-                                    src={guide.coverImageUrl}
-                                    alt="Cover"
-                                    className="guide-cover"
-                                />
-                            )}
-                            <div className="flex-1">
-                                <h2 className="guide-title">{guide.title}</h2>
-                                <p className="guide-snippet">
-                                    {guide.content.length > 150
-                                        ? guide.content.slice(0, 150) + "..."
-                                        : guide.content}
-                                </p>
-                                <Link
-                                    to={`/guides/${guide.id}`}
-                                    className="text-blue-600 hover:underline text-sm font-semibold"
-                                >
-                                    View guide →
-                                </Link>
-                            </div>
-                        </div>
+                <ul className="space-y-4">
+                    {guides.map(g => (
+                        <li key={g.id} className="border p-4 rounded-lg">
+                            <Link
+                                to={`/guides/${g.id}`}
+                                className="text-xl font-semibold hover:underline"
+                            >
+                                {g.title}
+                            </Link>
+                            <p className="text-sm text-gray-500">
+                                {new Date(g.createdAt).toLocaleDateString()}
+                            </p>
+                            <p className="line-clamp-3">{g.content}</p>
+                        </li>
                     ))}
-                </div>
+                </ul>
             )}
         </div>
     );

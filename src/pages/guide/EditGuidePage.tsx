@@ -1,115 +1,49 @@
-// src/pages/EditGuidePage.tsx
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import RichTextEditor from '@/components/RichTextEditor.tsx';
-import guideService from '@/services/guideService.ts';
-import '@/css/Guide.css';
+// src/pages/guide/EditGuidePage.tsx
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import GuideForm from "@/components/guide/GuideForm";
+import guideService from "@/services/guideService";
+import { Guide } from "@/interfaces/Guide";
+import { GuideForm as Form } from "@/interfaces/Guide";
 
-const EditGuidePage = () => {
+const EditGuidePage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
+    const [guide, setGuide] = useState<Guide | null>(null);
     const navigate = useNavigate();
 
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
-    const [coverImage, setCoverImage] = useState<File | null>(null);
-    const [currentCoverUrl, setCurrentCoverUrl] = useState<string>('');
-    const [loading, setLoading] = useState(true);
-
     useEffect(() => {
-        if (!id) return;
-        guideService.getGuideById(id)
-            .then(guide => {
-                setTitle(guide.title);
-                setContent(guide.content);
-                setCurrentCoverUrl(guide.coverImageUrl || '');
-            })
-            .catch(err => console.error('Error fetching guide:', err))
-            .finally(() => setLoading(false));
+        if (id) guideService.getById(+id).then(setGuide);
     }, [id]);
 
-    const handleSubmit = async (publish: boolean) => {
-        try {
-            const formData = new FormData();
-            formData.append('title', title);
-            formData.append('content', content);
-            formData.append('isDraft', (!publish).toString());
-            formData.append('isPublished', publish.toString());
-            if (coverImage) formData.append('coverImage', coverImage);
+    if (!guide) return <div className="p-4">Loading…</div>;
 
-            await guideService.updateGuide(id!, formData);
-
-            if (publish) navigate(`/guides/${id}`);
-            else console.log('Draft saved!');
-        } catch (error) {
-            console.error('Error updating guide:', error);
-        }
+    /* --- callbacks --- */
+    const saveDraft = (data: Form) => {
+        const payload = { ...data, published: false, draft: true };
+        guideService.update(guide.id, payload).then(g => navigate(`/guides/${g.id}`));
     };
 
-    if (loading) return <div className="p-6 text-center">Loading guide...</div>;
+    const publishGuide = (data: Form) => {
+        const payload = { ...data, published: true, draft: false };
+        guideService.update(guide.id, payload).then(g => navigate(`/guides/${g.id}`));
+    };
 
     return (
-        <div className="p-6 max-w-3xl mx-auto">
-            <button
-                className="mb-4 text-sm text-[#f47e00] hover:underline flex items-center gap-1"
-                onClick={() => navigate('/my-drafts')}
-            >
-                <span className="text-lg">←</span> Back to My Drafts
-            </button>
-
-            <h1 className="text-2xl font-bold text-[#f47e00] mb-4">Edit Guide</h1>
-
-            <label className="block mb-2 font-semibold">Title *</label>
-            <input
-                type="text"
-                className="w-full border border-gray-300 p-2 rounded mb-4"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-            />
-
-            <label className="block mb-2 font-semibold">Body</label>
-            <RichTextEditor content={content} onChange={setContent} />
-
-            <label className="block mt-4 mb-2 font-semibold">Cover Image</label>
-            <div className="flex items-center gap-4 mb-4">
-                <button
-                    type="button"
-                    className="bg-[#f47e00] hover:bg-[#d56b00] text-white py-2 px-4 rounded"
-                    onClick={() => document.getElementById('coverImageInput')?.click()}
-                >
-                    Change Cover Image
-                </button>
-                {coverImage ? (
-                    <span className="text-sm">{coverImage.name}</span>
-                ) : currentCoverUrl ? (
-                    <img src={currentCoverUrl} alt="Current cover" className="h-16 rounded shadow" />
-                ) : (
-                    <span className="text-gray-500 text-sm">No cover image</span>
-                )}
-            </div>
-            <input
-                id="coverImageInput"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                    if (e.target.files?.[0]) setCoverImage(e.target.files[0]);
+        <div className="p-4">
+            <h1 className="text-2xl font-bold mb-4">Edit Guide</h1>
+            <GuideForm
+                initial={{
+                    title: guide.title,
+                    content: guide.content,
+                    coverImageUrl: guide.coverImageUrl ?? "",
+                    tags: guide.tags,
+                    published: guide.published,
+                    draft: guide.draft,
                 }}
+                submitLabel="Save draft"
+                onSubmit={saveDraft}       // botón gris
+                onPublish={publishGuide}   // botón verde
             />
-
-            <div className="flex gap-4 mt-6">
-                <button
-                    className="bg-gray-400 hover:bg-gray-500 text-white py-2 px-4 rounded"
-                    onClick={() => handleSubmit(false)}
-                >
-                    Save Changes
-                </button>
-                <button
-                    className="bg-[#f47e00] hover:bg-[#d56b00] text-white py-2 px-4 rounded"
-                    onClick={() => handleSubmit(true)}
-                >
-                    Publish
-                </button>
-            </div>
         </div>
     );
 };

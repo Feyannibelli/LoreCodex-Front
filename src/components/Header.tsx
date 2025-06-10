@@ -1,8 +1,9 @@
 import React from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Bell, ChevronDown } from 'lucide-react';
+import {ChevronDown } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import NotificationsBell from "@/components/NotificationsBell.tsx";
 
 const Header: React.FC = () => {
     const { isAuthenticated, user, isAdmin, logout } = useAuth();
@@ -20,33 +21,39 @@ const Header: React.FC = () => {
             <div className="flex items-center gap-4">
                 {isAuthenticated ? (
                     <>
-                        {/* Admin dropdown using shadcn/ui */}
+                        {/* dropdown del admin*/}
                         {isAdmin && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger className="px-3 py-1 bg-gray-800 text-white rounded hover:bg-gray-700 cursor-pointer">
                                     Admin
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-32 shadow-lg rounded-md bg-white dark:bg-[#313E3F] animate-fade-in-scale">
+                                <DropdownMenuContent
+                                    align="end"
+                                    className="w-32 shadow-lg rounded-md bg-white dark:bg-[#313E3F] animate-fade-in-scale"
+                                >
                                     <DropdownMenuItem asChild>
                                         <Link to="/admin/users">Users</Link>
                                     </DropdownMenuItem>
+
                                     <DropdownMenuItem asChild>
                                         <Link to="/admin/games">Games</Link>
+                                    </DropdownMenuItem>
+
+                                    {/* acceso al abm de news */}
+                                    <DropdownMenuItem asChild>
+                                        <Link to="/admin/news">News</Link>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         )}
 
                         {/* Notifications */}
-                        <button className="relative">
-                            <Bell className="h-6 w-6 text-[#090400] dark:text-white" />
-                            <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-[#F04E42]"></span>
-                        </button>
+                        <NotificationsBell />
 
                         {/* User menu */}
                         <DropdownMenu>
                             <div className="flex items-center gap-2">
-                                {/* Círculo que lleva al profile */}
+                                {/* círculo que lleva al profile */}
                                 <Link to="/profile" className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-300 text-black font-semibold overflow-hidden">
                                     {user?.profilePicture ? (
                                         <img
@@ -59,7 +66,7 @@ const Header: React.FC = () => {
                                     )}
                                 </Link>
 
-                                {/* Flechita que abre el dropdown */}
+                                {/* flechita q abre el dropdown */}
                                 <DropdownMenuTrigger className="flex items-center justify-center">
                                     <ChevronDown className="h-4 w-4 text-[#0C0C0C] dark:text-white cursor-pointer" />
                                 </DropdownMenuTrigger>

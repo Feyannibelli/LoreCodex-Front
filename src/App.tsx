@@ -23,15 +23,19 @@ import EditGuidePage from "@/pages/guide/EditGuidePage.tsx";
 import GuidePage from "@/pages/guide/GuidePage.tsx";
 import CreateGuidePage from "@/pages/guide/CreateGuidePage.tsx";
 import GuideDetailPage from "@/pages/guide/GuideDetailPage.tsx";
+import NewsPage        from "./pages/news/NewsPage";
+import NewsDetailPage  from "./pages/news/NewsDetailPage";
+import CreateNewsPage  from "./pages/news/CreateNewsPage";
+import EditNewsPage    from "./pages/news/EditNewsPage";
+import AdminNewsList   from "./pages/admin/AdminNewsList";
 
 // Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     const { isAdmin, loading } = useAuth();
-
-    if (loading) return <div>Loading...</div>;
-
-    return isAdmin ? <>{children}</> : <Navigate to="/" />;
+    if (loading) return <div>Loading…</div>;
+    return isAdmin ? <>{children}</> : <Navigate to="/news" />;
 };
+
 
 const App: React.FC = () => {
     return (
@@ -108,17 +112,10 @@ const App: React.FC = () => {
 
                 {/* Guías */}
                 <Route path="/guides" element={<GuidePage />} />
-                <Route
-                    path="/guides/create"
-                    element={
-                        <PrivateRoute>
-                            <CreateGuidePage />
-                        </PrivateRoute>
-                    }
-                />
                 <Route path="/guides/:id" element={<GuideDetailPage />} />
-                <Route path="/my-drafts" element={<MyDraftsPage />} />
-                <Route path="/guides/edit/:id" element={<EditGuidePage />} />
+                <Route path="/guides/create" element={<PrivateRoute><CreateGuidePage /></PrivateRoute>} />
+                <Route path="/guides/edit/:id" element={<PrivateRoute><EditGuidePage /></PrivateRoute>} />
+                <Route path="/my-drafts" element={<PrivateRoute><MyDraftsPage /></PrivateRoute>} />
 
                 {/* Juegos y listas - públicos de navegación */}
                 <Route path="/games" element={<GamesPage />} />
@@ -126,6 +123,18 @@ const App: React.FC = () => {
 
                 {/* Si no existe ruta, redirige a home */}
                 <Route path="*" element={<Navigate to="/" />} />
+
+                {/* ---------- NEWS (público) ---------- */}
+                <Route path="/news" element={<NewsPage />} />
+                <Route path="/news/:id" element={<NewsDetailPage />} />
+
+                {/* ADMIN News */}
+                <Route path="/admin/news"           element={<AdminRoute><AdminNewsList /></AdminRoute>} />
+                <Route path="/admin/news/create"    element={<AdminRoute><CreateNewsPage /></AdminRoute>} />
+                <Route path="/admin/news/edit/:id"  element={<AdminRoute><EditNewsPage /></AdminRoute>} />
+
+
+
             </Routes>
         </div>
     );

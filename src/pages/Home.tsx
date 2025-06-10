@@ -1,51 +1,59 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../css/Home.css";
+
 import { Game } from "../interfaces/Game";
 import gameService from "../services/gameService";
-import api from "@/services/api.ts";
+import newsService from "../services/newsService";
+import { News } from "../interfaces/News";
+import api from "@/services/api";
+import {Guide} from "@/interfaces/Guide.ts";
 
 const Home: React.FC = () => {
-    const [popularGuides, setPopularGuides] = useState<any[]>([]);
+    /* ---------- estado ---------- */
+    const [popularGuides, setPopularGuides] = useState<Guide[]>([]);
 
     const [recentlyAdded, setRecentlyAdded] = useState<Game[]>([]);
-    const [popularGames, setPopularGames] = useState<Game[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const [searchTerm, setSearchTerm] = useState<string>("");
+    const [popularGames,  setPopularGames]  = useState<Game[]>([]);
+    const [latestNews,    setLatestNews]    = useState<News[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error,   setError]   = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState("");
+
     const navigate = useNavigate();
+    const popularReviews = [1, 2, 3]; // (placeholder)
 
-    const latestNews = [1, 2, 3, 4];
-    const popularReviews = [1, 2, 3];
-
+    /* ---------- efectos ---------- */
+    /* guías publicadas */
     useEffect(() => {
         api.get("/guides/published")
-            .then(response => {
-                setPopularGuides(response.data);
-            })
-            .catch(error => {
-                console.error("Error fetching popular guides:", error);
-            });
+            .then(res => setPopularGuides(res.data))
+            .catch(err => console.error("Error fetching guides:", err));
     }, []);
 
+    /* juegos */
+    useEffect(() => { loadGames(); }, []);
+
+    /* noticias recientes */
     useEffect(() => {
-        loadGames();
+        newsService.getRecent(5)                       // ⬅️  NUEVO
+            .then(res => setLatestNews(res.data))
+            .catch(err => console.error("Error loading news:", err));
     }, []);
 
+    /* ---------- helpers ---------- */
     const loadGames = async () => {
         try {
             setLoading(true);
             const allGames = await gameService.getAllGames();
 
-            // Sort by release date (newest first) for recently added
-            const recent = [...allGames].sort((a, b) =>
-                new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime()
-            ).slice(0, 10);
+            const recent  = [...allGames]
+                .sort((a, b) => +new Date(b.releaseDate) - +new Date(a.releaseDate))
+                .slice(0, 10);
 
-            // Sort by likes (highest first) for popular games
-            const popular = [...allGames].sort((a, b) =>
-                (b.likes || 0) - (a.likes || 0)
-            ).slice(0, 8);
+            const popular = [...allGames]
+                .sort((a, b) => (b.likes || 0) - (a.likes || 0))
+                .slice(0, 8);
 
             setRecentlyAdded(recent);
             setPopularGames(popular);
@@ -65,9 +73,9 @@ const Home: React.FC = () => {
         }
     };
 
+    /* ---------- render ---------- */
     return (
         <div className="home-container">
-            {/* Barra de búsqueda */}
             {/* Search bar */}
             <div className="search-container">
                 <form className="search-bar" onSubmit={handleSearch}>
@@ -76,57 +84,67 @@ const Home: React.FC = () => {
                         className="search-input"
                         placeholder="Search"
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={e => setSearchTerm(e.target.value)}
                     />
                     <button type="submit" className="search-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                             viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398..."/>
                         </svg>
                     </button>
                 </form>
             </div>
 
-            {/* Contenido general */}
             {error && <div className="error-message">{error}</div>}
 
-            {/* General content */}
             <div className="content-grid">
-                {/* Left column - news */}
+                {/* -------- Latest News -------- */}
                 <div className="content-section">
                     <div className="section-header">
                         <span className="section-title">Latest News</span>
-                        <a href="#" className="view-more">More +</a>
+                        <Link to="/news" className="view-more">More +</Link>
                     </div>
+
                     <div className="news-list">
-                        {latestNews.map((_, index) => (
-                            <div key={index} className="news-item">
-                                <a href="#" className="item-card">
-                                    <div className="item-title">News Title {index + 1}</div>
-                                </a>
-                            </div>
-                        ))}
+                        {latestNews.length === 0 ? (
+                            <div className="p-2 text-gray-500">No news yet.</div>
+                        ) : (
+                            latestNews.map(item => (
+                                <div key={item.id} className="news-item">
+                                    <Link to={`/news/${item.id}`} className="item-card">
+                                        {item.coverImage && (
+                                            <img
+                                                src={item.coverImage}
+                                                alt={item.title}
+                                                className="h-24 w-full object-cover rounded mb-2"
+                                            />
+                                        )}
+                                        <div className="item-title font-semibold">{item.title}</div>
+                                        <div className="text-xs text-gray-500">
+                                            {new Date(item.createdAt).toLocaleDateString()}
+                                        </div>
+                                    </Link>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
 
-                {/* Columna derecha - juegos recién añadidos */}
-                {/* Right column - recently added games */}
+                {/* -------- Recently Added Games -------- */}
                 <div className="content-section">
                     <div className="section-header">
                         <span className="section-title">Recently Added</span>
                         <Link to="/games" className="view-more">More +</Link>
                     </div>
+
                     <div className="content-items">
                         {loading ? (
                             <div className="loading">Loading...</div>
-                        ) : recentlyAdded.length > 0 ? (
-                            recentlyAdded.map((game) => (
+                        ) : recentlyAdded.length ? (
+                            recentlyAdded.map(game => (
                                 <Link to={`/games/${game.id}`} key={game.id} className="item-card">
                                     <div className="item-image">
-                                        {game.imageUrl ? (
-                                            <img src={game.imageUrl} alt={game.name} />
-                                        ) : (
-                                            "Game"
-                                        )}
+                                        {game.imageUrl ? <img src={game.imageUrl} alt={game.name} /> : "Game"}
                                     </div>
                                     <div className="item-title">{game.name}</div>
                                     <div className="item-meta">{new Date(game.releaseDate).getFullYear()}</div>
@@ -139,29 +157,24 @@ const Home: React.FC = () => {
                 </div>
             </div>
 
-            {/* Popular games */}
+            {/* -------- Popular Games -------- */}
             <div className="content-section">
                 <div className="section-header">
                     <span className="section-title">Popular Games</span>
                     <Link to="/games" className="view-more">More +</Link>
                 </div>
+
                 <div className="content-items">
                     {loading ? (
                         <div className="loading">Loading...</div>
-                    ) : popularGames.length > 0 ? (
-                        popularGames.map((game) => (
+                    ) : popularGames.length ? (
+                        popularGames.map(game => (
                             <Link to={`/games/${game.id}`} key={game.id} className="item-card">
                                 <div className="item-image">
-                                    {game.imageUrl ? (
-                                        <img src={game.imageUrl} alt={game.name} />
-                                    ) : (
-                                        "Game"
-                                    )}
+                                    {game.imageUrl ? <img src={game.imageUrl} alt={game.name} /> : "Game"}
                                 </div>
                                 <div className="item-title">{game.name}</div>
-                                <div className="item-meta">
-                                    <span>❤️ {game.likes || 0}</span>
-                                </div>
+                                <div className="item-meta"><span>❤️ {game.likes || 0}</span></div>
                             </Link>
                         ))
                     ) : (

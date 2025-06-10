@@ -10,17 +10,27 @@ const UserMenu: React.FC = () => {
             >
                 Guides
             </Link>
+
             <Link
                 to="/games"
                 className="text-gray-700 hover:text-blue-500 font-semibold"
             >
                 Games
             </Link>
+
             <Link
                 to="/lists"
                 className="text-gray-700 hover:text-blue-500 font-semibold"
             >
                 Lists
+            </Link>
+
+            {/* NUEVO enlace */}
+            <Link
+                to="/news"
+                className="text-gray-700 hover:text-blue-500 font-semibold"
+            >
+                News
             </Link>
         </nav>
     );
