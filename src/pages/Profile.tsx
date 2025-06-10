@@ -1,7 +1,7 @@
 // src/pages/Profile.tsx
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import authService, { UserData } from '@/services/authService';
+import authService, { UserData } from '../services/authService';
 
 const Profile: React.FC = () => {
     const [userData, setUserData] = useState<UserData | null>(null);
@@ -51,6 +51,14 @@ const Profile: React.FC = () => {
                 className="mt-6 bg-[#f47e00] hover:bg-[#d56b00] text-white font-semibold py-2 px-6 rounded"
             >
                 View My Drafts
+            </Link>
+
+            {/* Botón para ir a list */}
+            <Link
+                to="/my-lists"
+                className="mt-6 bg-[#f47e00] hover:bg-[#d56b00] text-white font-semibold py-2 px-6 rounded"
+            >
+                View My Lists
             </Link>
 
             {/* Estadísticas placeholder */}

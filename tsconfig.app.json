@@ -8,7 +8,7 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/": ["./src/"]
     },
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "bundler",
@@ -21,7 +21,9 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    "types": ["vite/client", "tailwindcss"]  //agregado
   },
-  "include": ["src"]
+  "include": ["src", "tailwind.config.ts"]  //a ver si funca
 }

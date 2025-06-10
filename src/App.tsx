@@ -1,4 +1,3 @@
-// src/App.tsx
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
@@ -28,6 +27,19 @@ import NewsDetailPage  from "./pages/news/NewsDetailPage";
 import CreateNewsPage  from "./pages/news/CreateNewsPage";
 import EditNewsPage    from "./pages/news/EditNewsPage";
 import AdminNewsList   from "./pages/admin/AdminNewsList";
+import ListsPage from './pages/list/ListsPage.tsx';
+import ChallengesPage from './pages/challenge/ChallengesPage';
+import ChallengeDetailPage from './pages/challenge/ChallengeDetailPage';
+import CreateChallengePage from './pages/challenge/CreateChallengePage';
+import EditGuidePage from "./pages/guide/EditGuidePage.tsx";
+import MyDraftsPage from "./pages/guide/MyDraftsPage.tsx";
+import GuidePage from "./pages/guide/GuidePage.tsx";
+import CreateGuidePage from "./pages/guide/CreateGuidePage.tsx";
+import GuideDetailPage from "./pages/guide/GuideDetailPage.tsx";
+import CreateListPage from './pages/list/CreateListPage.tsx';
+import MyListsPage from './pages/list/MyListsPage.tsx';
+import ListDetailPage from './pages/list/ListDetailPage.tsx';
+import EditListPage from './pages/list/EditListPage.tsx';
 
 // Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -117,9 +129,48 @@ const App: React.FC = () => {
                 <Route path="/guides/edit/:id" element={<PrivateRoute><EditGuidePage /></PrivateRoute>} />
                 <Route path="/my-drafts" element={<PrivateRoute><MyDraftsPage /></PrivateRoute>} />
 
+                {/* Challenges */}
+                <Route path="/challenges" element={<ChallengesPage />} />
+                <Route path="/challenges/:id" element={<ChallengeDetailPage />} />
+                <Route
+                    path="/challenges/create"
+                    element={
+                        <PrivateRoute>
+                            <CreateChallengePage />
+                        </PrivateRoute>
+                    }
+                />
+
+                {/* Listas */}
+                <Route path="/lists" element={<ListsPage />} />
+                <Route path="/lists/:id" element={<ListDetailPage />} />
+                <Route
+                    path="/lists/create"
+                    element={
+                        <PrivateRoute>
+                            <CreateListPage />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/my-lists"//para profile
+                    element={
+                        <PrivateRoute>
+                            <MyListsPage />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/lists/edit/:id"
+                    element={
+                        <PrivateRoute>
+                            <EditListPage />
+                        </PrivateRoute>
+                    }
+                />
+
                 {/* Juegos y listas - públicos de navegación */}
                 <Route path="/games" element={<GamesPage />} />
-                <Route path="/lists" element={<ListsPage />} />
 
                 {/* Si no existe ruta, redirige a home */}
                 <Route path="*" element={<Navigate to="/" />} />

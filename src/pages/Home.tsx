@@ -4,10 +4,11 @@ import "../css/Home.css";
 
 import { Game } from "../interfaces/Game";
 import gameService from "../services/gameService";
+import api from "../services/api.ts";
 import newsService from "../services/newsService";
 import { News } from "../interfaces/News";
-import api from "@/services/api";
-import {Guide} from "@/interfaces/Guide.ts";
+import api from "../services/api";
+import {Guide} from "../interfaces/Guide.ts";
 
 const Home: React.FC = () => {
     /* ---------- estado ---------- */
