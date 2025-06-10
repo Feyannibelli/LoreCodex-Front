@@ -105,7 +105,7 @@ const ListsPage: React.FC = () => {
                                     Crear Lista
                                 </Button>
                                 <Button
-                                    onClick={() => navigate('/lists/my-lists')}
+                                    onClick={() => navigate('/my-lists')}
                                     className="border border-white text-white hover:bg-white hover:text-blue-600 px-6 py-3"
                                 >
                                     Ver Mis Listas

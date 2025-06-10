@@ -2,7 +2,7 @@ import React from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Bell, ChevronDown } from 'lucide-react';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../components/ui/dropdown-menu";
 
 const Header: React.FC = () => {
     const { isAuthenticated, user, isAdmin, logout } = useAuth();
