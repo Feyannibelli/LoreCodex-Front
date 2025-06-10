@@ -4,7 +4,6 @@ import "../css/Home.css";
 
 import { Game } from "../interfaces/Game";
 import gameService from "../services/gameService";
-import api from "../services/api.ts";
 import newsService from "../services/newsService";
 import { News } from "../interfaces/News";
 import api from "../services/api";

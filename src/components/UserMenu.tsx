@@ -25,6 +25,13 @@ const UserMenu: React.FC = () => {
                 Lists
             </Link>
 
+            <Link
+                to="/challenges"
+                className="text-gray-700 hover:text-blue-500 font-semibold"
+            >
+                Challenges
+            </Link>
+
             {/* NUEVO enlace */}
             <Link
                 to="/news"
