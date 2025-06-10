@@ -16,7 +16,7 @@ import PublicOnlyRoute from './components/PublicOnlyRoute';
 import PrivateRoute from './components/PrivateRoute';
 import UserMenu from "./components/UserMenu";
 import GamesPage from './pages/game/GamesPage.tsx';
-import ListsPage from './pages/ListsPage';
+import ListsPage from './pages/list/ListsPage.tsx';
 import ChallengesPage from './pages/challenge/ChallengesPage';
 import ChallengeDetailPage from './pages/challenge/ChallengeDetailPage';
 import CreateChallengePage from './pages/challenge/CreateChallengePage';
@@ -150,7 +150,7 @@ const App: React.FC = () => {
                     }
                 />
                 <Route
-                    path="/my-lists"
+                    path="/my-lists"//para profile
                     element={
                         <PrivateRoute>
                             <MyListsPage />
