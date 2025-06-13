@@ -11,7 +11,7 @@ const toFrontend = (b: any): Guide => ({
     published: b.isPublished,
     draft: b.isDraft,
     tags: b.tags,
-    userId: b.userId,
+    authorId: b.authorId,
     likeCount: b.likeCount,
     comments: b.comments ?? [],
     images: b.images ?? [],
@@ -46,6 +46,11 @@ const guideService = {
             .get(`/guides/user/${userId}/drafts`)
             .then(r => r.data.map(toFrontend)),
 
+    /*guías por titulo (search) */
+    search: (query: string) =>
+        api.get(`/guides/search?query=${encodeURIComponent(query)}`)
+            .then(r => r.data.map(toFrontend)),
+
     /* admin o listados completos */
     getAll: () =>
         apiAuth.get(`/guides/all`).then(r => r.data.map(toFrontend)),
@@ -64,6 +69,9 @@ const guideService = {
     publish:   (id: number) => apiAuth.post(`/guides/${id}/publish`).then(r => toFrontend(r.data)),
     unpublish: (id: number) => apiAuth.post(`/guides/${id}/unpublish`).then(r => toFrontend(r.data)),
     like:      (id: number) => apiAuth.post(`/guides/${id}/like`),
+    getAuthor: (id: number) =>
+        api.get(`/guides/${id}/author`).then(r => r.data),
+    searchGuidesByTitle: (title:string) => apiAuth.get(`/guides/search?title=${encodeURIComponent(title)}`)
 };
 
 export default guideService;

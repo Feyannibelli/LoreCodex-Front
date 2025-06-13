@@ -17,7 +17,7 @@ import PublicOnlyRoute from './components/PublicOnlyRoute';
 import PrivateRoute from './components/PrivateRoute';
 import UserMenu from "./components/UserMenu";
 import GamesPage from './pages/game/GamesPage.tsx';
-import ListsPage from './pages/ListsPage';
+import ListsPage from './pages/lists/ListsPage.tsx';
 import MyDraftsPage from "@/pages/guide/MyDraftsPage.tsx";
 import EditGuidePage from "@/pages/guide/EditGuidePage.tsx";
 import GuidePage from "@/pages/guide/GuidePage.tsx";
@@ -28,6 +28,9 @@ import NewsDetailPage  from "./pages/news/NewsDetailPage";
 import CreateNewsPage  from "./pages/news/CreateNewsPage";
 import EditNewsPage    from "./pages/news/EditNewsPage";
 import AdminNewsList   from "./pages/admin/AdminNewsList";
+import PublicProfile from "@/pages/PublicProfile.tsx";
+import CreateListPage from "@/pages/lists/CreateListPage.tsx";
+import ListDetailPage from "@/pages/lists/ListDetailPage.tsx";
 
 // Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -63,7 +66,7 @@ const App: React.FC = () => {
                     }
                 />
 
-                {/* Ruta protegida para perfil personal */}
+                {/* perfil privado (mi perfil) */}
                 <Route
                     path="/profile"
                     element={
@@ -73,8 +76,14 @@ const App: React.FC = () => {
                     }
                 />
 
+                {/* perfil público de otro usuario */}
+                <Route
+                    path="/profile/:userId"
+                    element={<PublicProfile />}
+                />
+
+
                 {/* Ruta protegida solo para admins */}
-                <Route path="/profile" element={<Profile />} />
                 <Route path="/games" element={<Games />} />
                 <Route path="/games/:id" element={<Game />} />
                 <Route
@@ -133,8 +142,17 @@ const App: React.FC = () => {
                 <Route path="/admin/news/create"    element={<AdminRoute><CreateNewsPage /></AdminRoute>} />
                 <Route path="/admin/news/edit/:id"  element={<AdminRoute><EditNewsPage /></AdminRoute>} />
 
-
-
+                {/* ...otras rutas... */}
+                  <Route
+                    path="/lists/create"
+                    element={
+                      <PrivateRoute>
+                            <CreateListPage />
+                          </PrivateRoute>
+                    }
+                  />
+                <Route path="/lists" element={<ListsPage />} />
+                <Route path="/lists/:id" element={<ListDetailPage />} />
             </Routes>
         </div>
     );

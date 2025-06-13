@@ -26,7 +26,7 @@ const Home: React.FC = () => {
     /* ---------- efectos ---------- */
     /* guías publicadas */
     useEffect(() => {
-        api.get("/guides/published")
+        api.get("/guides/all/published")
             .then(res => setPopularGuides(res.data))
             .catch(err => console.error("Error fetching guides:", err));
     }, []);
@@ -89,7 +89,8 @@ const Home: React.FC = () => {
                     <button type="submit" className="search-button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                              viewBox="0 0 16 16">
-                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398..."/>
+                            <path
+                                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.85-3.85zm-5.242 1.656a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
                         </svg>
                     </button>
                 </form>

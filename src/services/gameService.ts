@@ -87,14 +87,15 @@ const gameService = {
     },
 
     // Buscar juegos por nombre (podriamos usarlo para lo de menciones?)
-    searchGamesByName: async (name: string): Promise<Game[]> => {
+    searchGamesByName: async (title: string): Promise<Game[]> => {
         try {
-            const response = await api.get(`/games?title=${name}`);
+            const response = await api.get(`/games/allGames?title=${encodeURIComponent(title)}`);
             return response.data.map(adaptBackendGameToFrontend);
         } catch (error) {
-            console.error('Error searching games:', error);
+            console.error('Error searching games by name:', error);
             return [];
         }
+
     },
 
     // Crear un nuevo juego (solo admin)

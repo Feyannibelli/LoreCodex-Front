@@ -11,6 +11,7 @@ export interface Review {
     updatedAt: string;
     userHasLiked?: boolean;
     userHasDisliked?: boolean;
+    gameTitle?: string;
 }
 
 export interface ReviewFormData {

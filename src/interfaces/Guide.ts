@@ -18,7 +18,8 @@ export interface Guide {
     published: boolean;      // mapea isPublished
     draft: boolean;          // mapea isDraft
     tags: string[];
-    userId: number;
+    authorId: number;
+    authorUsername?: string; // opcional, si se quiere mostrar el nombre de usuario
     likeCount: number;
     comments: Comment[];
     images: GuideImage[];

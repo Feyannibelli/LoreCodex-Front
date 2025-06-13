@@ -1,13 +1,12 @@
-// src/interfaces/UserProfileResponse.ts
-
+import { UserListResponse } from './UserListResponse';
 import {Guide} from "@/interfaces/Guide.ts";
 import {Review} from "@/interfaces/Review.ts";
 
 export interface UserProfileResponse {
     userId: number;
     username: string;
-    avatarUrl?: string | null;
-    bio?: string | null;
+    avatarUrl?: string | undefined;
+    bio?: string | undefined;
     followersCount: number;
     followingCount: number;
     isFollowedByCurrentUser: boolean;
@@ -15,4 +14,3 @@ export interface UserProfileResponse {
     lists: UserListResponse[];
     reviews: Review[];
 }
-
