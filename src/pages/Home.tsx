@@ -87,7 +87,7 @@ const Home: React.FC = () => {
                         onChange={e => setSearchTerm(e.target.value)}
                     />
                     <button type="submit" className="search-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" //arreglar buscar nueva componente para reseach
                              viewBox="0 0 16 16">
                             <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398..."/>
                         </svg>

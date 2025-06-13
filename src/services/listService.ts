@@ -104,27 +104,29 @@ const listService = {
                 list.items.map(async (item) => {
                     let name = '';
                     let imageUrl = '';
-                    let gameTitle = '';
+                    let guideTitle = '';
 
                     try {
                         switch (item.type) {
                             case 'GAME':
-                                const game = await gameService.getGameById(item.referenceId);
+                                { const game = await gameService.getGameById(item.referenceId);
                                 name = game.name;
                                 imageUrl = game.imageUrl || '';
-                                break;
+                                break; }
                             case 'GUIDE':
-                                const guide = await guideService.getGuideById(item.referenceId.toString());
+                                { const guide = await guideService.getById(item.id);
                                 name = guide.title;
                                 imageUrl = guide.coverImageUrl || '';
-                                gameTitle = guide.gameTitle || '';
-                                break;
-                            case 'CHALLENGE':
-                                // Asumo que tienes un challengeService similar
-                                // const challenge = await challengeService.getChallengeById(item.referenceId);
-                                // name = challenge.title;
-                                name = `Challenge ${item.referenceId}`; // Placeholder
-                                break;
+                                guideTitle = guide.title || '';
+                                break; }
+                            /* 
+                        case 'CHALLENGE':
+                            // Asumo que tienes un challengeService similar
+                            // const challenge = await challengeService.getChallengeById(item.referenceId);
+                            // name = challenge.title;
+                            name = `Challenge ${item.referenceId}`; // Placeholder
+                            break;
+                         */
                             default:
                                 name = 'Unknown Item';
                         }
@@ -137,7 +139,7 @@ const listService = {
                         ...item,
                         name,
                         imageUrl,
-                        gameTitle
+                        guideTitle
                     };
                 })
             );

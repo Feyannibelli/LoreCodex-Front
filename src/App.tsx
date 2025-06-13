@@ -22,9 +22,6 @@ import CreateNewsPage  from "./pages/news/CreateNewsPage";
 import EditNewsPage    from "./pages/news/EditNewsPage";
 import AdminNewsList   from "./pages/admin/AdminNewsList";
 import ListsPage from './pages/list/ListsPage.tsx';
-import ChallengesPage from './pages/challenge/ChallengesPage';
-import ChallengeDetailPage from './pages/challenge/ChallengeDetailPage';
-import CreateChallengePage from './pages/challenge/CreateChallengePage';
 import EditGuidePage from "./pages/guide/EditGuidePage.tsx";
 import MyDraftsPage from "./pages/guide/MyDraftsPage.tsx";
 import GuidePage from "./pages/guide/GuidePage.tsx";
@@ -122,18 +119,6 @@ const App: React.FC = () => {
                 <Route path="/guides/create" element={<PrivateRoute><CreateGuidePage /></PrivateRoute>} />
                 <Route path="/guides/edit/:id" element={<PrivateRoute><EditGuidePage /></PrivateRoute>} />
                 <Route path="/my-drafts" element={<PrivateRoute><MyDraftsPage /></PrivateRoute>} />
-
-                {/* Challenges */}
-                <Route path="/challenges" element={<ChallengesPage />} />
-                <Route path="/challenges/:id" element={<ChallengeDetailPage />} />
-                <Route
-                    path="/challenges/create"
-                    element={
-                        <PrivateRoute>
-                            <CreateChallengePage />
-                        </PrivateRoute>
-                    }
-                />
 
                 {/* Listas */}
                 <Route path="/lists" element={<ListsPage />} />

@@ -1,95 +1,88 @@
-import { Challenge, ChallengeFormData } from '../interfaces/Challenge';
-import apiAuth from './apiAuth';
-import api from './api';
+import axios from 'axios';
+import api from "./api";
+import apiAuth from "./apiAuth";
 
-// Interface for backend Challenge format
+// Interfaces para el frontend
+export interface ChallengeItem {
+    id?: number;
+    description: string;
+    order: number;
+    completed?: boolean;
+}
+
+export interface Challenge {
+    id: number;
+    title: string;
+    description: string;
+    creatorUsername: string;
+    items: ChallengeItem[];
+    difficulty?: number; // 1-6
+    mediaUrl?: string;
+    mediaType?: 'image' | 'video' | 'none';
+}
+
+export interface ChallengeFormData {
+    title: string;
+    description: string;
+    items: string[];
+    difficulty: number;
+    mediaUrl?: string;
+    mediaType: 'image' | 'video' | 'none';
+}
+
+export interface ChallengeProgress {
+    challengeId: number;
+    progress: number; // 0-100
+    completed: number;
+    total: number;
+}
+
+// Interfaces para adaptar el backend
 interface BackendChallenge {
     id: number;
     title: string;
     description: string;
-    creatorId: number;
-    creatorName: string;
-    gameId: number;
-    gameName: string;
-    gameCoverImage: string;
-    difficultyRating: number;
-    tasks: {
+    creatorUsername: string;
+    items: {
         id: number;
         description: string;
-        isCompleted?: boolean;
+        order: number;
     }[];
-    completionsCount: number;
-    participantsCount: number;
-    mediaItems?: {
-        type: 'image' | 'video';
-        url: string;
-    }[];
-    createdAt: string;
-    updatedAt: string;
 }
 
-// Interface for creating/updating challenges
 interface BackendChallengeRequest {
     title: string;
     description: string;
-    gameId: number;
-    difficultyRating: number;
-    tasks: {
-        description: string;
-    }[];
-    mediaItems?: {
-        type: 'image' | 'video';
-        url: string;
-    }[];
+    items: string[];
 }
 
-// Adapters to convert between frontend and backend data structures
 const adaptBackendChallengeToFrontend = (backendChallenge: BackendChallenge): Challenge => {
-    // Ensure tasks is always an array
-    const tasks = Array.isArray(backendChallenge.tasks) ? backendChallenge.tasks : [];
-
     return {
         id: backendChallenge.id,
-        title: backendChallenge.title || '',
-        description: backendChallenge.description || '',
-        creatorId: backendChallenge.creatorId,
-        creatorName: backendChallenge.creatorName || '',
-        gameId: backendChallenge.gameId,
-        gameName: backendChallenge.gameName || '',
-        gameCoverImage: backendChallenge.gameCoverImage || '',
-        difficultyRating: backendChallenge.difficultyRating || 3,
-        tasks: tasks,
-        completionsCount: backendChallenge.completionsCount || 0,
-        participantsCount: backendChallenge.participantsCount || 0,
-        mediaItems: Array.isArray(backendChallenge.mediaItems) ? backendChallenge.mediaItems : [],
-        createdAt: new Date(backendChallenge.createdAt),
-        updatedAt: new Date(backendChallenge.updatedAt)
+        title: backendChallenge.title,
+        description: backendChallenge.description,
+        creatorUsername: backendChallenge.creatorUsername,
+        items: backendChallenge.items.map(item => ({
+            id: item.id,
+            description: item.description,
+            order: item.order
+        }))
     };
 };
 
-const adaptFrontendChallengeToBackend = (challengeData: ChallengeFormData): BackendChallengeRequest => {
+const adaptFrontendChallengeToBackend = (frontendChallenge: ChallengeFormData): BackendChallengeRequest => {
     return {
-        title: challengeData.title,
-        description: challengeData.description,
-        gameId: challengeData.gameId,
-        difficultyRating: challengeData.difficultyRating,
-        tasks: challengeData.tasks.map(task => ({ description: task.description })),
-        mediaItems: challengeData.mediaItems
+        title: frontendChallenge.title,
+        description: frontendChallenge.description,
+        items: frontendChallenge.items
     };
 };
 
 const challengeService = {
-    // Get all challenges
+    // Obtener todos los challenges
     getAllChallenges: async (): Promise<Challenge[]> => {
         try {
             const response = await api.get('/challenges');
-            console.log('Raw challenges response:', response.data); // Debug log
-
-            if (!Array.isArray(response.data)) {
-                console.warn('Challenges response is not an array:', response.data);
-                return [];
-            }
-
             return response.data.map(adaptBackendChallengeToFrontend);
         } catch (error) {
             console.error('Error fetching challenges:', error);
@@ -97,16 +90,10 @@ const challengeService = {
         }
     },
 
-    // Get challenge by ID
+    // Obtener un challenge por ID
     getChallengeById: async (id: number): Promise<Challenge> => {
         try {
             const response = await api.get(`/challenges/${id}`);
-            console.log(`Raw challenge ${id} response:`, response.data); // Debug log
-
-            if (!response.data) {
-                throw new Error('Challenge not found');
-            }
-
             return adaptBackendChallengeToFrontend(response.data);
         } catch (error) {
             console.error(`Error fetching challenge with id ${id}:`, error);
@@ -114,44 +101,48 @@ const challengeService = {
         }
     },
 
-    // Create new challenge (requires authentication)
+    // Buscar challenges por título
+    searchChallengesByTitle: async (title: string): Promise<Challenge[]> => {
+        try {
+            const response = await api.get(`/challenges/search?title=${title}`);
+            return response.data.map(adaptBackendChallengeToFrontend);
+        } catch (error) {
+            console.error('Error searching challenges:', error);
+            return [];
+        }
+    },
+
+    // Crear un nuevo challenge
     createChallenge: async (challengeData: ChallengeFormData): Promise<Challenge> => {
         try {
             const backendChallenge = adaptFrontendChallengeToBackend(challengeData);
-            console.log('Creating challenge with data:', backendChallenge); // Debug log
-
             const response = await apiAuth.post('/challenges', backendChallenge);
-            console.log('Challenge creation response:', response.data); // Debug log
-
-            if (!response.data) {
-                throw new Error('Failed to create challenge - no data returned');
-            }
-
             return adaptBackendChallengeToFrontend(response.data);
         } catch (error) {
             console.error('Error creating challenge:', error);
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('API response error:', error.response.data);
+            }
             throw error;
         }
     },
 
-    // Update existing challenge (only creator or admin)
+    // Actualizar un challenge existente
     updateChallenge: async (id: number, challengeData: ChallengeFormData): Promise<Challenge> => {
         try {
             const backendChallenge = adaptFrontendChallengeToBackend(challengeData);
             const response = await apiAuth.put(`/challenges/${id}`, backendChallenge);
-
-            if (!response.data) {
-                throw new Error('Failed to update challenge - no data returned');
-            }
-
             return adaptBackendChallengeToFrontend(response.data);
         } catch (error) {
             console.error(`Error updating challenge with id ${id}:`, error);
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('API response error:', error.response.data);
+            }
             throw error;
         }
     },
 
-    // Delete challenge (only creator or admin)
+    // Eliminar un challenge
     deleteChallenge: async (id: number): Promise<void> => {
         try {
             await apiAuth.delete(`/challenges/${id}`);
@@ -161,110 +152,47 @@ const challengeService = {
         }
     },
 
-    // Join/participate in a challenge
-    participateInChallenge: async (id: number): Promise<Challenge> => {
+    // Unirse a un challenge
+    joinChallenge: async (id: number): Promise<void> => {
         try {
-            const response = await apiAuth.post(`/challenges/${id}/participate`);
-
-            if (!response.data) {
-                throw new Error('Failed to participate in challenge - no data returned');
-            }
-
-            return adaptBackendChallengeToFrontend(response.data);
+            await apiAuth.post(`/challenges/${id}/join`);
         } catch (error) {
-            console.error(`Error participating in challenge with id ${id}:`, error);
+            console.error(`Error joining challenge with id ${id}:`, error);
+            if (axios.isAxiosError(error) && error.response &&
+                (error.response.status === 401 || error.response.status === 403)) {
+                throw new Error("Authentication required to join this challenge");
+            }
             throw error;
         }
     },
 
-    // Update task completion status
-    updateTaskCompletion: async (
-        challengeId: number,
-        taskId: number,
-        isCompleted: boolean
-    ): Promise<Challenge> => {
+    // Completar un item del challenge
+    completeItem: async (challengeId: number, itemId: number): Promise<ChallengeProgress> => {
         try {
-            const response = await apiAuth.post(`/challenges/${challengeId}/tasks/${taskId}`, {
-                isCompleted
-            });
-
-            if (!response.data) {
-                throw new Error('Failed to update task completion - no data returned');
-            }
-
-            return adaptBackendChallengeToFrontend(response.data);
+            const response = await apiAuth.post(`/challenges/${challengeId}/items/${itemId}/complete`);
+            return response.data;
         } catch (error) {
-            console.error(`Error updating task completion for challenge ${challengeId}:`, error);
+            console.error(`Error completing item ${itemId} in challenge ${challengeId}:`, error);
+            if (axios.isAxiosError(error) && error.response &&
+                (error.response.status === 401 || error.response.status === 403)) {
+                throw new Error("Authentication required to complete challenge items");
+            }
             throw error;
         }
     },
 
-    // Rate difficulty of a challenge
-    rateDifficulty: async (challengeId: number, rating: number): Promise<Challenge> => {
+    // Obtener progreso del challenge
+    getChallengeProgress: async (challengeId: number): Promise<ChallengeProgress> => {
         try {
-            const response = await apiAuth.post(`/challenges/${challengeId}/rate-difficulty`, {
-                rating
-            });
-
-            if (!response.data) {
-                throw new Error('Failed to rate difficulty - no data returned');
-            }
-
-            return adaptBackendChallengeToFrontend(response.data);
+            const response = await apiAuth.get(`/challenges/${challengeId}/progress`);
+            return response.data;
         } catch (error) {
-            console.error(`Error rating difficulty for challenge ${challengeId}:`, error);
+            console.error(`Error fetching progress for challenge ${challengeId}:`, error);
+            if (axios.isAxiosError(error) && error.response &&
+                (error.response.status === 401 || error.response.status === 403)) {
+                throw new Error("Authentication required to view challenge progress");
+            }
             throw error;
-        }
-    },
-
-    // Get challenges by game ID
-    getChallengesByGameId: async (gameId: number): Promise<Challenge[]> => {
-        try {
-            const response = await api.get(`/challenges/game/${gameId}`);
-
-            if (!Array.isArray(response.data)) {
-                console.warn('Game challenges response is not an array:', response.data);
-                return [];
-            }
-
-            return response.data.map(adaptBackendChallengeToFrontend);
-        } catch (error) {
-            console.error(`Error fetching challenges for game ${gameId}:`, error);
-            return [];
-        }
-    },
-
-    // Get challenges created by user
-    getUserChallenges: async (): Promise<Challenge[]> => {
-        try {
-            const response = await apiAuth.get('/challenges/created');
-
-            if (!Array.isArray(response.data)) {
-                console.warn('User challenges response is not an array:', response.data);
-                return [];
-            }
-
-            return response.data.map(adaptBackendChallengeToFrontend);
-        } catch (error) {
-            console.error('Error fetching user challenges:', error);
-            return [];
-        }
-    },
-
-    // Get challenges participated in by user
-    getUserParticipations: async (): Promise<Challenge[]> => {
-        try {
-            const response = await apiAuth.get('/challenges/participated');
-
-            if (!Array.isArray(response.data)) {
-                console.warn('User participations response is not an array:', response.data);
-                return [];
-            }
-
-            return response.data.map(adaptBackendChallengeToFrontend);
-        } catch (error) {
-            console.error('Error fetching user participations:', error);
-            return [];
         }
     }
 };

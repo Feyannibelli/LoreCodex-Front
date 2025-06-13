@@ -1,6 +1,6 @@
 import api     from "./api";
 import apiAuth from "./apiAuth";
-import { Guide, GuideForm } from "@/interfaces/Guide";
+import { Guide, GuideForm } from "../interfaces/Guide";
 
 /* ---- mappers ---- */
 const toFrontend = (b: any): Guide => ({
