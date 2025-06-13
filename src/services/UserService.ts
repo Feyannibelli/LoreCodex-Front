@@ -1,16 +1,13 @@
-import axios from 'axios';
+import { UserProfileResponse } from '@/interfaces/UserProfileResponse';
+import apiAuth from "@/services/apiAuth.ts";
 
-const API_URL = process.env.REACT_APP_API_URL;
 
-const UserService = {
-    getProfile: async (token: string) => {
-        const response = await axios.get(`${API_URL}/user/me`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        return response.data;
-    },
+export const getUserProfileById = async (userId: number): Promise<UserProfileResponse> => {
+    const token = localStorage.getItem('token');
+    const res = await apiAuth.get(`/user/profile/${userId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return res.data;
 };
-
-export default UserService;
