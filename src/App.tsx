@@ -31,6 +31,9 @@ import CreateListPage from './pages/list/CreateListPage.tsx';
 import MyListsPage from './pages/list/MyListsPage.tsx';
 import ListDetailPage from './pages/list/ListDetailPage.tsx';
 import EditListPage from './pages/list/EditListPage.tsx';
+import ChallengesPage from './pages/challenge/ChallengesPage.tsx';
+import ChallengeDetailPage from './pages/challenge/ChallengeDetailPage.tsx';
+import CreateChallengePage from './pages/challenge/CreateChallengePage.tsx';
 
 // Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -110,6 +113,17 @@ const App: React.FC = () => {
                         <AdminRoute>
                             <EditGame />
                         </AdminRoute>
+                    }
+                />
+                {/* Rutas de Challenges */}
+                <Route path="/challenges" element={<ChallengesPage />} />
+                <Route path="/challenges/:id" element={<ChallengeDetailPage />} />
+                <Route
+                    path="/challenges/create"
+                    element={
+                        <PrivateRoute>
+                            <CreateChallengePage />
+                        </PrivateRoute>
                     }
                 />
 

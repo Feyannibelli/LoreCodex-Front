@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import challengeService, { Challenge } from '../../services/challengeService';
 import Button from '../../components/Button';
-import { Search, Plus, Trophy, Clock, Star } from 'lucide-react';
+import { Search, Plus, Trophy, Clock } from 'lucide-react';
 
 const ChallengesPage: React.FC = () => {
     const { isAuthenticated } = useAuth();

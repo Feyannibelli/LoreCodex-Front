@@ -57,12 +57,16 @@ interface BackendChallengeRequest {
 }
 
 const adaptBackendChallengeToFrontend = (backendChallenge: BackendChallenge): Challenge => {
+    // Add logging to debug what's coming from backend
+    console.log('Backend challenge data:', backendChallenge);
+
     return {
         id: backendChallenge.id,
         title: backendChallenge.title,
         description: backendChallenge.description,
         creatorUsername: backendChallenge.creatorUsername,
-        items: backendChallenge.items.map(item => ({
+        // Add null check for items array
+        items: (backendChallenge.items || []).map(item => ({
             id: item.id,
             description: item.description,
             order: item.order
@@ -116,12 +120,39 @@ const challengeService = {
     createChallenge: async (challengeData: ChallengeFormData): Promise<Challenge> => {
         try {
             const backendChallenge = adaptFrontendChallengeToBackend(challengeData);
+            console.log('Sending to backend:', backendChallenge);
+
             const response = await apiAuth.post('/challenges', backendChallenge);
+            console.log('Backend response:', response.data);
+            console.log('Response status:', response.status);
+
+            // Check if response.data exists and has expected structure
+            if (!response.data) {
+                // If backend doesn't return data but request was successful,
+                // create a temporary challenge object for the frontend
+                if (response.status === 200 || response.status === 201) {
+                    console.warn('Backend created challenge but returned empty response. Creating temporary object.');
+                    return {
+                        id: Date.now(), // Temporary ID
+                        title: challengeData.title,
+                        description: challengeData.description,
+                        creatorUsername: 'Unknown', // Will be updated when you reload
+                        items: challengeData.items.map((item, index) => ({
+                            id: index + 1,
+                            description: item,
+                            order: index + 1
+                        }))
+                    };
+                }
+                throw new Error('No data received from backend');
+            }
+
             return adaptBackendChallengeToFrontend(response.data);
         } catch (error) {
             console.error('Error creating challenge:', error);
             if (axios.isAxiosError(error) && error.response) {
                 console.error('API response error:', error.response.data);
+                console.error('API response status:', error.response.status);
             }
             throw error;
         }
