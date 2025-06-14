@@ -165,6 +165,17 @@ const listService = {
             }
         }
         return { isValid: true };
+    },
+
+    getListById: async (listId: number): Promise<PopulatedUserList> => {
+        try {
+            const response = await api.get(`/lists/${listId}/get-list`);
+            const list: UserList = response.data;
+            return await listService.populateList(list);
+        } catch (error) {
+            console.error('Error fetching list by ID:', error);
+            throw error;
+        }
     }
 };
 

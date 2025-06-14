@@ -37,7 +37,7 @@ const guideService = {
     getById: (id: number) =>
         api.get(`/guides/${id}`).then(r => toFrontend(r.data)),
 
-    getPublic: () =>
+    getPublishedGuides: () =>
         api.get(`/guides/all/published`).then(r => r.data.map(toFrontend)),
 
     /* Drafts del usuario (nuevo endpoint) */

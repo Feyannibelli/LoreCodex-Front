@@ -32,6 +32,7 @@ const ListDetailPage: React.FC = () => {
         }
     }, [listId, user]);
 
+
     const loadList = async () => {
         if (!listId) return;
 
@@ -52,21 +53,23 @@ const ListDetailPage: React.FC = () => {
                         setIsOwner(true);
                     }
                 } catch (error) {
-                    console.log('Not owner or error fetching own lists');
+                    console.log("Error fetching user's lists:", error);
                 }
             }
 
             // Si no es del usuario, intentar obtenerla como lista pública
             if (!targetList) {
-                try {
+                try{
                     // Aquí asumiré que tienes un endpoint para obtener listas públicas
-                    // const publicList = await listService.getPublicList(parseInt(listId));
-                    // targetList = await listService.populateList(publicList);
-
-                    // Por ahora, mostrar error si no es del usuario
-                    throw new Error('Lista no encontrada o no tienes permisos para verla');
-                } catch (error) {
-                    throw error;
+                    const publicList = await listService.getListById(parseInt(listId));
+                    targetList = await listService.populateList(publicList);
+                    setIsOwner(false);
+                    //necesito que me lleve a la lista pública
+                    navigate(`/lists/detail/${targetList.id}`);
+                }catch (error) {
+                    console.error('Error fetching public list:', error);
+                    setError('Lista no encontrada o no tienes permisos para verla');
+                    return;
                 }
             }
 
@@ -154,7 +157,7 @@ const ListDetailPage: React.FC = () => {
             <div className="max-w-4xl mx-auto p-6">
                 <div className="text-center py-12">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Cargando lista...</p>
+                    <p className="mt-4 text-gray-600">Loading lists...</p>
                 </div>
             </div>
         );

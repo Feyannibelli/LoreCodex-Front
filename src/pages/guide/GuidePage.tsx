@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import guideService from "@/services/guideService";
-import { Guide } from "@/interfaces/Guide";
-import { useAuth } from "@/context/AuthContext";
+import guideService from "../../services/guideService.ts";
+import {useAuth} from "../../context/AuthContext.tsx";
+import {Guide} from "../../interfaces/Guide.ts";
+
 
 const GuidePage: React.FC = () => {
     const [guides, setGuides] = useState<Guide[]>([]);
@@ -10,7 +11,7 @@ const GuidePage: React.FC = () => {
     const { isAuthenticated } = useAuth();
 
     useEffect(() => {
-        guideService.getPublic().then(setGuides).finally(() => setLoading(false));
+        guideService.getPublishedGuides().then(setGuides).finally(() => setLoading(false));
     }, []);
 
     if (loading) return <div className="p-4">Loading…</div>;

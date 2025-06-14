@@ -155,7 +155,6 @@ const CreateChallengePage: React.FC = () => {
             navigate(`/challenges/${challenge.id}`);
         } catch (error) {
             console.error('Error creating challenge:', error);
-            alert('Error al crear el challenge. Por favor, intenta de nuevo.');
         } finally {
             setLoading(false);
         }
@@ -405,7 +404,7 @@ const CreateChallengePage: React.FC = () => {
                                     placeholder={`https://ejemplo.com/${mediaMode === 'image' ? 'imagen.jpg' : 'video.mp4'}`}
                                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#F47E00] focus:border-transparent dark:bg-gray-700 dark:text-white"
                                     required={mediaMode !== 'comment'}
-                                />
+                                    />
                             </div>
                         )}
 
@@ -534,7 +533,7 @@ const CreateChallengePage: React.FC = () => {
                     >
                         Cancelar
                     </Button>
-                    <Button
+                    <button
                         type="submit"
                         disabled={loading}
                         className="flex items-center gap-2"
@@ -547,7 +546,7 @@ const CreateChallengePage: React.FC = () => {
                         ) : (
                             'Crear Challenge'
                         )}
-                    </Button>
+                    </button>
                 </div>
             </form>
         </div>

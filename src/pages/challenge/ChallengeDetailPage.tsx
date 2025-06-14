@@ -32,6 +32,7 @@ const ChallengeDetailPage: React.FC = () => {
                         setHasJoined(true);
                     } catch (error) {
                         // Si da error, probablemente no se ha unido aún
+                        console.error('Error fetching challenge progress:', error);
                         setHasJoined(false);
                     }
                 }
@@ -277,7 +278,7 @@ const ChallengeDetailPage: React.FC = () => {
         {challenge.items
                 .sort((a, b) => a.order - b.order)
                 .map((item) => {
-                    const isCompleted = hasJoined && progress && progress.completed > item.order - 1;
+                    const isCompleted = !!(hasJoined && progress && progress.completed > item.order - 1);
                     return (
                         <div
                             key={item.id}
@@ -289,7 +290,7 @@ const ChallengeDetailPage: React.FC = () => {
                 >
                     <div className="flex items-start gap-3">
                         {hasJoined ? (
-                                <button
+                                <Button
                                     onClick={() => item.id && handleCompleteItem(item.id)}
                     disabled={isCompleted}
                     className="mt-1 flex-shrink-0"
@@ -299,7 +300,7 @@ const ChallengeDetailPage: React.FC = () => {
                 ) : (
                         <Circle className="text-gray-400 hover:text-gray-600" size={24} />
                 )}
-                    </button>
+                    </Button>
                 ) : (
                         <Circle className="text-gray-400 mt-1 flex-shrink-0" size={24} />
                 )}

@@ -198,6 +198,18 @@ const challengeService = {
     },
 
     // Completar un item del challenge
+    /*viene de este endpoint en el back: @PostMapping("/{id}/items/{itemId}/complete")
+    public ResponseEntity<ChallengeProgressDto> completeItem(
+            @PathVariable Long id,
+            @PathVariable Long itemId,
+            @AuthenticationPrincipal User user
+    ) {
+        ChallengeProgressDto dto = service.completeItem(id, itemId, user.getUsername());
+        return ResponseEntity.ok(dto);
+    }*/
+
+    //deberia modificar
+
     completeItem: async (challengeId: number, itemId: number): Promise<ChallengeProgress> => {
         try {
             const response = await apiAuth.post(`/challenges/${challengeId}/items/${itemId}/complete`);
