@@ -1,4 +1,3 @@
-// src/pages/list/ListsPage.tsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { listService, UserListResponse } from '../../services/listService';

@@ -1,91 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { listService, UserListResponse, ListItemType } from '../../services/listService';
 import { useAuth } from '../../context/AuthContext';
-import { PopulatedUserList, ListCategory } from '../../interfaces/List';
-import listService from '../../services/listService';
 import Button from '../../components/Button';
-import {
-    ArrowLeft,
-    Edit,
-    Trash2,
-    Trophy,
-    List as ListIcon,
-    Calendar,
-    Users,
-    Share2,
-    ExternalLink
-} from 'lucide-react';
 
 const ListDetailPage: React.FC = () => {
-    const { listId } = useParams<{ listId: string }>();
+    const { id } = useParams<{ id: string }>();
+    const [list, setList] = useState<UserListResponse | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    const [list, setList] = useState<PopulatedUserList | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [isOwner, setIsOwner] = useState(false);
-
     useEffect(() => {
-        if (listId) {
-            loadList();
+        if (id) {
+            fetchListDetail();
         }
-    }, [listId, user]);
+    }, [id]);
 
-
-    const loadList = async () => {
-        if (!listId) return;
+    const fetchListDetail = async () => {
+        if (!id) return;
 
         try {
             setLoading(true);
-            setError(null);
-
-            // Intentar obtener la lista como usuario autenticado primero
-            let targetList: PopulatedUserList | null = null;
-
-            if (user) {
-                try {
-                    const myLists = await listService.getMyLists();
-                    const myList = myLists.find(l => l.id === parseInt(listId));
-
-                    if (myList) {
-                        targetList = await listService.populateList(myList);
-                        setIsOwner(true);
-                    }
-                } catch (error) {
-                    console.log("Error fetching user's lists:", error);
-                }
-            }
-
-            // Si no es del usuario, intentar obtenerla como lista pública
-            if (!targetList) {
-                try{
-                    // Aquí asumiré que tienes un endpoint para obtener listas públicas
-                    const publicList = await listService.getListById(parseInt(listId));
-                    targetList = await listService.populateList(publicList);
-                    setIsOwner(false);
-                    //necesito que me lleve a la lista pública
-                    navigate(`/lists/detail/${targetList.id}`);
-                }catch (error) {
-                    console.error('Error fetching public list:', error);
-                    setError('Lista no encontrada o no tienes permisos para verla');
-                    return;
-                }
-            }
-
-            setList(targetList);
+            const listData = await listService.getListById(parseInt(id));
+            setList(listData);
         } catch (error) {
-            console.error('Error loading list:', error);
-            setError('Lista no encontrada');
+            console.error('Error fetching list:', error);
+            setError('Failed to load list');
         } finally {
             setLoading(false);
         }
     };
 
     const handleDeleteList = async () => {
-        if (!list || !isOwner) return;
+        if (!list || !user || user.id !== list.userId) return;
 
-        if (!window.confirm('¿Estás seguro de que quieres eliminar esta lista?')) {
+        if (!window.confirm('Are you sure you want to delete this list?')) {
             return;
         }
 
@@ -94,297 +45,165 @@ const ListDetailPage: React.FC = () => {
             navigate('/my-lists');
         } catch (error) {
             console.error('Error deleting list:', error);
-            alert('Error al eliminar la lista');
+            alert('Error deleting list. Please try again.');
         }
     };
 
-    const handleShare = async () => {
-        if (!list) return;
-
-        try {
-            const url = window.location.href;
-            await navigator.clipboard.writeText(url);
-            alert('Enlace copiado al portapapeles');
-        } catch (error) {
-            console.error('Error copying to clipboard:', error);
-            alert('No se pudo copiar el enlace');
+    const getItemIcon = (type: ListItemType) => {
+        switch (type) {
+            case ListItemType.GAME:
+                return '🎮';
+            case ListItemType.GUIDE:
+                return '📖';
+            case ListItemType.CHALLENGE:
+                return '🏆';
+            default:
+                return '📄';
         }
     };
 
-    const getCategoryInfo = (category?: ListCategory) => {
-        if (category === ListCategory.TOP) {
-            return {
-                icon: <Trophy className="w-6 h-6 text-yellow-500" />,
-                label: 'Lista TOP',
-                description: 'Ranking ordenado de mejores elementos'
-            };
-        }
-        return {
-            icon: <ListIcon className="w-6 h-6 text-blue-500" />,
-            label: 'Lista Relacionada',
-            description: 'Elementos relacionados por tema o categoría'
-        };
-    };
-
-    const getItemLink = (item: any) => {
+    const getItemRoute = (item: any) => {
         switch (item.type) {
-            case 'GAME':
+            case ListItemType.GAME:
                 return `/games/${item.referenceId}`;
-            case 'GUIDE':
+            case ListItemType.GUIDE:
                 return `/guides/${item.referenceId}`;
-            case 'CHALLENGE':
+            case ListItemType.CHALLENGE:
                 return `/challenges/${item.referenceId}`;
             default:
                 return '#';
         }
     };
 
-    const getItemTypeLabel = (type: string) => {
-        switch (type) {
-            case 'GAME':
-                return 'Juego';
-            case 'GUIDE':
-                return 'Guía';
-            case 'CHALLENGE':
-                return 'Desafío';
-            default:
-                return type;
-        }
-    };
-
     if (loading) {
         return (
-            <div className="max-w-4xl mx-auto p-6">
-                <div className="text-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading lists...</p>
-                </div>
+            <div className="container mx-auto px-4 py-8">
+                <div className="text-center">Loading list...</div>
             </div>
         );
     }
 
     if (error || !list) {
         return (
-            <div className="max-w-4xl mx-auto p-6">
-                <div className="text-center py-12">
-                    <p className="text-red-600 mb-4">{error || 'Lista no encontrada'}</p>
-                    <div className="flex gap-4 justify-center">
-                        <Button onClick={() => navigate(-1)}>
-                            Volver
-                        </Button>
-                        {user && (
-                            <Button onClick={() => navigate('/my-lists')}>
-                                Mis Listas
-                            </Button>
-                        )}
-                    </div>
+            <div className="container mx-auto px-4 py-8">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+                    <p className="text-gray-600 mb-4">{error || 'List not found'}</p>
+                    <Button onClick={() => navigate('/lists')} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                        Back to Lists
+                    </Button>
                 </div>
             </div>
         );
     }
 
-    const categoryInfo = getCategoryInfo(list.category);
+    const isOwner = user && user.id === list.userId;
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
-            {/* Navigation */}
-            <div className="flex items-center gap-4 mb-6">
-                <Button
-                    onClick={() => navigate(-1)}
-                    className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
-                >
-                    <ArrowLeft className="w-4 h-4" />
-                    Volver
-                </Button>
-            </div>
-
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
             {/* Header */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 mb-8">
-                <div className="flex items-start justify-between mb-6">
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-4">
-                            {categoryInfo.icon}
-                            <div>
-                                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                                    {categoryInfo.label}
-                                </span>
-                                <p className="text-xs text-gray-500">
-                                    {categoryInfo.description}
-                                </p>
-                            </div>
+                        <h1 className="text-3xl font-bold text-gray-800 mb-2">{list.title}</h1>
+                        <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                            <span>By {list.username || 'Anonymous'}</span>
+                            <span>•</span>
+                            <span>{list.items.length} items</span>
+                            <span>•</span>
+                            <span>Created {new Date(list.createdAt).toLocaleDateString()}</span>
                         </div>
-
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                            {list.title}
-                        </h1>
-
                         {list.description && (
-                            <p className="text-gray-600 dark:text-gray-400 text-lg mb-6">
-                                {list.description}
-                            </p>
+                            <p className="text-gray-700 leading-relaxed">{list.description}</p>
                         )}
+                    </div>
 
-                        <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
-                            <div className="flex items-center gap-2">
-                                <Calendar className="w-4 h-4" />
-                                Creada el {new Date(list.createdAt).toLocaleDateString('es-ES', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                            })}
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Users className="w-4 h-4" />
-                                {list.items.length} elementos
-                            </div>
+                    {isOwner && (
+                        <div className="flex gap-2 ml-4">
+                            <Link to={`/lists/edit/${list.id}`}>
+                                <Button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                                    Edit
+                                </Button>
+                            </Link>
+                            <Button
+                                onClick={handleDeleteList}
+                                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+                            >
+                                Delete
+                            </Button>
                         </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2 ml-4">
-                        <Button
-                            onClick={handleShare}
-                            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-                        >
-                            <Share2 className="w-4 h-4" />
-                            Compartir
-                        </Button>
-
-                        {isOwner && (
-                            <>
-                                <Button
-                                    onClick={() => navigate(`/lists/edit/${list.id}`)}
-                                    className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-                                >
-                                    <Edit className="w-4 h-4" />
-                                    Editar
-                                </Button>
-                                <Button
-                                    onClick={handleDeleteList}
-                                    className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                    Eliminar
-                                </Button>
-                            </>
-                        )}
-                    </div>
+                    )}
                 </div>
             </div>
 
-            {/* Items */}
-            <div className="space-y-4">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Elementos de la Lista
-                </h2>
+            {/* Items List */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Items</h2>
 
                 {list.items.length === 0 ? (
-                    <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
-                        <ListIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-600 dark:text-gray-400">
-                            Esta lista no tiene elementos
-                        </p>
+                    <div className="text-center py-8">
+                        <p className="text-gray-500">This list is empty.</p>
                     </div>
                 ) : (
-                    <div className="grid gap-4">
-                        {list.items.map((item, index) => (
-                            <div
-                                key={item.id}
-                                className="bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow p-6"
-                            >
-                                <div className="flex items-center gap-6">
-                                    {/* Position/Ranking */}
-                                    {list.category === ListCategory.TOP && (
-                                        <div className="flex-shrink-0">
-                                            <div className={`
-                                                flex items-center justify-center w-12 h-12 rounded-full font-bold text-lg
-                                                ${index === 0 ? 'bg-yellow-100 text-yellow-800' :
-                                                index === 1 ? 'bg-gray-100 text-gray-800' :
-                                                    index === 2 ? 'bg-orange-100 text-orange-800' :
-                                                        'bg-blue-100 text-blue-800'}
-                                            `}>
-                                                #{index + 1}
-                                            </div>
-                                        </div>
-                                    )}
+                    <div className="space-y-3">
+                        {list.items
+                            .sort((a, b) => a.position - b.position)
+                            .map((item, index) => (
+                                <div
+                                    key={item.id}
+                                    className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                                >
+                                    <div className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-full font-semibold text-sm">
+                                        {index + 1}
+                                    </div>
 
-                                    {/* Image */}
-                                    <div className="flex-shrink-0">
-                                        {item.imageUrl ? (
+                                    <div className="flex items-center gap-3 flex-1">
+                                        <span className="text-2xl">{getItemIcon(item.type)}</span>
+
+                                        {item.thumbnailUrl && (
                                             <img
-                                                src={item.imageUrl}
-                                                alt={item.name}
-                                                className="w-20 h-20 object-cover rounded-lg"
+                                                src={item.thumbnailUrl}
+                                                alt={item.title}
+                                                className="w-12 h-12 object-cover rounded"
                                             />
-                                        ) : (
-                                            <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                                                <span className="text-xs text-gray-500">
-                                                    {getItemTypeLabel(item.type)}
-                                                </span>
-                                            </div>
                                         )}
-                                    </div>
 
-                                    {/* Content */}
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <span className={`
-                                                        px-2 py-1 rounded text-xs font-medium
-                                                        ${item.type === 'GAME' ? 'bg-green-100 text-green-800' :
-                                                        item.type === 'GUIDE' ? 'bg-blue-100 text-blue-800' :
-                                                            'bg-purple-100 text-purple-800'}
-                                                    `}>
-                                                        {getItemTypeLabel(item.type)}
-                                                    </span>
-                                                </div>
-
-                                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                                                    {item.name}
-                                                </h3>
-
-                                                {item.gameTitle && (
-                                                    <p className="text-gray-600 dark:text-gray-400 mb-2">
-                                                        Para: {item.gameTitle}
-                                                    </p>
-                                                )}
-                                            </div>
-
-                                            {/* Action Button */}
-                                            <Link
-                                                to={getItemLink(item)}
-                                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                                            >
-                                                Ver Detalle
-                                                <ExternalLink className="w-4 h-4" />
-                                            </Link>
+                                        <div className="flex-1">
+                                            <h3 className="font-semibold text-gray-800">{item.title}</h3>
+                                            <p className="text-sm text-gray-500 capitalize">{item.type.toLowerCase()}</p>
                                         </div>
                                     </div>
+
+                                    <Link
+                                        to={getItemRoute(item)}
+                                        className="text-blue-500 hover:text-blue-600 font-medium"
+                                    >
+                                        View →
+                                    </Link>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
                 )}
             </div>
 
-            {/* Footer Actions */}
-            {isOwner && (
-                <div className="mt-8 flex justify-center gap-4">
-                    <Button
-                        onClick={() => navigate(`/lists/edit/${list.id}`)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
+            {/* Navigation */}
+            <div className="mt-8 flex justify-between items-center">
+                <Button
+                    onClick={() => navigate('/lists')}
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                >
+                    ← Back to Lists
+                </Button>
+
+                {isOwner && (
+                    <Link
+                        to="/my-lists"
+                        className="text-blue-500 hover:text-blue-600 font-medium"
                     >
-                        Editar Lista
-                    </Button>
-                    <Button
-                        onClick={() => navigate('/lists/create')}
-                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3"
-                    >
-                        Crear Nueva Lista
-                    </Button>
-                </div>
-            )}
+                        View My Lists →
+                    </Link>
+                )}
+            </div>
         </div>
     );
 };
