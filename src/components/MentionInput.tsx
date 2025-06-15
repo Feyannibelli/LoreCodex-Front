@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { useMentionSuggestions } from '../hooks/useMentionSuggestions';
+import { useMentionSuggestions } from '../hook/useMentionSuggestions';
 
 export interface MentionSuggestion {
     id: number;
