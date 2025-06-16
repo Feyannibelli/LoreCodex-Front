@@ -46,7 +46,7 @@ export const parseMentions = (text: string): ParsedContent => {
  * Reemplaza las menciones en el texto con componentes JSX o HTML
  */
 export const renderMentionsAsLinks = (text: string): string => {
-    return text.replace(MENTION_REGEX, (match, type, id, name) => {
+    return text.replace(MENTION_REGEX, (_, type, id, name) => {
         const typeLabel = type.slice(0, -1); // Remove 's' from plural
         const baseUrl = type;
 
@@ -151,7 +151,7 @@ export const createMention = (type: string, id: number, name: string): string =>
  * Extrae solo los nombres visibles de las menciones para mostrar al usuario
  */
 export const getVisibleMentionText = (text: string): string => {
-    return text.replace(MENTION_REGEX, (match, type, id, name) => {
+    return text.replace(MENTION_REGEX, (_match, type, _id, name) => {
         return `/${type}/${name}`;
     });
 };

@@ -164,6 +164,7 @@ const GuideDetailPage: React.FC = () => {
                     }{" "}
                     · {new Date(guide.createdAt).toLocaleDateString()}
                 </p>
+
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
                     <span>📅 {new Date(guide.createdAt).toLocaleDateString()}</span>
                     {guide.updatedAt !== guide.createdAt && (

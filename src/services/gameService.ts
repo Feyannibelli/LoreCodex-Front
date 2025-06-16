@@ -170,7 +170,7 @@ const gameService = {
     },
 
     getAverageRating: async (gameId: number): Promise<number> => {
-        const response = await api.get(`/games/${gameId}/average-rating`);
+        const response = await api.get(`/rating/${gameId}/average-rating`);
         return response.data;
     }
 };

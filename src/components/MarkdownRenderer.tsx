@@ -1,4 +1,3 @@
-// src/components/MarkdownRenderer.tsx
 interface MarkdownRendererProps {
     content: string;
     className?: string;

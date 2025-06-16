@@ -63,6 +63,14 @@ const guideService = {
         apiAuth.get(`/guides/all`).then(r => r.data.map(toFrontend)),
 
     /* CRUD */
+    /*@PostMapping("/create")
+    public ResponseEntity<GuideResponse> createGuide(
+            @RequestBody GuideRequest request,
+            @AuthenticationPrincipal User user
+    ) {
+        GuideResponse response = guideService.createGuide(request, user.getUsername(), null);
+        return ResponseEntity.ok(response);
+    }*/
     create: (data: GuideForm) =>
         apiAuth.post(`/guides/create`, toBackend(data)).then(r => toFrontend(r.data)),
 
@@ -78,6 +86,7 @@ const guideService = {
     like:      (id: number) => apiAuth.post(`/guides/${id}/like`),
     getAuthor: (id: number) =>
         api.get(`/guides/${id}/author`).then(r => r.data),
+
     searchGuidesByTitle: (title:string) => apiAuth.get(`/guides/search?title=${encodeURIComponent(title)}`)
 };
 

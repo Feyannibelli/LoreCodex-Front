@@ -1,6 +1,6 @@
-// src/context/GameContext.tsx
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import gameService, { Game } from '../services/gameService';
+import {Game} from "../interfaces/Game.ts";
+import gameService from "../services/gameService.ts";
 
 interface GameContextType {
     games: Game[];

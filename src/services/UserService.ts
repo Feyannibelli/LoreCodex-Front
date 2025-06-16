@@ -1,5 +1,6 @@
-import { UserProfileResponse } from '@/interfaces/UserProfileResponse';
-import apiAuth from "@/services/apiAuth.ts";
+import {UserProfileResponse} from "../interfaces/UserProfileResponse.ts";
+import apiAuth from "./apiAuth.ts";
+
 
 export const getUserProfileById = async (userId: number): Promise<UserProfileResponse> => {
     const token = localStorage.getItem('token');
