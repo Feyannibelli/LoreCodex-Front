@@ -1,3 +1,4 @@
+// src/components/MarkdownEditor.tsx
 import { useState } from "react";
 
 interface MarkdownEditorProps {
@@ -31,17 +32,17 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         html = html.replace(/\*(.*)\*/gim, '<em class="italic">$1</em>');
 
         // Code inline
-        html = html.replace(/`([^`]*)`/gim, '<code class="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">$1</code>');
+        html = html.replace(/`([^`]*)`/gim, '<code class="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-sm font-mono">$1</code>');
 
         // Links
         html = html.replace(/\[([^\]]*)\]\(([^)]*)\)/gim, '<a href="$2" class="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">$1</a>');
 
         // Lists
-        html = html.replace(/^\* (.*$)/gim, '<li class="ml-4">• $1</li>');
-        html = html.replace(/^\d+\. (.*$)/gim, '<li class="ml-4">$1</li>');
+        html = html.replace(/^\* (.*$)/gim, '<li class="ml-4 list-disc">$1</li>');
+        html = html.replace(/^\d+\. (.*$)/gim, '<li class="ml-4 list-decimal">$1</li>');
 
         // Blockquotes
-        html = html.replace(/^> (.*$)/gim, '<blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-600 my-2">$1</blockquote>');
+        html = html.replace(/^> (.*$)/gim, '<blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-600 dark:text-gray-400 my-2">$1</blockquote>');
 
         // Line breaks
         html = html.replace(/\n/gim, '<br>');
@@ -112,16 +113,16 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     };
 
     return (
-        <div className="border rounded-lg overflow-hidden">
+        <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
             {/* Tabs */}
-            <div className="flex border-b bg-gray-50">
+            <div className="flex border-b bg-gray-50 dark:bg-gray-700">
                 <button
                     type="button"
                     onClick={() => setActiveTab('edit')}
                     className={`px-4 py-2 text-sm font-medium ${
                         activeTab === 'edit'
-                            ? 'bg-white border-b-2 border-blue-500 text-blue-600'
-                            : 'text-gray-600 hover:text-gray-800'
+                            ? 'bg-white dark:bg-gray-800 border-b-2 border-blue-500 text-blue-600'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                 >
                     ✏️ Editar
@@ -131,8 +132,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     onClick={() => setActiveTab('preview')}
                     className={`px-4 py-2 text-sm font-medium ${
                         activeTab === 'preview'
-                            ? 'bg-white border-b-2 border-blue-500 text-blue-600'
-                            : 'text-gray-600 hover:text-gray-800'
+                            ? 'bg-white dark:bg-gray-800 border-b-2 border-blue-500 text-blue-600'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                 >
                     👁️ Vista previa
@@ -142,8 +143,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     onClick={() => setActiveTab('help')}
                     className={`px-4 py-2 text-sm font-medium ${
                         activeTab === 'help'
-                            ? 'bg-white border-b-2 border-blue-500 text-blue-600'
-                            : 'text-gray-600 hover:text-gray-800'
+                            ? 'bg-white dark:bg-gray-800 border-b-2 border-blue-500 text-blue-600'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                 >
                     ❓ Ayuda
@@ -152,11 +153,11 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
             {/* Toolbar (solo visible en modo edición) */}
             {activeTab === 'edit' && (
-                <div className="flex flex-wrap gap-1 p-2 bg-gray-50 border-b">
+                <div className="flex flex-wrap gap-1 p-2 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                     <button
                         type="button"
                         onClick={() => insertMarkdown('h1')}
-                        className="px-2 py-1 text-xs bg-white border rounded hover:bg-gray-100"
+                        className="px-2 py-1 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                         title="Título principal"
                     >
                         H1
@@ -164,7 +165,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     <button
                         type="button"
                         onClick={() => insertMarkdown('h2')}
-                        className="px-2 py-1 text-xs bg-white border rounded hover:bg-gray-100"
+                        className="px-2 py-1 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                         title="Subtítulo"
                     >
                         H2
@@ -172,7 +173,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     <button
                         type="button"
                         onClick={() => insertMarkdown('bold')}
-                        className="px-2 py-1 text-xs bg-white border rounded hover:bg-gray-100 font-bold"
+                        className="px-2 py-1 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 font-bold"
                         title="Negrita"
                     >
                         B
@@ -180,7 +181,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     <button
                         type="button"
                         onClick={() => insertMarkdown('italic')}
-                        className="px-2 py-1 text-xs bg-white border rounded hover:bg-gray-100 italic"
+                        className="px-2 py-1 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 italic"
                         title="Cursiva"
                     >
                         I
@@ -188,7 +189,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     <button
                         type="button"
                         onClick={() => insertMarkdown('code')}
-                        className="px-2 py-1 text-xs bg-white border rounded hover:bg-gray-100 font-mono"
+                        className="px-2 py-1 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 font-mono"
                         title="Código"
                     >
                         &lt;/&gt;
@@ -196,7 +197,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     <button
                         type="button"
                         onClick={() => insertMarkdown('link')}
-                        className="px-2 py-1 text-xs bg-white border rounded hover:bg-gray-100"
+                        className="px-2 py-1 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                         title="Enlace"
                     >
                         🔗
@@ -204,7 +205,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     <button
                         type="button"
                         onClick={() => insertMarkdown('list')}
-                        className="px-2 py-1 text-xs bg-white border rounded hover:bg-gray-100"
+                        className="px-2 py-1 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                         title="Lista"
                     >
                         • Lista
@@ -212,7 +213,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     <button
                         type="button"
                         onClick={() => insertMarkdown('quote')}
-                        className="px-2 py-1 text-xs bg-white border rounded hover:bg-gray-100"
+                        className="px-2 py-1 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                         title="Cita"
                     >
                         " Cita
@@ -229,12 +230,12 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                         onChange={(e) => onChange(e.target.value)}
                         placeholder={placeholder}
                         rows={rows}
-                        className="w-full p-4 resize-none focus:outline-none font-mono text-sm"
+                        className="w-full p-4 resize-none focus:outline-none font-mono text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     />
                 )}
 
                 {activeTab === 'preview' && (
-                    <div className="p-4 prose prose-slate max-w-none">
+                    <div className="p-4 prose prose-slate dark:prose-invert max-w-none">
                         {value ? (
                             <div
                                 dangerouslySetInnerHTML={{
@@ -242,26 +243,26 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                                 }}
                             />
                         ) : (
-                            <p className="text-gray-500 italic">Escribe algo en el editor para ver la vista previa...</p>
+                            <p className="text-gray-500 dark:text-gray-400 italic">Escribe algo en el editor para ver la vista previa...</p>
                         )}
                     </div>
                 )}
 
                 {activeTab === 'help' && (
                     <div className="p-4">
-                        <h3 className="font-semibold mb-3">Sintaxis Markdown</h3>
+                        <h3 className="font-semibold mb-3 text-gray-900 dark:text-white">Sintaxis Markdown</h3>
                         <div className="space-y-2">
                             {markdownGuide.map((item, index) => (
                                 <div key={index} className="flex gap-4 items-center">
-                                    <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono min-w-[120px]">
+                                    <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm font-mono min-w-[120px]">
                                         {item.syntax}
                                     </code>
-                                    <span className="text-sm text-gray-600">{item.description}</span>
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">{item.description}</span>
                                 </div>
                             ))}
                         </div>
-                        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
-                            <p className="text-sm text-blue-800">
+                        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
+                            <p className="text-sm text-blue-800 dark:text-blue-200">
                                 <strong>Tip:</strong> Puedes seleccionar texto y usar los botones de la barra de herramientas para aplicar formato rápidamente.
                             </p>
                         </div>
