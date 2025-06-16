@@ -5,7 +5,6 @@ import challengeService, { ChallengeFormData } from '../../services/challengeSer
 import gameService from '../../services/gameService';
 import { Game } from '../../interfaces/Game';
 import Button from '../../components/Button';
-import MarkdownViewer from '../../components/MarkdownViewer';
 import {
     ArrowLeft,
     Plus,

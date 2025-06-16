@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import challengeService, { Challenge, ChallengeProgress } from '../../services/challengeService';
-import MarkdownViewer from '../../components/MarkdownViewer';
 import Button from '../../components/Button';
 import { ArrowLeft, Play, Circle, Trophy, User, Clock, Star } from 'lucide-react';
 import PrettyCheckbox from "../../components/PrettyCheckbox.tsx";

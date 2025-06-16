@@ -3,6 +3,7 @@ import {useParams, useNavigate, Link} from "react-router-dom";
 import { Guide } from "../../interfaces/Guide";
 import { MentionDisplay, useMentions } from "../../components/MentionDisplay";
 import { ParsedMention } from "../../utils/mentionParser";
+import MarkdownRenderer from "../../components/MarkdownRenderer";
 import guideService from "../../services/guideService";
 import { useAuth } from "../../context/AuthContext";
 
@@ -13,7 +14,7 @@ const GuideDetailPage: React.FC = () => {
     const {user, isAuthenticated } = useAuth();
     const navigate = useNavigate();
     const [authorUsername, setAuthorUsername] = useState<string | null>(null);
-
+    const [renderMode, setRenderMode] = useState<'auto' | 'markdown' | 'mentions'>('auto');
 
     useEffect(() => {
         if (id) {
@@ -32,17 +33,53 @@ const GuideDetailPage: React.FC = () => {
     // Hook para obtener información de las menciones
     const { mentions, hasMentions, mentionCount, getMentionsByType } = useMentions(guide?.content || '');
 
+    // Detectar si el contenido parece ser Markdown
+    const hasMarkdownSyntax = (text: string): boolean => {
+        const markdownPatterns = [
+            /^#{1,6}\s/m,           // Headers
+            /\*\*.*\*\*/,           // Bold
+            /\*.*\*/,               // Italic
+            /`.*`/,                 // Inline code
+            /^\* /m,                // Unordered lists
+            /^\d+\. /m,             // Ordered lists
+            /\[.*\]\(.*\)/,         // Links
+            /^> /m                  // Blockquotes
+        ];
+        return markdownPatterns.some(pattern => pattern.test(text));
+    };
+
+    // Determinar el modo de renderizado automático
+    const getAutoRenderMode = (): 'markdown' | 'mentions' => {
+        if (!guide?.content) return 'markdown';
+
+        const hasMarkdown = hasMarkdownSyntax(guide.content);
+        const hasMentionsInContent = hasMentions;
+
+        // Si tiene ambos, priorizar según la cantidad
+        if (hasMarkdown && hasMentionsInContent) {
+            // Contar elementos markdown vs menciones para decidir
+            const markdownElements = (guide.content.match(/#{1,6}|[\*`]|\[.*\]\(.*\)|^[\*\d+\.]\s/gm) || []).length;
+            return markdownElements > mentionCount ? 'markdown' : 'mentions';
+        }
+
+        if (hasMarkdown) return 'markdown';
+        if (hasMentionsInContent) return 'mentions';
+
+        return 'markdown'; // Default
+    };
+
+    const actualRenderMode = renderMode === 'auto' ? getAutoRenderMode() : renderMode;
+
     // Manejar clicks en menciones para navegar
     const handleMentionClick = (mention: ParsedMention) => {
         const encodedName = encodeURIComponent(mention.name);
 
         switch (mention.type) {
             case 'games':
-                // Navegar a la página del juego (ajusta según tu routing)
                 navigate(`/games/${encodedName}`);
                 break;
             case 'guides':
-                navigate(`/guides/search?q=${encodedName}`); //y esto a donde llama al endpoint?
+                navigate(`/guides/search?q=${encodedName}`);
                 break;
             case 'challenges':
                 navigate(`/challenges/${encodedName}`);
@@ -83,9 +120,6 @@ const GuideDetailPage: React.FC = () => {
         </div>
     );
 
-    if (loading) return <div className="p-4">Loading…</div>;
-    if (!guide)   return <div className="p-4">Guide not found.</div>;
-
     const canEdit = guide.authorId === user?.id;
 
     // Estadísticas de menciones por tipo
@@ -96,7 +130,6 @@ const GuideDetailPage: React.FC = () => {
         lists: getMentionsByType('lists').length,
         news: getMentionsByType('news').length,
     };
-
 
     return (
         <div className="p-4 max-w-4xl mx-auto">
@@ -159,6 +192,41 @@ const GuideDetailPage: React.FC = () => {
                     </div>
                 )}
 
+                {/* Render Mode Selector */}
+                <div className="flex items-center gap-2 mb-4 p-3 bg-gray-50 rounded-lg">
+                    <span className="text-sm text-gray-600">View as:</span>
+                    <button
+                        onClick={() => setRenderMode('auto')}
+                        className={`px-2 py-1 text-xs rounded ${
+                            renderMode === 'auto'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                    >
+                        🤖 Auto ({actualRenderMode})
+                    </button>
+                    <button
+                        onClick={() => setRenderMode('markdown')}
+                        className={`px-2 py-1 text-xs rounded ${
+                            renderMode === 'markdown'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                    >
+                        📝 Markdown
+                    </button>
+                    <button
+                        onClick={() => setRenderMode('mentions')}
+                        className={`px-2 py-1 text-xs rounded ${
+                            renderMode === 'mentions'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                    >
+                        🔗 Mentions
+                    </button>
+                </div>
+
                 {/* Mention Statistics */}
                 {hasMentions && (
                     <div className="bg-gray-50 rounded-lg p-4 mb-6">
@@ -193,25 +261,43 @@ const GuideDetailPage: React.FC = () => {
                             )}
                         </div>
                         {mentions.length > 0 && (
-                            <ul className="mt-2 text-xs text-gray-500">
-                                {mentions.map((m, i) => (
-                                    <li key={i}>{m.type}: {m.name}</li>
-                                ))}
-                            </ul>
+                            <details className="mt-2">
+                                <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700">
+                                    Show all references
+                                </summary>
+                                <ul className="mt-2 text-xs text-gray-500 space-y-1">
+                                    {mentions.map((m, i) => (
+                                        <li key={i} className="flex items-center gap-2">
+                                            <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+                                            <span className="font-medium">{m.type}:</span>
+                                            <span>{m.name}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </details>
                         )}
                     </div>
                 )}
             </header>
 
-            {/* Content with Mentions */}
-            <article className="prose prose-slate max-w-none mb-8">
-                <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">
-                    <MentionDisplay
-                        text={guide.content}
-                        onMentionClick={handleMentionClick}
-                        className="text-base"
+            {/* Content with Dynamic Rendering */}
+            <article className="mb-8">
+                {actualRenderMode === 'markdown' ? (
+                    <MarkdownRenderer
+                        content={guide.content}
+                        className="prose prose-slate max-w-none prose-headings:text-gray-900 prose-p:text-gray-800 prose-p:leading-relaxed"
                     />
-                </div>
+                ) : (
+                    <div className="prose prose-slate max-w-none">
+                        <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">
+                            <MentionDisplay
+                                text={guide.content}
+                                onMentionClick={handleMentionClick}
+                                className="text-base"
+                            />
+                        </div>
+                    </div>
+                )}
             </article>
 
             {/* Action Buttons */}
@@ -271,7 +357,6 @@ const GuideDetailPage: React.FC = () => {
                         onClick={() => {
                             const url = window.location.href;
                             navigator.clipboard.writeText(url);
-                            // Podrías mostrar un toast aquí
                             alert('Link copied to clipboard!');
                         }}
                         className="flex items-center gap-2 bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium"

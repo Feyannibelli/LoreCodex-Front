@@ -2,6 +2,7 @@ import { useState } from "react";
 import { GuideForm as Form } from "../../interfaces/Guide";
 import { MentionInput } from "../MentionInput.tsx";
 import { MentionDisplay, useMentions } from "../MentionDisplay.tsx";
+import MarkdownEditor from "../MarkdownEditor.tsx";
 
 interface Props {
     initial?: Form;
@@ -29,7 +30,10 @@ const GuideForm: React.FC<Props> = ({
         }
     );
 
-    // Preview mode para mostrar cómo se verán las menciones
+    // Modo de edición: 'mentions' o 'markdown'
+    const [editorMode, setEditorMode] = useState<'mentions' | 'markdown'>('markdown');
+
+    // Preview mode para mostrar cómo se verán las menciones (solo para modo mentions)
     const [isPreviewMode, setIsPreviewMode] = useState(false);
     const { hasMentions, mentionCount } = useMentions(form.content);
 
@@ -111,36 +115,80 @@ const GuideForm: React.FC<Props> = ({
                     )}
                 </div>
 
-                {/* Content with Mentions */}
+                {/* Content Editor Mode Selector */}
                 <div>
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-4">
                         <label className="block text-sm font-medium text-gray-700">
                             Content
                         </label>
-                        <div className="flex items-center space-x-4">
-                            {hasMentions && (
+                        <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-600">Editor:</span>
+                            <button
+                                type="button"
+                                onClick={() => setEditorMode('markdown')}
+                                className={`px-3 py-1 text-sm rounded ${
+                                    editorMode === 'markdown'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                }`}
+                            >
+                                📝 Markdown
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setEditorMode('mentions')}
+                                className={`px-3 py-1 text-sm rounded ${
+                                    editorMode === 'mentions'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                }`}
+                            >
+                                🔗 Mentions
+                            </button>
+                            {editorMode === 'mentions' && hasMentions && (
                                 <span className="text-sm text-blue-600">
                                     {mentionCount} mention{mentionCount !== 1 ? 's' : ''}
                                 </span>
                             )}
-                            <button
-                                type="button"
-                                onClick={() => setIsPreviewMode(!isPreviewMode)}
-                                className="text-sm text-gray-600 hover:text-gray-800 underline"
-                            >
-                                {isPreviewMode ? 'Edit' : 'Preview'}
-                            </button>
                         </div>
                     </div>
 
-                    {!isPreviewMode ? (
-                        <MentionInput
+                    {/* Markdown Editor */}
+                    {editorMode === 'markdown' && (
+                        <MarkdownEditor
                             value={form.content}
                             onChange={handleContentChange}
-                            multiline={true}
-                            rows={12}
-                            className="min-h-[300px] font-mono text-sm"
-                            placeholder="Write your guide content here...
+                            placeholder="Write your guide content using Markdown...
+
+# Main Title
+## Subtitle
+### Section
+
+**Bold text** and *italic text*
+
+- List item 1
+- List item 2
+
+[Link text](https://example.com)
+
+`code snippet`
+
+> This is a quote"
+                            rows={15}
+                        />
+                    )}
+
+                    {/* Mentions Editor */}
+                    {editorMode === 'mentions' && (
+                        <>
+                            {!isPreviewMode ? (
+                                <MentionInput
+                                    value={form.content}
+                                    onChange={handleContentChange}
+                                    multiline={true}
+                                    rows={12}
+                                    className="min-h-[300px] font-mono text-sm"
+                                    placeholder="Write your guide content here...
 
 Use mentions to reference other content:
 • /games/Game Name - to mention games
@@ -148,34 +196,55 @@ Use mentions to reference other content:
 • /challenges/Challenge Title - to mention challenges
 • /lists/List Name - to reference lists
 • /news/Article Title - to mention news articles"
-                        />
-                    ) : (
-                        <div className="border border-gray-300 rounded-lg p-4 min-h-[300px] bg-gray-50">
-                            <div className="prose prose-slate max-w-none">
-                                <MentionDisplay
-                                    text={form.content}
-                                    onMentionClick={handleMentionClick}
-                                    className="whitespace-pre-wrap"
                                 />
+                            ) : (
+                                <div className="border border-gray-300 rounded-lg p-4 min-h-[300px] bg-gray-50">
+                                    <div className="prose prose-slate max-w-none">
+                                        <MentionDisplay
+                                            text={form.content}
+                                            onMentionClick={handleMentionClick}
+                                            className="whitespace-pre-wrap"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Preview Toggle and Mention Help for Mentions Mode */}
+                            <div className="mt-2 flex items-center justify-between">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsPreviewMode(!isPreviewMode)}
+                                    className="text-sm text-gray-600 hover:text-gray-800 underline"
+                                >
+                                    {isPreviewMode ? 'Edit' : 'Preview'}
+                                </button>
+
+                                <div className="text-xs text-gray-500">
+                                    <details>
+                                        <summary className="cursor-pointer hover:text-gray-700">
+                                            How to use mentions
+                                        </summary>
+                                        <div className="mt-2 space-y-1 text-right">
+                                            <p>• Type <code>/games/</code> and start typing a game name</p>
+                                            <p>• Type <code>/guides/</code> to reference other guides</p>
+                                            <p>• Type <code>/challenges/</code> to mention challenges</p>
+                                            <p>• Type <code>/lists/</code> to reference lists</p>
+                                            <p>• Type <code>/news/</code> to mention news articles</p>
+                                            <p className="text-blue-600">Use arrow keys to navigate suggestions, Enter to select</p>
+                                        </div>
+                                    </details>
+                                </div>
                             </div>
-                        </div>
+                        </>
                     )}
 
-                    {/* Mention Help */}
+                    {/* Editor Help */}
                     <div className="mt-2 text-xs text-gray-500">
-                        <details>
-                            <summary className="cursor-pointer hover:text-gray-700">
-                                How to use mentions
-                            </summary>
-                            <div className="mt-2 space-y-1">
-                                <p>• Type <code>/games/</code> and start typing a game name</p>
-                                <p>• Type <code>/guides/</code> to reference other guides</p>
-                                <p>• Type <code>/challenges/</code> to mention challenges</p>
-                                <p>• Type <code>/lists/</code> to reference lists</p>
-                                <p>• Type <code>/news/</code> to mention news articles</p>
-                                <p className="text-blue-600">Use arrow keys to navigate suggestions, Enter to select</p>
-                            </div>
-                        </details>
+                        <p>
+                            💡 <strong>Tip:</strong> Use{' '}
+                            <span className="font-medium">Markdown mode</span> for rich formatting with headers, lists, and links.{' '}
+                            Use <span className="font-medium">Mentions mode</span> to reference other content in your platform.
+                        </p>
                     </div>
                 </div>
 
@@ -227,14 +296,16 @@ Use mentions to reference other content:
                         </button>
                     )}
 
-                    {/* Preview Toggle for Mobile */}
-                    <button
-                        type="button"
-                        onClick={() => setIsPreviewMode(!isPreviewMode)}
-                        className="sm:hidden bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                    >
-                        {isPreviewMode ? '✏️ Edit Mode' : '👁️ Preview Mode'}
-                    </button>
+                    {/* Preview Toggle for Mobile (only for mentions mode) */}
+                    {editorMode === 'mentions' && (
+                        <button
+                            type="button"
+                            onClick={() => setIsPreviewMode(!isPreviewMode)}
+                            className="sm:hidden bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                        >
+                            {isPreviewMode ? '✏️ Edit Mode' : '👁️ Preview Mode'}
+                        </button>
+                    )}
                 </div>
             </form>
         </div>
