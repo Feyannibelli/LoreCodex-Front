@@ -29,7 +29,7 @@ const GuideForm: React.FC<Props> = ({
         }
     );
 
-    // Preview mode para mostrar cómo se verán las menciones
+    // Preview mode para mostrar cómo se verán las menciones y markdown
     const [isPreviewMode, setIsPreviewMode] = useState(false);
     const { hasMentions, mentionCount } = useMentions(form.content);
 
@@ -111,7 +111,7 @@ const GuideForm: React.FC<Props> = ({
                     )}
                 </div>
 
-                {/* Content with Mentions */}
+                {/* Content with Mentions and Markdown */}
                 <div>
                     <div className="flex items-center justify-between mb-2">
                         <label className="block text-sm font-medium text-gray-700">
@@ -126,9 +126,9 @@ const GuideForm: React.FC<Props> = ({
                             <button
                                 type="button"
                                 onClick={() => setIsPreviewMode(!isPreviewMode)}
-                                className="text-sm text-gray-600 hover:text-gray-800 underline"
+                                className="text-sm text-gray-600 hover:text-gray-800 underline flex items-center space-x-1"
                             >
-                                {isPreviewMode ? 'Edit' : 'Preview'}
+                                <span>{isPreviewMode ? '✏️ Edit' : '👁️ Preview'}</span>
                             </button>
                         </div>
                     </div>
@@ -147,32 +147,79 @@ Use mentions to reference other content:
 • /guides/Guide Title - to reference other guides
 • /challenges/Challenge Title - to mention challenges
 • /lists/List Name - to reference lists
-• /news/Article Title - to mention news articles"
+• /news/Article Title - to mention news articles
+
+Use Markdown for formatting:
+# Heading 1
+## Heading 2
+### Heading 3
+
+**Bold text**
+*Italic text*
+`Inline code`
+
+```
+Code block
+```
+
+- List item 1
+- List item 2
+
+1. Numbered item 1
+2. Numbered item 2
+
+[Link text](https://example.com)
+![Image alt](https://example.com/image.jpg)
+
+> Blockquote text"
                         />
                     ) : (
                         <div className="border border-gray-300 rounded-lg p-4 min-h-[300px] bg-gray-50">
                             <div className="prose prose-slate max-w-none">
-                                <MentionDisplay
-                                    text={form.content}
-                                    onMentionClick={handleMentionClick}
-                                    className="whitespace-pre-wrap"
-                                />
+                                {/* Primero procesamos las menciones, luego el markdown */}
+                                <div className="markdown-content">
+                                    <MentionDisplay
+                                        text={form.content}
+                                        onMentionClick={handleMentionClick}
+                                        className="whitespace-pre-wrap"
+                                        renderMarkdown={true}
+                                    />
+                                </div>
+                                {/* Alternativa: Si MentionDisplay no soporta markdown, usa esto: */}
+                                {/* <MarkdownViewer content={form.content} /> */}
                             </div>
                         </div>
                     )}
 
-                    {/* Mention Help */}
+                    {/* Mention and Markdown Help */}
                     <div className="mt-2 text-xs text-gray-500">
                         <details>
                             <summary className="cursor-pointer hover:text-gray-700">
-                                How to use mentions
+                                How to use mentions and markdown
                             </summary>
-                            <div className="mt-2 space-y-1">
-                                <p>• Type <code>/games/</code> and start typing a game name</p>
-                                <p>• Type <code>/guides/</code> to reference other guides</p>
-                                <p>• Type <code>/challenges/</code> to mention challenges</p>
-                                <p>• Type <code>/lists/</code> to reference lists</p>
-                                <p>• Type <code>/news/</code> to mention news articles</p>
+                            <div className="mt-2 space-y-2">
+                                <div>
+                                    <p className="font-semibold text-gray-600">Mentions:</p>
+                                    <div className="ml-2 space-y-1">
+                                        <p>• Type <code>/games/</code> and start typing a game name</p>
+                                        <p>• Type <code>/guides/</code> to reference other guides</p>
+                                        <p>• Type <code>/challenges/</code> to mention challenges</p>
+                                        <p>• Type <code>/lists/</code> to reference lists</p>
+                                        <p>• Type <code>/news/</code> to mention news articles</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-gray-600">Markdown:</p>
+                                    <div className="ml-2 space-y-1">
+                                        <p>• <code># ## ###</code> for headings</p>
+                                        <p>• <code>**bold**</code> and <code>*italic*</code> text</p>
+                                        <p>• <code>`inline code`</code> and <code>```code blocks```</code></p>
+                                        <p>• <code>- item</code> for lists and <code>1. item</code> for numbered lists</p>
+                                        <p>• <code>[text](url)</code> for links</p>
+                                        <p>• <code>![alt](url)</code> for images</p>
+                                        <p>• <code>&gt; text</code> for blockquotes</p>
+                                    </div>
+                                </div>
                                 <p className="text-blue-600">Use arrow keys to navigate suggestions, Enter to select</p>
                             </div>
                         </details>
