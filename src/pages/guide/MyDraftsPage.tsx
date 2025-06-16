@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import guideService from "@/services/guideService";
-import { Guide } from "@/interfaces/Guide";
-import { useAuth } from "@/context/AuthContext";
+import guideService from "../../services/guideService";
+import { Guide } from "../../interfaces/Guide";
+import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 
 const MyDraftsPage: React.FC = () => {

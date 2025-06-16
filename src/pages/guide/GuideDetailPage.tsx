@@ -72,23 +72,21 @@ const GuideDetailPage: React.FC = () => {
 
     // Manejar clicks en menciones para navegar
     const handleMentionClick = (mention: ParsedMention) => {
-        const encodedName = encodeURIComponent(mention.name);
-
         switch (mention.type) {
             case 'games':
-                navigate(`/games/${encodedName}`);
+                navigate(`/games/${mention.id}`);
                 break;
             case 'guides':
-                navigate(`/guides/search?q=${encodedName}`);
+                navigate(`/guides/${mention.id}`); // Usar ID en lugar de nombre
                 break;
             case 'challenges':
-                navigate(`/challenges/${encodedName}`);
+                navigate(`/challenges/${mention.id}`);
                 break;
             case 'lists':
-                navigate(`/lists/${encodedName}`);
+                navigate(`/lists/${mention.id}`);
                 break;
             case 'news':
-                navigate(`/news/${encodedName}`);
+                navigate(`/news/${mention.id}`);
                 break;
             default:
                 console.log('Unknown mention type:', mention.type);
