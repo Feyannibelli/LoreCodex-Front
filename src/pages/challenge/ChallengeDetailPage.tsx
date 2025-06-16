@@ -4,7 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import challengeService, { Challenge, ChallengeProgress } from '../../services/challengeService';
 import MarkdownViewer from '../../components/MarkdownViewer';
 import Button from '../../components/Button';
-import { ArrowLeft, Play, CheckCircle, Circle, Trophy, User, Clock, Star } from 'lucide-react';
+import { ArrowLeft, Play, Circle, Trophy, User, Clock, Star } from 'lucide-react';
+import PrettyCheckbox from "../../components/PrettyCheckbox.tsx";
 
 const ChallengeDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -15,6 +16,8 @@ const ChallengeDetailPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [joining, setJoining] = useState(false);
     const [hasJoined, setHasJoined] = useState(false);
+    const [leaving, setLeaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
         const fetchChallenge = async () => {
@@ -24,15 +27,15 @@ const ChallengeDetailPage: React.FC = () => {
                 const challengeData = await challengeService.getChallengeById(parseInt(id));
                 setChallenge(challengeData);
 
-                // Si está autenticado, verificar si ya se unió y obtener progreso
-                if (isAuthenticated) {
+                //si el usuario esta autenticado, no es el creador y no ha unido al challenge, obtener progreso
+                if (isAuthenticated && user?.username !== challengeData.creatorUsername && !hasJoined) {
                     try {
                         const progressData = await challengeService.getChallengeProgress(parseInt(id));
                         setProgress(progressData);
                         setHasJoined(true);
                     } catch (error) {
-                        // Si da error, probablemente no se ha unido aún
                         console.error('Error fetching challenge progress:', error);
+                        // Si no hay progreso, significa que no se ha unido al challenge
                         setHasJoined(false);
                     }
                 }
@@ -44,7 +47,7 @@ const ChallengeDetailPage: React.FC = () => {
         };
 
         fetchChallenge();
-    }, [id, isAuthenticated]);
+    }, [id, isAuthenticated, user]);
 
     const handleJoinChallenge = async () => {
         if (!challenge || !isAuthenticated) return;
@@ -64,15 +67,63 @@ const ChallengeDetailPage: React.FC = () => {
         }
     };
 
-    const handleCompleteItem = async (itemId: number) => {
+    const handleToggleItem = async (itemId: number, isCompletedNow: boolean) => {
         if (!challenge || !hasJoined) return;
 
+        // 1️⃣  Actualización optimista -----------------------------
+        setProgress(prev =>
+            prev
+                ? {
+                    ...prev,
+                    completedItems: isCompletedNow
+                        ? (prev.completedItems ?? []).filter(id => id !== itemId)
+                        : [...(prev.completedItems ?? []), itemId],
+                    completed: isCompletedNow ? prev.completed - 1 : prev.completed + 1
+                }
+                : prev
+        );
+
+        // 2️⃣  Llamada real al API --------------------------------
         try {
-            const updatedProgress = await challengeService.completeItem(challenge.id, itemId);
-            setProgress(updatedProgress);
+            const newProgress = isCompletedNow
+                ? await challengeService.uncompleteItem(challenge.id, itemId)
+                : await challengeService.completeItem(challenge.id, itemId);
+
+            // 3️⃣  Asegurarse de tener el dato definitivo que devuelve el back
+            setProgress(newProgress);
+        } catch (err) {
+            console.error('Error toggling item completion:', err);
+            alert('No se pudo actualizar la tarea');
+        }
+    };
+
+    const handleLeaveChallenge = async () => {
+        if (!challenge) return;
+        setLeaving(true);
+        try {
+            await challengeService.leaveChallenge(challenge.id);
+            setHasJoined(false);
+            setProgress(null);
         } catch (error) {
-            console.error('Error completing item:', error);
-            alert('Error al completar la tarea. Por favor, intenta de nuevo.');
+            console.error('Error leaving challenge:', error);
+            alert('Error al salir del challenge');
+        } finally {
+            setLeaving(false);
+        }
+    };
+
+    const handleDeleteChallenge = async () => {
+        if (!challenge) return;
+        if (!window.confirm('¿Seguro que quieres eliminar este challenge? Esta acción no se puede deshacer.')) return;
+        setDeleting(true);
+        try {
+            await challengeService.deleteChallenge(challenge.id);
+            navigate('/challenges');
+        } catch (error) {
+            console.error('Error deleting challenge:', error);
+            alert('Error al eliminar el challenge');
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -191,18 +242,22 @@ const ChallengeDetailPage: React.FC = () => {
 
     {/* Challenge info */}
     <div className="space-y-3 mb-6">
-    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-    <User size={18} />
-    <span>Creado por <strong>{challenge.creatorUsername}</strong></span>
-    </div>
-    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-    <Clock size={18} />
-    <span>{challenge.items.length} tareas</span>
-    </div>
+        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+            <User size={18}/>
+            <span>Creado por{' '}
+                <strong className="cursor-pointer text-blue-600 hover:underline" onClick={() => navigate(`/profile/${challenge?.creatorId}`)}>
+                {challenge.creatorUsername}
+                </strong>
+            </span>
+        </div>
+        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+            <Clock size={18}/>
+            <span>{challenge.items.length} tareas</span>
+        </div>
     </div>
 
-    {/* Progress bar (solo si se unió) */}
-    {hasJoined && progress && (
+        {/* Progress bar (solo si se unió) */}
+        {hasJoined && progress && (
         <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -214,7 +269,7 @@ const ChallengeDetailPage: React.FC = () => {
         </div>
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
     <div
-        className="bg-[#F47E00] h-3 rounded-full transition-all duration-300"
+        className="bg-orange-500 h-3 rounded-full transition-all duration-300"
         style={{ width: `${progressPercentage}%` }}
         />
         </div>
@@ -227,34 +282,51 @@ const ChallengeDetailPage: React.FC = () => {
         </div>
     )}
 
-    {/* Actions */}
-    <div className="space-y-3">
-        {!isAuthenticated ? (
-        <div className="text-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
-        <p className="text-gray-600 dark:text-gray-400 mb-3">
-            Inicia sesión para unirte a este challenge
-    </p>
-    <Button onClick={() => navigate('/login')}>
-    Iniciar Sesión
-    </Button>
-    </div>
-) : !hasJoined && !isOwner ? (
-            <Button
-                onClick={handleJoinChallenge}
-        disabled={joining}
-    className="w-full flex items-center justify-center gap-2"
-    >
-    <Play size={20} />
-    {joining ? 'Uniéndose...' : 'Unirse al Challenge'}
-    </Button>
-) : isOwner ? (
-        <div className="text-center p-4 bg-blue-100 dark:bg-blue-900 rounded-lg">
-        <p className="text-blue-800 dark:text-blue-200">
-            Eres el creador de este challenge
-    </p>
-    </div>
-) : null}
-    </div>
+        {/* Actions */}
+        <div className="space-y-3">
+            {!isAuthenticated ? (
+                <div className="text-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <p className="text-gray-600 dark:text-gray-400 mb-3">
+                        Inicia sesión para unirte a este challenge
+                    </p>
+                    <Button onClick={() => navigate('/login')}>
+                        Iniciar Sesión
+                    </Button>
+                </div>
+            ) : !hasJoined && !isOwner ? (
+                <Button
+                    onClick={handleJoinChallenge}
+                    disabled={joining}
+                    className="w-full flex items-center justify-center gap-2"
+                >
+                    <Play size={20} />
+                    {joining ? 'Uniéndose...' : 'Unirse al Challenge'}
+                </Button>
+            ) : isOwner ? (
+                <div>
+                    <div className="text-center p-4 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                        <p className="text-blue-800 dark:text-blue-200">
+                            Eres el creador de este challenge
+                        </p>
+                    </div>
+                    <Button
+                        onClick={handleDeleteChallenge}
+                        disabled={deleting}
+                        className="w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 mt-2"
+                    >
+                        {deleting ? 'Eliminando...' : 'Eliminar Challenge'}
+                    </Button>
+                </div>
+            ) : (
+                <Button
+                    onClick={handleLeaveChallenge}
+                    disabled={leaving}
+                    className="w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600"
+                >
+                    {leaving ? 'Saliendo...' : 'Leave Challenge'}
+                </Button>
+            )}
+        </div>
     </div>
     </div>
     </div>
@@ -275,59 +347,55 @@ const ChallengeDetailPage: React.FC = () => {
         Tareas ({challenge.items.length})
         </h2>
         <div className="space-y-3">
-        {challenge.items
+            {challenge.items
                 .sort((a, b) => a.order - b.order)
                 .map((item) => {
-                    const isCompleted = !!(hasJoined && progress && progress.completed > item.order - 1);
+                    const isCompleted = (
+                        hasJoined &&
+                        item.id !== undefined &&
+                        Array.isArray(progress?.completedItems) &&
+                        progress.completedItems.includes(item.id)
+                    );
                     return (
                         <div
                             key={item.id}
-                    className={`bg-white dark:bg-[#313E3F] rounded-lg p-4 shadow-sm border transition-all ${
-                        isCompleted
-                            ? 'border-green-300 bg-green-50 dark:bg-green-900/20'
-                            : 'border-gray-200 dark:border-gray-700'
-                    }`}
-                >
-                    <div className="flex items-start gap-3">
-                        {hasJoined ? (
-                                <Button
-                                    onClick={() => item.id && handleCompleteItem(item.id)}
-                    disabled={isCompleted}
-                    className="mt-1 flex-shrink-0"
+                            className={`bg-white dark:bg-[#313E3F] rounded-lg p-4 shadow-sm border transition-all ${isCompleted ? 'border-emerald-300 bg-emerald-50 dark:bg-emerald-900/10 animate-pulse-once' : 'border-gray-200 dark:border-gray-700'}`}
                         >
-                        {isCompleted ? (
-                                <CheckCircle className="text-green-600" size={24} />
-                ) : (
-                        <Circle className="text-gray-400 hover:text-gray-600" size={24} />
-                )}
-                    </Button>
-                ) : (
-                        <Circle className="text-gray-400 mt-1 flex-shrink-0" size={24} />
-                )}
-                    <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        Tarea {item.order}
-                    </span>
-                    {isCompleted && (
-                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                            Completado
+                            <div className="flex items-start gap-3">
+                                {hasJoined ? (
+                                            <PrettyCheckbox
+                                                checked={isCompleted}
+                                                disabled={false}
+                                                onToggle={() => handleToggleItem(item.id!, isCompleted)}
+                                            />
+                                        ) : (
+                                            <Circle size={24} className="text-gray-400 mt-1 flex-shrink-0"/>
+                                        )
+                                    }
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                Tarea {item.order}
                             </span>
-                    )}
-                    </div>
-                    <MarkdownViewer
-                    content={item.description}
-                    className={isCompleted ? 'text-green-700 dark:text-green-300' : ''}
-                    />
-                    </div>
-                    </div>
-                    </div>
-                );
+                                        {isCompleted && (
+                                            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                    Completado
+                                </span>
+                                        )}
+                                    </div>
+                                    <MarkdownViewer
+                                        content={item.description}
+                                        className={isCompleted ? 'text-green-700 dark:text-green-300' : ''}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    );
                 })}
         </div>
         </div>
         </div>
 );
-};
+}
 
 export default ChallengeDetailPage;

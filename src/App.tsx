@@ -17,20 +17,11 @@ import PrivateRoute from './components/PrivateRoute';
 import UserMenu from "./components/UserMenu";
 import GamesPage from './pages/game/GamesPage.tsx';
 import ListsPage from './pages/lists/ListsPage.tsx';
-import MyDraftsPage from "@/pages/guide/MyDraftsPage.tsx";
-import EditGuidePage from "@/pages/guide/EditGuidePage.tsx";
-import GuidePage from "@/pages/guide/GuidePage.tsx";
-import CreateGuidePage from "@/pages/guide/CreateGuidePage.tsx";
-import GuideDetailPage from "@/pages/guide/GuideDetailPage.tsx";
 import NewsPage        from "./pages/news/NewsPage";
 import NewsDetailPage  from "./pages/news/NewsDetailPage";
 import CreateNewsPage  from "./pages/news/CreateNewsPage";
 import EditNewsPage    from "./pages/news/EditNewsPage";
 import AdminNewsList   from "./pages/admin/AdminNewsList";
-import PublicProfile from "@/pages/PublicProfile.tsx";
-import CreateListPage from "@/pages/lists/CreateListPage.tsx";
-import ListDetailPage from "@/pages/lists/ListDetailPage.tsx";
-import ListsPage from './pages/list/ListsPage.tsx';
 import EditGuidePage from "./pages/guide/EditGuidePage.tsx";
 import MyDraftsPage from "./pages/guide/MyDraftsPage.tsx";
 import GuidePage from "./pages/guide/GuidePage.tsx";
@@ -43,6 +34,7 @@ import EditListPage from './pages/list/EditListPage.tsx';
 import ChallengesPage from './pages/challenge/ChallengesPage.tsx';
 import ChallengeDetailPage from './pages/challenge/ChallengeDetailPage.tsx';
 import CreateChallengePage from './pages/challenge/CreateChallengePage.tsx';
+import PublicProfile from "./pages/PublicProfile.tsx";
 
 // Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -50,7 +42,6 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     if (loading) return <div>Loading…</div>;
     return isAdmin ? <>{children}</> : <Navigate to="/news" />;
 };
-
 
 const App: React.FC = () => {
     return (
@@ -191,9 +182,6 @@ const App: React.FC = () => {
                 <Route path="/admin/news"           element={<AdminRoute><AdminNewsList /></AdminRoute>} />
                 <Route path="/admin/news/create"    element={<AdminRoute><CreateNewsPage /></AdminRoute>} />
                 <Route path="/admin/news/edit/:id"  element={<AdminRoute><EditNewsPage /></AdminRoute>} />
-
-
-
             </Routes>
         </div>
     );

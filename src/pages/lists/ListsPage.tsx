@@ -1,7 +1,7 @@
 // src/pages/ListsPage.tsx
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import userListService, { UserListResponse } from '@/services/userListService';
+import userListService, {UserListResponse} from "../../services/userListService.ts";
 
 const ListsPage: React.FC = () => {
     const [lists, setLists] = useState<UserListResponse[]>([]);
@@ -19,7 +19,7 @@ const ListsPage: React.FC = () => {
                 <h1 className="text-3xl font-bold">Lists</h1>
                 <Link
                     to="/lists/create"
-                    className="bg-blue-600 text-white px-4 py-2 rounded"
+                    className="bg-orange-500 text-white px-4 py-2 rounded"
                 >
                     Create List +
                 </Link>

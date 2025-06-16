@@ -1,20 +1,16 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import guideService from "../../services/guideService";
+import {useParams, useNavigate, Link} from "react-router-dom";
 import { Guide } from "../../interfaces/Guide";
-import { useAuth } from "../../context/AuthContext";
 import { MentionDisplay, useMentions } from "../../components/MentionDisplay";
 import { ParsedMention } from "../../utils/mentionParser";
-import {useParams, useNavigate, Link} from "react-router-dom";
-import guideService from "@/services/guideService";
-import { Guide } from "@/interfaces/Guide";
-import { useAuth } from "@/context/AuthContext";
+import guideService from "../../services/guideService";
+import { useAuth } from "../../context/AuthContext";
 
 const GuideDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [guide, setGuide] = useState<Guide | null>(null);
     const [loading, setLoading] = useState(true);
-    const { isAdmin, user, isAuthenticated } = useAuth();
+    const {user, isAuthenticated } = useAuth();
     const navigate = useNavigate();
     const [authorUsername, setAuthorUsername] = useState<string | null>(null);
 
@@ -26,6 +22,12 @@ const GuideDetailPage: React.FC = () => {
                 .finally(() => setLoading(false));
         }
     }, [id]);
+
+    useEffect(() => {
+        if (guide?.authorId) {
+            guideService.getAuthor(guide.authorId).then(setAuthorUsername);
+        }
+    }, [guide?.authorId]);
 
     // Hook para obtener información de las menciones
     const { mentions, hasMentions, mentionCount, getMentionsByType } = useMentions(guide?.content || '');
@@ -80,16 +82,11 @@ const GuideDetailPage: React.FC = () => {
             </div>
         </div>
     );
-    useEffect(() => {
-        if (guide?.authorId) {
-            guideService.getAuthor(guide.authorId).then(setAuthorUsername);
-        }
-    }, [guide?.authorId]);
 
     if (loading) return <div className="p-4">Loading…</div>;
     if (!guide)   return <div className="p-4">Guide not found.</div>;
 
-    const canEdit = isAdmin || guide.authorId === user?.id;
+    const canEdit = guide.authorId === user?.id;
 
     // Estadísticas de menciones por tipo
     const mentionStats = {
@@ -121,6 +118,21 @@ const GuideDetailPage: React.FC = () => {
             <header className="mb-8">
                 <h1 className="text-4xl font-bold text-gray-900 mb-4">{guide.title}</h1>
 
+                <p className="text-gray-600 mb-2">
+                    By{" "}
+                    {authorUsername
+                        ? (
+                            <Link
+                                to={`/profile/${guide.authorId}`}
+                                className="text-blue-600 hover:underline"
+                            >
+                                {authorUsername}
+                            </Link>
+                        )
+                        : <>Author ID: {guide.authorId}</>
+                    }{" "}
+                    · {new Date(guide.createdAt).toLocaleDateString()}
+                </p>
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
                     <span>📅 {new Date(guide.createdAt).toLocaleDateString()}</span>
                     {guide.updatedAt !== guide.createdAt && (

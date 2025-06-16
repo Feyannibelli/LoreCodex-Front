@@ -1,5 +1,6 @@
 import apiAuth from './apiAuth';
-import { UserListRequest } from '@/interfaces/UserListRequest';
+import api from "./api.ts";
+import {UserListRequest} from "../interfaces/UserListRequest.ts";
 
 export interface ListItemRequest {
     type: 'GAME' | 'GUIDE' | 'NEWS';
@@ -43,7 +44,7 @@ const userListService = {
     getAll: (): Promise<UserListResponse[]> =>
         // Backend expone GET /lists/{someId}/get-all que ignora el ID,
         // así que podemos pasar “0” como placeholder:
-        apiAuth.get(`/lists/0/get-all`).then(r => r.data),
+        api.get(`/lists/get-all`).then(r => r.data),
 
     /** Trae listas de un usuario */
     getForUser: (userId: number): Promise<UserListResponse[]> =>

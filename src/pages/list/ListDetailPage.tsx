@@ -107,7 +107,11 @@ const ListDetailPage: React.FC = () => {
                     <div className="flex-1">
                         <h1 className="text-3xl font-bold text-gray-800 mb-2">{list.title}</h1>
                         <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                            <span>By {list.username || 'Anonymous'}</span>
+                            <span>By{' '}
+                            <Link to={`/profile/${list.userId}`} className="text-blue-500 hover:underline">
+                                {list.username}
+                            </Link>
+                            </span>
                             <span>•</span>
                             <span>{list.items.length} items</span>
                             <span>•</span>

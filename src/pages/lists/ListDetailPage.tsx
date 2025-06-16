@@ -1,7 +1,7 @@
 // src/pages/ListDetailPage.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import userListService, { UserListResponse } from '@/services/userListService';
+import userListService, { UserListResponse } from '../../services/userListService';
 
 const ListDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();

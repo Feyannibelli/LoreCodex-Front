@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {Link, useParams} from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
-import {Guide} from "@/interfaces/Guide.ts";
-import {Review} from "@/interfaces/Review.ts";
-import {UserListResponse} from "@/interfaces/UserListResponse.ts";
-import {getUserProfileById} from "@/services/UserService.ts";
-import followService from "@/services/followService.ts";
-import userListService from "@/services/userListService.ts";
+import {Guide} from "../interfaces/Guide.ts";
+import {Review} from "../interfaces/Review";
+import {useAuth} from "../context/AuthContext.tsx";
+import {getUserProfileById} from "../services/UserService.ts";
+import userListService from "../services/userListService.ts";
+import followService from "../services/followService.ts";
+import {UserListResponse} from "../interfaces/UserListResponse.ts";
+
 
 interface PublicProfileData {
     userId: number;

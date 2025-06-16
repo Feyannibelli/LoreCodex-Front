@@ -62,7 +62,10 @@ const CreateChallengePage: React.FC = () => {
         game.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleInputChange = (field: keyof ChallengeFormData, value: any) => {
+    const handleInputChange = <K extends keyof ChallengeFormData>(
+        field: K,
+        value: ChallengeFormData[K]
+    ) => {
         setFormData(prev => ({
             ...prev,
             [field]: value
@@ -403,7 +406,7 @@ const CreateChallengePage: React.FC = () => {
                                     onChange={(e) => handleInputChange('mediaUrl', e.target.value)}
                                     placeholder={`https://ejemplo.com/${mediaMode === 'image' ? 'imagen.jpg' : 'video.mp4'}`}
                                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#F47E00] focus:border-transparent dark:bg-gray-700 dark:text-white"
-                                    required={mediaMode !== 'comment'}
+                                    required={mediaMode === 'image' || mediaMode === 'video'}
                                     />
                             </div>
                         )}
@@ -533,7 +536,7 @@ const CreateChallengePage: React.FC = () => {
                     >
                         Cancelar
                     </Button>
-                    <button
+                    <Button
                         type="submit"
                         disabled={loading}
                         className="flex items-center gap-2"
@@ -546,7 +549,7 @@ const CreateChallengePage: React.FC = () => {
                         ) : (
                             'Crear Challenge'
                         )}
-                    </button>
+                    </Button>
                 </div>
             </form>
         </div>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { GuideForm as Form } from "../../interfaces/Guide";
 import { MentionInput } from "../../components/MentionInput";
-import { MentionDisplay, useMentions } from "../../components/MentionDisplay";
+import { MentionDisplay, useMentions } from "../MentionDisplay.tsx";
 
 interface Props {
     initial?: Form;
@@ -16,7 +16,7 @@ const GuideForm: React.FC<Props> = ({
                                         submitLabel,
                                         onSubmit,
                                         onPublish,
-                                        publishLabel = "Publish"
+                                        publishLabel = "Create Guide"
                                     }) => {
     const [form, setForm] = useState<Form>(
         initial ?? {

@@ -15,6 +15,7 @@ export interface Challenge {
     title: string;
     description: string;
     creatorUsername: string;
+    creatorId?: number;
     items: ChallengeItem[];
     difficulty?: number; // 1-6
     mediaUrl?: string;
@@ -32,10 +33,12 @@ export interface ChallengeFormData {
 
 export interface ChallengeProgress {
     challengeId: number;
-    progress: number; // 0-100
+    progress: number;
     completed: number;
     total: number;
+    completedItems: number[];    // ahora siempre existe
 }
+
 
 // Interfaces para adaptar el backend
 interface BackendChallenge {
@@ -43,6 +46,7 @@ interface BackendChallenge {
     title: string;
     description: string;
     creatorUsername: string;
+    creatorId?: number;
     items: {
         id: number;
         description: string;
@@ -50,11 +54,22 @@ interface BackendChallenge {
     }[];
 }
 
+// Agrega difficulty a la request
 interface BackendChallengeRequest {
     title: string;
     description: string;
     items: string[];
+    difficulty: number; // <--- agrega esto
 }
+
+const adaptFrontendChallengeToBackend = (frontendChallenge: ChallengeFormData): BackendChallengeRequest => {
+    return {
+        title: frontendChallenge.title,
+        description: frontendChallenge.description,
+        items: frontendChallenge.items,
+        difficulty: frontendChallenge.difficulty // <--- agrega esto
+    };
+};
 
 const adaptBackendChallengeToFrontend = (backendChallenge: BackendChallenge): Challenge => {
     // Add logging to debug what's coming from backend
@@ -65,20 +80,13 @@ const adaptBackendChallengeToFrontend = (backendChallenge: BackendChallenge): Ch
         title: backendChallenge.title,
         description: backendChallenge.description,
         creatorUsername: backendChallenge.creatorUsername,
+        creatorId: backendChallenge.creatorId,
         // Add null check for items array
         items: (backendChallenge.items || []).map(item => ({
             id: item.id,
             description: item.description,
             order: item.order
         }))
-    };
-};
-
-const adaptFrontendChallengeToBackend = (frontendChallenge: ChallengeFormData): BackendChallengeRequest => {
-    return {
-        title: frontendChallenge.title,
-        description: frontendChallenge.description,
-        items: frontendChallenge.items
     };
 };
 
@@ -197,19 +205,6 @@ const challengeService = {
         }
     },
 
-    // Completar un item del challenge
-    /*viene de este endpoint en el back: @PostMapping("/{id}/items/{itemId}/complete")
-    public ResponseEntity<ChallengeProgressDto> completeItem(
-            @PathVariable Long id,
-            @PathVariable Long itemId,
-            @AuthenticationPrincipal User user
-    ) {
-        ChallengeProgressDto dto = service.completeItem(id, itemId, user.getUsername());
-        return ResponseEntity.ok(dto);
-    }*/
-
-    //deberia modificar
-
     completeItem: async (challengeId: number, itemId: number): Promise<ChallengeProgress> => {
         try {
             const response = await apiAuth.post(`/challenges/${challengeId}/items/${itemId}/complete`);
@@ -219,6 +214,21 @@ const challengeService = {
             if (axios.isAxiosError(error) && error.response &&
                 (error.response.status === 401 || error.response.status === 403)) {
                 throw new Error("Authentication required to complete challenge items");
+            }
+            throw error;
+        }
+    },
+
+// Desmarcar un ítem como completado y necesito que actualice el progreso del challenge
+    uncompleteItem: async (challengeId: number, itemId: number): Promise<ChallengeProgress> => {
+        try {
+            const response = await apiAuth.post(`/challenges/${challengeId}/items/${itemId}/uncomplete`);
+            return response.data;
+        } catch (error) {
+            console.error(`Error uncompleting item ${itemId} in challenge ${challengeId}:`, error);
+            if (axios.isAxiosError(error) && error.response &&
+                (error.response.status === 401 || error.response.status === 403)) {
+                throw new Error("Authentication required to uncomplete challenge items");
             }
             throw error;
         }
@@ -234,6 +244,19 @@ const challengeService = {
             if (axios.isAxiosError(error) && error.response &&
                 (error.response.status === 401 || error.response.status === 403)) {
                 throw new Error("Authentication required to view challenge progress");
+            }
+            throw error;
+        }
+    },
+
+    leaveChallenge: async (challengeId: number): Promise<void> => {
+        try {
+            await apiAuth.post(`/challenges/${challengeId}/leave`);
+        } catch (error) {
+            console.error(`Error leaving challenge ${challengeId}:`, error);
+            if (axios.isAxiosError(error) && error.response &&
+                (error.response.status === 401 || error.response.status === 403)) {
+                throw new Error("Authentication required to leave this challenge");
             }
             throw error;
         }

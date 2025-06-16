@@ -41,7 +41,7 @@ const CreateListPage: React.FC = () => {
             let results: SearchableItem[] = [];
 
             switch (searchType) {
-                case ListItemType.GAME:
+                case ListItemType.GAME: {
                     const games = await gameService.searchGamesByName(searchTerm);
                     results = games.map(game => ({
                         id: game.id,
@@ -50,21 +50,23 @@ const CreateListPage: React.FC = () => {
                         thumbnailUrl: game.imageUrl
                     }));
                     break;
+                }
 
-                case ListItemType.GUIDE:
+                case ListItemType.GUIDE: {
                     const guides = await guideService.getPublishedGuides();
-                    const filteredGuides = guides.filter(guide =>
+                    const filteredGuides = guides.filter((guide: { id: number; title: string; coverImageUrl?: string }) =>
                         guide.title.toLowerCase().includes(searchTerm.toLowerCase())
                     );
-                    results = filteredGuides.map(guide => ({
+                    results = filteredGuides.map((guide: { id: number; title: string; coverImageUrl?: string }) => ({
                         id: guide.id,
                         title: guide.title,
                         type: ListItemType.GUIDE,
                         thumbnailUrl: guide.coverImageUrl || undefined
                     }));
                     break;
+                }
 
-                case ListItemType.CHALLENGE:
+                case ListItemType.CHALLENGE:{
                     const challenges = await challengeService.searchChallengesByTitle(searchTerm);
                     results = challenges.map(challenge => ({
                         id: challenge.id,
@@ -72,6 +74,7 @@ const CreateListPage: React.FC = () => {
                         type: ListItemType.CHALLENGE
                     }));
                     break;
+                }
             }
 
             setSearchResults(results);
@@ -144,7 +147,7 @@ const CreateListPage: React.FC = () => {
         }
     };
 
-    const getItemDisplayName = (item: ListItemRequest, index: number) => {
+    const getItemDisplayName = (item: ListItemRequest) => {
         const searchItem = searchResults.find(r => r.id === item.referenceId && r.type === item.type);
         return searchItem ? searchItem.title : `${item.type} #${item.referenceId}`;
     };
@@ -262,7 +265,7 @@ const CreateListPage: React.FC = () => {
                                 >
                                     <div className="flex items-center">
                                         <span className="text-sm text-gray-500 mr-3">#{index + 1}</span>
-                                        <span className="font-medium">{getItemDisplayName(item, index)}</span>
+                                        <span className="font-medium">{getItemDisplayName(item)}</span>
                                         <span className="text-sm text-gray-500 ml-2">({item.type})</span>
                                     </div>
 

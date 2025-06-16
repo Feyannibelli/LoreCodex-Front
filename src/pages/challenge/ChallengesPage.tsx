@@ -102,8 +102,7 @@ const ChallengesPage: React.FC = () => {
     {isAuthenticated && (
         <Link to="/challenges/create">
         <Button className="flex items-center gap-2">
-        <Plus size={20} />
-        Crear Challenge
+        <Plus size={20} /> Crear Challenge
     </Button>
     </Link>
     )}

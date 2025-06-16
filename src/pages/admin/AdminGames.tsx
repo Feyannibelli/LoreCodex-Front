@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Game } from "@/interfaces/Game.ts";
 import gameService from "../../services/gameService.ts";
 import Modal from "../../components/Modal.tsx";
 import "../../css/AdminGames.css";
+import {Game} from "../../interfaces/Game.ts";
+import Button from "../../components/Button.tsx";
+import {Plus} from "lucide-react";
 
 const AdminGames: React.FC = () => {
     const [games, setGames] = useState<Game[]>([]);
@@ -54,11 +56,10 @@ const AdminGames: React.FC = () => {
         <div className="admin-games-container">
             <div className="admin-games-header">
                 <h1>Manage Games</h1>
-                <Link to="/admin/games/create" className="create-game-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"/>
-                    </svg>
-                    Create Game
+                <Link to="/admin/games/create">
+                    <Button className="flex items-center gap-2">
+                        <Plus size={20} /> Create Game
+                    </Button>
                 </Link>
             </div>
 
@@ -86,18 +87,18 @@ const AdminGames: React.FC = () => {
                                 <td>{game.genre}</td>
                                 <td>{game.releaseDate}</td>
                                 <td className="action-buttons">
-                                    <button
+                                    <Button
                                         className="edit-button"
                                         onClick={() => navigate(`/admin/games/edit/${game.id}`)}
                                     >
                                         Edit
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button
                                         className="delete-button"
                                         onClick={() => handleDelete(game)}
                                     >
                                         Delete
-                                    </button>
+                                    </Button>
                                 </td>
                             </tr>
                         ))

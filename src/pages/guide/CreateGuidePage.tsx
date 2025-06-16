@@ -1,8 +1,9 @@
 // src/pages/guide/CreateGuidePage.tsx
 import { useNavigate } from "react-router-dom";
-import GuideForm from "@/components/guide/GuideForm";
-import guideService from "@/services/guideService";
-import { GuideForm as Form } from "@/interfaces/Guide";
+import guideService from "../../services/guideService.ts";
+import { GuideForm as Form } from "../../interfaces/Guide";
+import GuideForm from "../../components/guide/GuideForm.tsx";
+
 
 const CreateGuidePage: React.FC = () => {
     const navigate = useNavigate();

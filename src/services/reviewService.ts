@@ -1,6 +1,6 @@
 import apiAuth from './apiAuth.ts';
 import { Review, ReviewFormData } from '../interfaces/Review';
-import api from "@/services/api.ts";
+import api from './api.ts';
 
 const reviewService = {
     getGameReviews: async (gameId: number): Promise<Review[]> => {

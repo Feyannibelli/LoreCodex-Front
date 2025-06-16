@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import newsService from "@/services/newsService";
-import { News } from "@/interfaces/News";
-import { useAuth } from "@/context/AuthContext";
+import {useAuth} from "../../context/AuthContext.tsx";
+import {News} from "../../interfaces/News.ts";
+import newsService from "../../services/newsService.ts";
 
 const NewsDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();

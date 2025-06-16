@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import gameService from '@/services/gameService';
-import userListService, { ListItemRequest } from '@/services/userListService';
-import { Game } from '@/interfaces/Game';  // o donde tengas tu Game
+import { useAuth } from '../../context/AuthContext';
+import gameService from '../../services/gameService.ts';
+import { ListItemRequest } from "../../services/userListService.ts";
+import {Game} from "../../interfaces/Game.ts";
+import userListService from "../../services/userListService.ts";
 
 
 
@@ -51,16 +52,13 @@ const CreateListPage: React.FC = () => {
     const handleSubmit = async () => {
         if (!user) return alert('Tienes que estar logueado');
         if (!title.trim()) return alert('La lista necesita un título');
-        // arma el request
-        const body = {
-            title,
-            description,
-            items,
-        };
+        const body = { title, description, items };
         try {
             const nueva = await userListService.createList(user.id, body);
-            alert(`Lista creada: ${nueva.title}`);
-            // redirige a la lista o limpia el formulario…
+            // Vuelve a pedir la lista completa por ID
+            const listaCompleta = await userListService.getListById(nueva.id);
+            alert(`Lista creada: ${listaCompleta.title}`);
+            // Aquí podrías redirigir o mostrar los items de listaCompleta
             setTitle('');
             setDescription('');
             setItems([]);

@@ -1,10 +1,9 @@
-// src/pages/guide/EditGuidePage.tsx
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import GuideForm from "@/components/guide/GuideForm";
-import guideService from "@/services/guideService";
-import { Guide } from "@/interfaces/Guide";
-import { GuideForm as Form } from "@/interfaces/Guide";
+import guideService from "../../services/guideService.ts";
+import {Guide, GuideForm as Form} from "../../interfaces/Guide";
+import GuideForm from "../../components/guide/GuideForm.tsx";
+
 
 const EditGuidePage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -19,12 +18,12 @@ const EditGuidePage: React.FC = () => {
 
     /* --- callbacks --- */
     const saveDraft = (data: Form) => {
-        const payload = { ...data, published: false, draft: true };
+        const payload = { ...data, coverImageUrl: data.coverImageUrl ?? undefined, published: false, draft: true };
         guideService.update(guide.id, payload).then(g => navigate(`/guides/${g.id}`));
     };
 
     const publishGuide = (data: Form) => {
-        const payload = { ...data, published: true, draft: false };
+        const payload = { ...data, coverImageUrl: data.coverImageUrl ?? undefined, published: true, draft: false };
         guideService.update(guide.id, payload).then(g => navigate(`/guides/${g.id}`));
     };
 
@@ -41,8 +40,8 @@ const EditGuidePage: React.FC = () => {
                     draft: guide.draft,
                 }}
                 submitLabel="Save draft"
-                onSubmit={saveDraft}       // botón gris
-                onPublish={publishGuide}   // botón verde
+                onSubmit={saveDraft}     // botón gris “Save draft”
+                onPublish={publishGuide} // botón verde “Publish”
             />
         </div>
     );
