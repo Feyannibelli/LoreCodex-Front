@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Game, GameFormData } from '../interfaces/Game';
-import api from "@/services/api.ts";
-import apiAuth from "@/services/apiAuth.ts";
+import api from "../services/api.ts";
+import apiAuth from "../services/apiAuth.ts";
 
 // Interfaces para adaptar el backend al frontend
 interface BackendGame {
@@ -87,15 +87,14 @@ const gameService = {
     },
 
     // Buscar juegos por nombre (podriamos usarlo para lo de menciones?)
-    searchGamesByName: async (title: string): Promise<Game[]> => {
+    searchGamesByName: async (name: string): Promise<Game[]> => {
         try {
-            const response = await api.get(`/games/allGames?title=${encodeURIComponent(title)}`);
+            const response = await apiAuth.get(`/games/search?title=${name}`);
             return response.data.map(adaptBackendGameToFrontend);
         } catch (error) {
             console.error('Error searching games by name:', error);
             return [];
         }
-
     },
 
     // Crear un nuevo juego (solo admin)

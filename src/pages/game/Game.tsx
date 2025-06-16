@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Game as GameType } from "../../interfaces/Game.ts";
 import gameService from "../../services/gameService.ts";
-import { useAuth } from "../../context/AuthContext.tsx"; // Import useAuth hook instead of authService
+import { useAuth } from "../../context/AuthContext.tsx";
 import ReviewList from "../../components/ReviewList.tsx";
 import "../../css/Game.css";
-import AverageRatingDisplay from "@/components/AverageRatingDisplay.tsx";
-import ratingService from "@/services/ratingService.ts";
-import UserRatingDisplay from "@/components/UserRatingDisplay.tsx";
-import GameNotesSection from "@/components/GameNotesSection.tsx";
+import AverageRatingDisplay from "../../components/AverageRatingDisplay.tsx";
+import ratingService from "../../services/ratingService.ts";
+import UserRatingDisplay from "../../components/UserRatingDisplay.tsx";
+import GameNotesSection from "../../components/GameNotesSection.tsx";
 
 const Game: React.FC = () => {
     const { id } = useParams<{ id: string }>();

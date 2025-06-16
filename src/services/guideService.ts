@@ -1,6 +1,6 @@
 import api     from "./api";
 import apiAuth from "./apiAuth";
-import { Guide, GuideForm } from "@/interfaces/Guide";
+import { Guide, GuideForm } from "../interfaces/Guide";
 
 /* ---- mappers ---- */
 const toFrontend = (b: any): Guide => ({
@@ -20,15 +20,18 @@ const toFrontend = (b: any): Guide => ({
 });
 
 // guideService.ts  – mapper a backend
+// guideService.ts – mapper a backend
 const toBackend = (f: GuideForm) => ({
     title:         f.title,
     content:       f.content,
     coverImageUrl: f.coverImageUrl,
-    published:     f.published ?? false,
-    draft:         f.draft ?? true,
+    /* ¡los nombres deben coincidir con GuideRequest! */
+    isPublished:   f.published,
+    isDraft:       f.draft,
     tags:          f.tags,
     images:        f.images,
 });
+
 
 
 /* ---- service ---- */
@@ -37,7 +40,11 @@ const guideService = {
     getById: (id: number) =>
         api.get(`/guides/${id}`).then(r => toFrontend(r.data)),
 
-    getPublic: () =>
+    getPublishedGuidesByTitle: (title: string) =>
+        api.get(`/guides/search?title=${title}`)
+            .then(r => r.data.map(toFrontend)),
+
+    getPublishedGuides: () =>
         api.get(`/guides/all/published`).then(r => r.data.map(toFrontend)),
 
     /* Drafts del usuario (nuevo endpoint) */

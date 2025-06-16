@@ -1,4 +1,3 @@
-// src/App.tsx
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
@@ -31,6 +30,19 @@ import AdminNewsList   from "./pages/admin/AdminNewsList";
 import PublicProfile from "@/pages/PublicProfile.tsx";
 import CreateListPage from "@/pages/lists/CreateListPage.tsx";
 import ListDetailPage from "@/pages/lists/ListDetailPage.tsx";
+import ListsPage from './pages/list/ListsPage.tsx';
+import EditGuidePage from "./pages/guide/EditGuidePage.tsx";
+import MyDraftsPage from "./pages/guide/MyDraftsPage.tsx";
+import GuidePage from "./pages/guide/GuidePage.tsx";
+import CreateGuidePage from "./pages/guide/CreateGuidePage.tsx";
+import GuideDetailPage from "./pages/guide/GuideDetailPage.tsx";
+import CreateListPage from './pages/list/CreateListPage.tsx';
+import MyListsPage from './pages/list/MyListsPage.tsx';
+import ListDetailPage from './pages/list/ListDetailPage.tsx';
+import EditListPage from './pages/list/EditListPage.tsx';
+import ChallengesPage from './pages/challenge/ChallengesPage.tsx';
+import ChallengeDetailPage from './pages/challenge/ChallengeDetailPage.tsx';
+import CreateChallengePage from './pages/challenge/CreateChallengePage.tsx';
 
 // Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -118,6 +130,17 @@ const App: React.FC = () => {
                         </AdminRoute>
                     }
                 />
+                {/* Rutas de Challenges */}
+                <Route path="/challenges" element={<ChallengesPage />} />
+                <Route path="/challenges/:id" element={<ChallengeDetailPage />} />
+                <Route
+                    path="/challenges/create"
+                    element={
+                        <PrivateRoute>
+                            <CreateChallengePage />
+                        </PrivateRoute>
+                    }
+                />
 
                 {/* Guías */}
                 <Route path="/guides" element={<GuidePage />} />
@@ -126,9 +149,36 @@ const App: React.FC = () => {
                 <Route path="/guides/edit/:id" element={<PrivateRoute><EditGuidePage /></PrivateRoute>} />
                 <Route path="/my-drafts" element={<PrivateRoute><MyDraftsPage /></PrivateRoute>} />
 
+                {/* Listas */}
+                <Route path="/lists" element={<ListsPage />} />
+                <Route path="/lists/:id" element={<ListDetailPage />} />
+                <Route
+                    path="/lists/create"
+                    element={
+                        <PrivateRoute>
+                            <CreateListPage />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/my-lists"//para profile
+                    element={
+                        <PrivateRoute>
+                            <MyListsPage />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/lists/edit/:id"
+                    element={
+                        <PrivateRoute>
+                            <EditListPage />
+                        </PrivateRoute>
+                    }
+                />
+
                 {/* Juegos y listas - públicos de navegación */}
                 <Route path="/games" element={<GamesPage />} />
-                <Route path="/lists" element={<ListsPage />} />
 
                 {/* Si no existe ruta, redirige a home */}
                 <Route path="*" element={<Navigate to="/" />} />
@@ -142,17 +192,8 @@ const App: React.FC = () => {
                 <Route path="/admin/news/create"    element={<AdminRoute><CreateNewsPage /></AdminRoute>} />
                 <Route path="/admin/news/edit/:id"  element={<AdminRoute><EditNewsPage /></AdminRoute>} />
 
-                {/* ...otras rutas... */}
-                  <Route
-                    path="/lists/create"
-                    element={
-                      <PrivateRoute>
-                            <CreateListPage />
-                          </PrivateRoute>
-                    }
-                  />
-                <Route path="/lists" element={<ListsPage />} />
-                <Route path="/lists/:id" element={<ListDetailPage />} />
+
+
             </Routes>
         </div>
     );
