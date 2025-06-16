@@ -59,7 +59,7 @@ export const listService = {
 
     // Obtener todas las listas públicas
     getAllLists: async (): Promise<UserListResponse[]> => {
-        const response = await api.get('/lists/1/get-all'); // El 1 es placeholder, el backend ignora este parámetro
+        const response = await api.get('/lists/get-all'); // El 1 es placeholder, el backend ignora este parámetro
         return response.data;
     },
 
@@ -70,9 +70,9 @@ export const listService = {
     },
 
     // Actualizar una lista
-    updateList: async (listId: number, listData: UserListRequest): Promise<UserListResponse> => {
-        const response = await apiAuth.put(`/lists/${listId}/update`, listData);
-        return response.data;
+    updateList: (id: number, body: UserListRequest) => {
+        console.log("→ update list", id, body);               // para ver que se llama
+        return apiAuth.put(`/lists/${id}/update`, body);
     },
 
     // Eliminar una lista

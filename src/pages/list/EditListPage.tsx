@@ -92,7 +92,7 @@ const EditListPage: React.FC = () => {
             let results: SearchableItem[] = [];
 
             switch (searchType) {
-                case ListItemType.GAME:
+                case ListItemType.GAME:{
                     const games = await gameService.searchGamesByName(searchTerm);
                     results = games.map(game => ({
                         id: game.id,
@@ -101,21 +101,23 @@ const EditListPage: React.FC = () => {
                         thumbnailUrl: game.imageUrl
                     }));
                     break;
+                }
 
-                case ListItemType.GUIDE:
+                case ListItemType.GUIDE: {
                     const guides = await guideService.getPublishedGuides();
-                    const filteredGuides = guides.filter(guide =>
+                    const filteredGuides = guides.filter((guide: { id: number; title: string; coverImageUrl?: string }) =>
                         guide.title.toLowerCase().includes(searchTerm.toLowerCase())
                     );
-                    results = filteredGuides.map(guide => ({
+                    results = filteredGuides.map((guide: { id: number; title: string; coverImageUrl?: string }) => ({
                         id: guide.id,
                         title: guide.title,
                         type: ListItemType.GUIDE,
                         thumbnailUrl: guide.coverImageUrl || undefined
                     }));
                     break;
+                }
 
-                case ListItemType.CHALLENGE:
+                case ListItemType.CHALLENGE:{
                     const challenges = await challengeService.searchChallengesByTitle(searchTerm);
                     results = challenges.map(challenge => ({
                         id: challenge.id,
@@ -123,6 +125,7 @@ const EditListPage: React.FC = () => {
                         type: ListItemType.CHALLENGE
                     }));
                     break;
+                }
             }
 
             setSearchResults(results);
@@ -189,17 +192,21 @@ const EditListPage: React.FC = () => {
 
         setIsSubmitting(true);
         try {
-            const listData = {
-                title,
-                description,
-                items: selectedItems
+            const updatedList = {
+                title: title.trim(),
+                description: description.trim(),
+                items: selectedItems.map((item, index) => ({
+                    type: item.type,
+                    referenceId: item.referenceId,
+                    position: index + 1
+                }))
             };
 
-            await listService.updateList(originalList.id, listData);
+            await listService.updateList(originalList.id, updatedList);
             navigate(`/lists/${originalList.id}`);
         } catch (error) {
             console.error('Error updating list:', error);
-            alert('Error updating list. Please try again.');
+            // Handle error (e.g., show notification)
         } finally {
             setIsSubmitting(false);
         }

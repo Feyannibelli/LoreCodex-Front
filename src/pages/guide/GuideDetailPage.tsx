@@ -34,9 +34,7 @@ const GuideDetailPage: React.FC = () => {
                 navigate(`/games/${encodedName}`);
                 break;
             case 'guides':
-                // Buscar la guía por nombre y navegar
-                // Podrías implementar una búsqueda más sofisticada aquí
-                navigate(`/guides/search?q=${encodedName}`);
+                navigate(`/guides/search?q=${encodedName}`); //y esto a donde llama al endpoint?
                 break;
             case 'challenges':
                 navigate(`/challenges/${encodedName}`);
@@ -87,6 +85,7 @@ const GuideDetailPage: React.FC = () => {
         lists: getMentionsByType('lists').length,
         news: getMentionsByType('news').length,
     };
+
 
     return (
         <div className="p-4 max-w-4xl mx-auto">
@@ -167,6 +166,13 @@ const GuideDetailPage: React.FC = () => {
                                 </span>
                             )}
                         </div>
+                        {mentions.length > 0 && (
+                            <ul className="mt-2 text-xs text-gray-500">
+                                {mentions.map((m, i) => (
+                                    <li key={i}>{m.type}: {m.name}</li>
+                                ))}
+                            </ul>
+                        )}
                     </div>
                 )}
             </header>

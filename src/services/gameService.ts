@@ -89,7 +89,7 @@ const gameService = {
     // Buscar juegos por nombre (podriamos usarlo para lo de menciones?)
     searchGamesByName: async (name: string): Promise<Game[]> => {
         try {
-            const response = await api.get(`/games?title=${name}`);
+            const response = await apiAuth.get(`/games/search?title=${name}`);
             return response.data.map(adaptBackendGameToFrontend);
         } catch (error) {
             console.error('Error searching games:', error);

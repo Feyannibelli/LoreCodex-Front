@@ -5,6 +5,7 @@ import challengeService from '../services/challengeService';
 import { listService } from '../services/listService';
 import newsService from '../services/newsService';
 import { MentionSuggestion } from '../components/MentionInput';
+import {Guide} from "../interfaces/Guide.ts";
 
 type MentionType = 'games' | 'guides' | 'challenges' | 'lists' | 'news';
 
@@ -24,7 +25,7 @@ export const useMentionSuggestions = () => {
             let results: MentionSuggestion[] = [];
 
             switch (type) {
-                case 'games':
+                case 'games': {
                     const games = await gameService.searchGamesByName(query);
                     results = games.map(game => ({
                         id: game.id,
@@ -33,22 +34,24 @@ export const useMentionSuggestions = () => {
                         thumbnailUrl: game.imageUrl
                     }));
                     break;
+                }
 
-                case 'guides':
+                case 'guides': {
                     // Buscar en guías publicadas
                     const allGuides = await guideService.getPublishedGuides();
-                    const filteredGuides = allGuides.filter(guide =>
+                    const filteredGuides = allGuides.filter((guide: Guide) =>
                         guide.title.toLowerCase().includes(query.toLowerCase())
                     );
-                    results = filteredGuides.map(guide => ({
+                    results = filteredGuides.map((guide: Guide) => ({
                         id: guide.id,
                         name: guide.title,
                         type: 'guides' as const,
                         thumbnailUrl: guide.coverImageUrl || undefined
                     }));
                     break;
+                }
 
-                case 'challenges':
+                case 'challenges': {
                     const challenges = await challengeService.searchChallengesByTitle(query);
                     results = challenges.map(challenge => ({
                         id: challenge.id,
@@ -59,8 +62,9 @@ export const useMentionSuggestions = () => {
                             : undefined
                     }));
                     break;
+                }
 
-                case 'lists':
+                case 'lists': {
                     // Buscar en todas las listas públicas
                     const allLists = await listService.getAllLists();
                     const filteredLists = allLists.filter(list =>
@@ -74,8 +78,9 @@ export const useMentionSuggestions = () => {
                         thumbnailUrl: list.items[0]?.thumbnailUrl
                     }));
                     break;
+                }
 
-                case 'news':
+                case 'news': {
                     // Buscar en noticias
                     const newsResponse = await newsService.getAll();
                     const allNews = newsResponse.data;
@@ -89,6 +94,7 @@ export const useMentionSuggestions = () => {
                         thumbnailUrl: news.coverImage || undefined
                     }));
                     break;
+                }
 
                 default:
                     results = [];

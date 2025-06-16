@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../css/Home.css";
+import { Search } from "lucide-react";
 
 import { Game } from "../interfaces/Game";
 import gameService from "../services/gameService";
@@ -26,7 +27,7 @@ const Home: React.FC = () => {
     /* ---------- efectos ---------- */
     /* guías publicadas */
     useEffect(() => {
-        api.get("/guides/published")
+        api.get("/guides/all/published")
             .then(res => setPopularGuides(res.data))
             .catch(err => console.error("Error fetching guides:", err));
     }, []);
@@ -87,10 +88,7 @@ const Home: React.FC = () => {
                         onChange={e => setSearchTerm(e.target.value)}
                     />
                     <button type="submit" className="search-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" //arreglar buscar nueva componente para reseach
-                             viewBox="0 0 16 16">
-                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398..."/>
-                        </svg>
+                        <Search className="h-4 w-4"/>
                     </button>
                 </form>
             </div>

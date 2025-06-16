@@ -62,7 +62,7 @@ export const convertMentionsToIds = async (
 ): Promise<{ text: string; mentionedIds: { type: string; id: number; name: string }[] }> => {
     const parsed = parseMentions(text);
     const mentionedIds: { type: string; id: number; name: string }[] = [];
-    let processedText = text;
+    const processedText = text;
 
     for (const mention of parsed.mentions) {
         try {
@@ -103,6 +103,7 @@ export const validateMentions = async (
             }
         } catch (error) {
             invalidMentions.push(mention);
+            console.warn(`Failed to validate mention: ${mention.fullMatch}`, error);
         }
     }
 
