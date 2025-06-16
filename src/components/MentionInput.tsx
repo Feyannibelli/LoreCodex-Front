@@ -160,7 +160,9 @@ export const MentionInput: React.FC<MentionInputProps> = ({
 
         const beforeMention = value.slice(0, mentionState.startIndex);
         const afterCursor = value.slice(mentionState.startIndex + trigger.length + mentionState.query.length);
-        const mentionText = `${trigger}${suggestion.name}`;
+
+        // Crear la mención con el formato correcto: /type/id|name
+        const mentionText = `${trigger}${suggestion.id}|${suggestion.name}`;
 
         const newValue = beforeMention + mentionText + afterCursor;
         onChange(newValue);

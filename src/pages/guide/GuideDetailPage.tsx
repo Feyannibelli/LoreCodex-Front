@@ -58,7 +58,7 @@ const GuideDetailPage: React.FC = () => {
         // Si tiene ambos, priorizar según la cantidad
         if (hasMarkdown && hasMentionsInContent) {
             // Contar elementos markdown vs menciones para decidir
-            const markdownElements = (guide.content.match(/#{1,6}|[\*`]|\[.*\]\(.*\)|^[\*\d+\.]\s/gm) || []).length;
+            const markdownElements = (guide.content.match(/#{1,6}|[*`]|\[.*\]\(.*\)|^[*\d+.]\s/gm) || []).length;
             return markdownElements > mentionCount ? 'markdown' : 'mentions';
         }
 

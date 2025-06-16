@@ -14,9 +14,15 @@ interface MentionLinkProps {
 
 const MentionLink: React.FC<MentionLinkProps> = ({ mention, onClick }) => {
     const handleClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+
         if (onClick) {
-            e.preventDefault();
             onClick(mention);
+        } else {
+            // Navegación por defecto usando el ID
+            const baseUrl = mention.type.endsWith('s') ? mention.type : mention.type + 's';
+            const targetUrl = `/${baseUrl}/${mention.id}`;
+            window.location.href = targetUrl;
         }
     };
 
@@ -54,15 +60,19 @@ const MentionLink: React.FC<MentionLinkProps> = ({ mention, onClick }) => {
         }
     };
 
+    const getSingularType = (type: string) => {
+        return type.endsWith('s') ? type.slice(0, -1) : type;
+    };
+
     return (
         <span
             className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors ${getTypeColor(mention.type)}`}
             onClick={handleClick}
-            title={`${mention.type.slice(0, -1)}: ${mention.name}`}
+            title={`${getSingularType(mention.type)}: ${mention.name}`}
         >
-      <span className="mr-1">{getTypeIcon(mention.type)}</span>
+            <span className="mr-1">{getTypeIcon(mention.type)}</span>
             {mention.name}
-    </span>
+        </span>
     );
 };
 
@@ -90,8 +100,8 @@ export const MentionDisplay: React.FC<MentionDisplayProps> = ({
             if (mention.startIndex > lastIndex) {
                 elements.push(
                     <span key={`text-${index}`}>
-            {text.slice(lastIndex, mention.startIndex)}
-          </span>
+                        {text.slice(lastIndex, mention.startIndex)}
+                    </span>
                 );
             }
 
@@ -111,8 +121,8 @@ export const MentionDisplay: React.FC<MentionDisplayProps> = ({
         if (lastIndex < text.length) {
             elements.push(
                 <span key="text-final">
-          {text.slice(lastIndex)}
-        </span>
+                    {text.slice(lastIndex)}
+                </span>
             );
         }
 
@@ -121,8 +131,8 @@ export const MentionDisplay: React.FC<MentionDisplayProps> = ({
 
     return (
         <span className={className}>
-      {renderContent()}
-    </span>
+            {renderContent()}
+        </span>
     );
 };
 
