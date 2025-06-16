@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { GuideForm as Form } from "../../interfaces/Guide";
-import { MentionInput } from "../../components/MentionInput";
+import { MentionInput } from "../MentionInput.tsx";
 import { MentionDisplay, useMentions } from "../MentionDisplay.tsx";
 
 interface Props {
