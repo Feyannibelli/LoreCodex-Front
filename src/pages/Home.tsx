@@ -22,8 +22,6 @@ const Home: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState("");
 
     const navigate = useNavigate();
-    const popularReviews = [1, 2, 3]; // (placeholder)
-
     /* ---------- efectos ---------- */
     /* guías publicadas */
     useEffect(() => {
@@ -178,27 +176,6 @@ const Home: React.FC = () => {
                     ) : (
                         <div>No games found</div>
                     )}
-                </div>
-            </div>
-
-            {/* Popular reviews */}
-            <div className="content-section">
-                <div className="section-header">
-                    <span className="section-title">Popular Reviews</span>
-                    <a href="#" className="view-more">More +</a>
-                </div>
-                <div className="reviews-grid">
-                    {popularReviews.map((_, index) => (
-                        <div key={index} className="review-card">
-                            <div className="review-header">
-                                <span className="item-title">Name</span>
-                                <div className="rating">User · Game</div>
-                            </div>
-                            <div className="review-content">
-                                Text
-                            </div>
-                        </div>
-                    ))}
                 </div>
             </div>
 
