@@ -1,6 +1,6 @@
 import { UserListResponse } from './UserListResponse';
-import {Guide} from "@/interfaces/Guide.ts";
-import {Review} from "@/interfaces/Review.ts";
+import {Guide} from "./Guide.ts";
+import {Review} from "./Review.ts";
 
 export interface UserProfileResponse {
     userId: number;

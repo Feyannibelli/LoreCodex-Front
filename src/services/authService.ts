@@ -5,7 +5,7 @@ import { jwtDecode } from 'jwt-decode';
 export interface LoginData { username: string; password: string; }
 export interface RegisterData { username: string; email: string; password: string; }
 export interface AuthResponse { token: string; userId: number; }
-export interface UserData { id: number; username: string; email: string; roles?: string[]; }
+export interface UserData { id: number; username: string; email: string; emailNotificationsEnabled?: boolean; roles?: string[]; }
 
 interface JwtPayload { sub: string; roles?: string[]; exp: number; }
 

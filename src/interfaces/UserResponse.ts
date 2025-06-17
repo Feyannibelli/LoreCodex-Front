@@ -7,5 +7,6 @@ export interface UserResponse {
     id: number;
     username: string;
     email: string;
+    emailNotificationsEnabled?: boolean;
     roles: string[];
 }
