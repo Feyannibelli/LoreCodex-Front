@@ -156,7 +156,7 @@ const Home: React.FC = () => {
             {/* -------- Popular Games -------- */}
             <div className="content-section">
                 <div className="section-header">
-                    <span className="section-title">Popular Games</span>
+                    <span className="section-title">Games</span>
                     <Link to="/games" className="view-more">More +</Link>
                 </div>
 
@@ -170,7 +170,6 @@ const Home: React.FC = () => {
                                     {game.imageUrl ? <img src={game.imageUrl} alt={game.name} /> : "Game"}
                                 </div>
                                 <div className="item-title">{game.name}</div>
-                                <div className="item-meta"><span>❤️ {game.likes || 0}</span></div>
                             </Link>
                         ))
                     ) : (
