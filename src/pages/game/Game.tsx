@@ -192,11 +192,14 @@ const Game: React.FC = () => {
                     gameId={parseInt(id!)}
                     isAuthenticated={isAuthenticated}
                     initialRating={summary?.mine ?? null}
-                    onRated={async () => {
-                        // Refresca el summary después de votar
+                    onRated={async (newRating) => {
+                        // Actualiza el summary manteniendo el rating del usuario
                         if (id) {
                             const res = await ratingService.getRatingSummary(parseInt(id));
-                            setSummary(res);
+                            setSummary({
+                                ...res,
+                                mine: newRating // Mantiene el rating que acaba de dar el usuario
+                            });
                         }
                     }}
                 />

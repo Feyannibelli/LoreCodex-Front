@@ -167,21 +167,51 @@ const Profile: React.FC = () => {
                 )}
             </div>
 
-            {/* Botones existentes */}
-            <div className="flex gap-4 mt-6">
-                <Link
-                    to="/my-drafts"
-                    className="bg-[#f47e00] hover:bg-[#d56b00] text-white font-semibold py-2 px-6 rounded"
-                >
-                    View My Drafts
-                </Link>
+            {/* Sección de navegación a contenido del usuario */}
+            <div className="w-full max-w-5xl mt-8 bg-white dark:bg-[#313E3F] shadow-md rounded-lg p-6">
+                <h2 className="text-xl font-bold text-[#0C0C0C] dark:text-white mb-6">My Content</h2>
 
-                <Link
-                    to="/my-lists"
-                    className="bg-[#f47e00] hover:bg-[#d56b00] text-white font-semibold py-2 px-6 rounded"
-                >
-                    View My Lists
-                </Link>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Mis Drafts */}
+                    <Link
+                        to="/my-drafts"
+                        className="flex flex-col items-center p-6 bg-gradient-to-br from-[#f47e00] to-[#d56b00] text-white rounded-lg hover:from-[#d56b00] hover:to-[#b85800] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                    >
+                        <div className="text-3xl mb-3">📝</div>
+                        <h3 className="text-lg font-semibold mb-2">My Drafts</h3>
+                        <p className="text-sm text-center opacity-90">View and edit your draft guides</p>
+                    </Link>
+
+                    {/* Mis Listas */}
+                    <Link
+                        to="/my-lists"
+                        className="flex flex-col items-center p-6 bg-gradient-to-br from-[#00a8ff] to-[#0078d4] text-white rounded-lg hover:from-[#0078d4] hover:to-[#005a9e] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                    >
+                        <div className="text-3xl mb-3">📋</div>
+                        <h3 className="text-lg font-semibold mb-2">My Lists</h3>
+                        <p className="text-sm text-center opacity-90">Manage your curated content lists</p>
+                    </Link>
+
+                    {/* Mis Challenges */}
+                    <Link
+                        to="/my-challenges"
+                        className="flex flex-col items-center p-6 bg-gradient-to-br from-[#7b68ee] to-[#6a5acd] text-white rounded-lg hover:from-[#6a5acd] hover:to-[#483d8b] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                    >
+                        <div className="text-3xl mb-3">🏆</div>
+                        <h3 className="text-lg font-semibold mb-2">My Challenges</h3>
+                        <p className="text-sm text-center opacity-90">Track your created challenges</p>
+                    </Link>
+
+                    {/* Mis Guides */}
+                    <Link
+                        to="/my-guides"
+                        className="flex flex-col items-center p-6 bg-gradient-to-br from-[#20b2aa] to-[#008b8b] text-white rounded-lg hover:from-[#008b8b] hover:to-[#006666] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                    >
+                        <div className="text-3xl mb-3">📚</div>
+                        <h3 className="text-lg font-semibold mb-2">My Guides</h3>
+                        <p className="text-sm text-center opacity-90">View your published guides</p>
+                    </Link>
+                </div>
             </div>
         </div>
     );

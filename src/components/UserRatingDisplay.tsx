@@ -15,6 +15,7 @@ const UserRatingDisplay: React.FC<Props> = ({ gameId, isAuthenticated, initialRa
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
+    const [hasUserRated, setHasUserRated] = useState(initialRating !== null)
 
     const handleRate = async () => {
         if (!isAuthenticated) {
@@ -26,6 +27,7 @@ const UserRatingDisplay: React.FC<Props> = ({ gameId, isAuthenticated, initialRa
             await ratingService.setRating(gameId, rating)
             setSuccess(true)
             setError(null)
+            setHasUserRated(true) // Marca que el usuario ya ha calificado
             onRated?.(rating)
             setTimeout(() => setSuccess(false), 2000)
         } catch {
@@ -35,9 +37,17 @@ const UserRatingDisplay: React.FC<Props> = ({ gameId, isAuthenticated, initialRa
         }
     }
 
+    // Solo actualizar si es la primera vez o si no hay un rating previo del usuario
     useEffect(() => {
-        setRating(initialRating ?? 0);
-    }, [initialRating]);
+        if (initialRating !== null && !hasUserRated) {
+            setRating(initialRating);
+            setHasUserRated(true);
+        } else if (initialRating === null && hasUserRated) {
+            // Si el rating se eliminó externamente, resetear
+            setRating(0);
+            setHasUserRated(false);
+        }
+    }, [initialRating, hasUserRated]);
 
     return (
         <div style={{
@@ -56,7 +66,7 @@ const UserRatingDisplay: React.FC<Props> = ({ gameId, isAuthenticated, initialRa
                 disabled={!isAuthenticated || rating === 0 || loading}
                 className="px-3 py-1 bg-orange-500 text-white rounded disabled:opacity-50"
             >
-                {success ? "Done!" : "Rate"}
+                {success ? "Done!" : hasUserRated ? "Update" : "Rate"}
             </button>
             {error && <span className="text-red-500">{error}</span>}
         </div>
