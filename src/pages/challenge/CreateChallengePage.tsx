@@ -166,6 +166,7 @@ const CreateChallengePage: React.FC = () => {
         }
     };
 
+    /*
     const getDifficultyLabel = (difficulty: number) => {
         const labels = {
             1: 'Super Fácil',
@@ -178,6 +179,7 @@ const CreateChallengePage: React.FC = () => {
         return labels[difficulty as keyof typeof labels];
     };
 
+
     const getDifficultyColor = (difficulty: number) => {
         const colors = {
             1: 'bg-green-100 text-green-800',
@@ -189,7 +191,7 @@ const CreateChallengePage: React.FC = () => {
         };
         return colors[difficulty as keyof typeof colors];
     };
-
+     */
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl">
             {/* Header */}
@@ -231,37 +233,6 @@ const CreateChallengePage: React.FC = () => {
                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#F47E00] focus:border-transparent dark:bg-gray-700 dark:text-white"
                                 required
                             />
-                        </div>
-
-                        {/* Dificultad */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Nivel de Dificultad
-                            </label>
-                            <div className="space-y-3">
-                                <input
-                                    type="range"
-                                    min="1"
-                                    max="6"
-                                    value={formData.difficulty}
-                                    onChange={(e) => handleInputChange('difficulty', parseInt(e.target.value))}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                                />
-                                <div className="flex justify-between items-center">
-                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getDifficultyColor(formData.difficulty)}`}>
-                                        {getDifficultyLabel(formData.difficulty)}
-                                    </span>
-                                    <div className="flex items-center gap-1">
-                                        {Array.from({ length: 6 }, (_, i) => (
-                                            <Star
-                                                key={i}
-                                                size={16}
-                                                className={i < formData.difficulty ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         {/* Juego relacionado */}
@@ -347,103 +318,6 @@ const CreateChallengePage: React.FC = () => {
                                 </div>
                             )}
                         </div>
-                    </div>
-                </div>
-
-                {/* Media */}
-                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                        Contenido Media
-                    </h2>
-
-                    <div className="space-y-4">
-                        {/* Selector de tipo de media */}
-                        <div className="flex gap-2">
-                            <button
-                                type="button"
-                                onClick={() => handleMediaModeChange('comment')}
-                                className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-                                    mediaMode === 'comment'
-                                        ? 'bg-[#F47E00] text-white'
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                }`}
-                            >
-                                <FileText size={16} />
-                                Solo Texto
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => handleMediaModeChange('image')}
-                                className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-                                    mediaMode === 'image'
-                                        ? 'bg-[#F47E00] text-white'
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                }`}
-                            >
-                                <Image size={16} />
-                                Imagen
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => handleMediaModeChange('video')}
-                                className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-                                    mediaMode === 'video'
-                                        ? 'bg-[#F47E00] text-white'
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                }`}
-                            >
-                                <Video size={16} />
-                                Video
-                            </button>
-                        </div>
-
-                        {/* URL de media */}
-                        {mediaMode !== 'comment' && (
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    URL de {mediaMode === 'image' ? 'Imagen' : 'Video'} *
-                                </label>
-                                <input
-                                    type="url"
-                                    value={formData.mediaUrl || ''}
-                                    onChange={(e) => handleInputChange('mediaUrl', e.target.value)}
-                                    placeholder={`https://ejemplo.com/${mediaMode === 'image' ? 'imagen.jpg' : 'video.mp4'}`}
-                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#F47E00] focus:border-transparent dark:bg-gray-700 dark:text-white"
-                                    required={mediaMode === 'image' || mediaMode === 'video'}
-                                    />
-                            </div>
-                        )}
-
-                        {/* Preview de media */}
-                        {formData.mediaUrl && mediaMode !== 'comment' && (
-                            <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
-                                <div className="bg-gray-50 dark:bg-gray-700 px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
-                                    Preview:
-                                </div>
-                                <div className="p-4">
-                                    {mediaMode === 'image' ? (
-                                        <img
-                                            src={formData.mediaUrl}
-                                            alt="Preview"
-                                            className="max-w-full h-auto max-h-64 object-contain mx-auto"
-                                            onError={(e) => {
-                                                e.currentTarget.src = '';
-                                                e.currentTarget.alt = 'Error cargando imagen';
-                                            }}
-                                        />
-                                    ) : (
-                                        <video
-                                            src={formData.mediaUrl}
-                                            controls
-                                            className="max-w-full h-auto max-h-64 mx-auto"
-                                            onError={(e) => {
-                                                e.currentTarget.style.display = 'none';
-                                            }}
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
 
