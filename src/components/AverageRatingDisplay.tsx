@@ -4,6 +4,7 @@ import '@smastrom/react-rating/style.css'
 
 type Props = {
     rating: number | null
+    size?: number // opcional, si queremos un tamaño específico
 }
 
 const AverageRatingDisplay: React.FC<Props> = ({ rating }) => {

@@ -4,6 +4,7 @@ import "@smastrom/react-rating/style.css"
 
 type Props = {
     rating: number
+    size?: number // opcional, si queremos un tamaño específico
 }
 
 const UserRatingDisplay: React.FC<Props> = ({ rating }) => {

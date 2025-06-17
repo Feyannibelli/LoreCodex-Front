@@ -5,10 +5,9 @@ import gameService from "../../services/gameService.ts";
 import { useAuth } from "../../context/AuthContext.tsx";
 import ReviewList from "../../components/ReviewList.tsx";
 import "../../css/Game.css";
-import AverageRatingDisplay from "../../components/AverageRatingDisplay.tsx";
-import ratingService from "../../services/ratingService.ts";
-import UserRatingDisplay from "../../components/UserRatingDisplay.tsx";
+//import ratingService from "../../services/ratingService.ts";
 import GameNotesSection from "../../components/GameNotesSection.tsx";
+import GameRating from "../../components/GameRating.tsx";
 
 const Game: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -16,11 +15,7 @@ const Game: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<string>("reviews");
-    const [userRating, setUserRating] = useState<number>(0);
-    const [likeSuccess, setLikeSuccess] = useState<boolean>(false);
-    const [ratingSuccess, setRatingSuccess] = useState<boolean>(false);
-    const [averageRating, setAverageRating] = useState<number | null>(null);
-
+    //const [userRating, setUserRating] = useState<number>(0);
 
     // Use the auth context instead of direct auth service calls
     const { isAuthenticated, loading: authLoading } = useAuth();
@@ -29,7 +24,7 @@ const Game: React.FC = () => {
         if (id) loadGame();
     }, [id]);
 
-    useEffect(() => {
+    /*useEffect(() => {
         const fetchRatings = async () => {
             if (id) {
                 fetchAverageRating(); // ya existente
@@ -48,7 +43,7 @@ const Game: React.FC = () => {
         };
 
         fetchRatings();
-    }, [id, isAuthenticated]);
+    }, [id, isAuthenticated]);*/
 
 
     const loadGame = async () => {
@@ -70,6 +65,7 @@ const Game: React.FC = () => {
     };
 
 
+    /*
     const handleLike = async () => {
         if (!isAuthenticated) {
             setError("You must be logged in to like");
@@ -123,6 +119,7 @@ const Game: React.FC = () => {
             setError("Error rating the game. Please try again later.");
         }
     };
+    */
 
 
     // Show loading indicator while checking auth and loading game
@@ -143,56 +140,12 @@ const Game: React.FC = () => {
                 <div className="game-detail-info">
                     <h1 className="game-detail-name">{game.name}</h1>
 
-                    <div className="game-detail-rating">
-                        <div className="star-rating">
-                            <AverageRatingDisplay rating={averageRating} />
-                        </div>
-                        <span>{averageRating !== null ? `${averageRating}/5` : "No rating"}</span>
-                    </div>
-
-                    <div className="game-detail-likes">
-                        <button
-                            className="like-button"
-                            onClick={handleLike}
-                            disabled={!isAuthenticated}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
-                            </svg>
-                            <span>{game.likes || 0} likes</span>
-                        </button>
-                        {likeSuccess && <span className="success-message">Thanks for your like!</span>}
-                    </div>
-
-                    {isAuthenticated && (
-                        <div className="user-rating">
-                            {userRating > 0 && (
-                                <p style={{ marginBottom: "4px" }}>Your rating: {userRating} / 5</p>
-                            )}
-                            {isAuthenticated && userRating > 0 && (
-                                <UserRatingDisplay rating={userRating} />
-                            )}
-                            <h3>Rate this game:</h3>
-                            <div className="rating-stars">
-                                {[1, 2, 3, 4, 5].map(star => (
-                                    <span
-                                        key={star}
-                                        className={star <= userRating ? "rating-star active" : "rating-star"}
-                                        onClick={() => handleRatingChange(star)}
-                                    >
-                                        ★
-                                    </span>
-                                ))}
-                            </div>
-                            <button
-                                className="submit-rating"
-                                onClick={submitRating}
-                                disabled={userRating === 0}
-                            >
-                                Submit rating
-                            </button>
-                            {ratingSuccess && <span className="success-message">Rating submitted!</span>}
-                        </div>
+                    {/* Componente reutilizable de rating */}
+                    {isAuthenticated && id && (
+                        <GameRating
+                            gameId={parseInt(id, 10)}
+                            isAuthenticated={isAuthenticated}
+                        />
                     )}
 
                     <div className="game-detail-meta">
