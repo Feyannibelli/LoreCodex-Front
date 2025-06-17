@@ -42,28 +42,6 @@ const Game: React.FC = () => {
     }, [id]);
 
 
-    /*useEffect(() => {
-        const fetchRatings = async () => {
-            if (id) {
-                fetchAverageRating(); // ya existente
-
-                if (isAuthenticated) {
-                    try {
-                        const response = await ratingService.getMyRating(parseInt(id));
-                        if (response.data) {
-                            setUserRating(response.data.rating);
-                        }
-                    } catch (err) {
-                        console.error("Error fetching user rating:", err);
-                    }
-                }
-            }
-        };
-
-        fetchRatings();
-    }, [id, isAuthenticated]);*/
-
-
     const loadGame = async () => {
         try {
             setLoading(true);
@@ -192,12 +170,19 @@ const Game: React.FC = () => {
                     initialRating={summary?.mine ?? null}
                     onRated={async (newRating) => {
                         // Actualiza el summary manteniendo el rating del usuario
-                        if (id) {
-                            const res = await ratingService.getRatingSummary(parseInt(id));
-                            setSummary({
-                                ...res,
-                                mine: newRating // Mantiene el rating que acaba de dar el usuario
-                            });
+                        try {
+                            if (id) {
+                                const res = await ratingService.getRatingSummary(parseInt(id));
+                                setSummary({
+                                    ...res,
+                                    mine: newRating // Asegura que siempre mantenga el rating que acaba de dar
+                                });
+                                await loadGame();
+                            }
+                        } catch (err) {
+                            console.error("Error updating rating summary:", err);
+                            // En caso de error, al menos mantiene el rating localmente
+                            setSummary(prev => prev ? { ...prev, mine: newRating } : { average: 0, mine: newRating });
                         }
                     }}
                 />

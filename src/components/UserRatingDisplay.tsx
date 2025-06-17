@@ -37,17 +37,23 @@ const UserRatingDisplay: React.FC<Props> = ({ gameId, isAuthenticated, initialRa
         }
     }
 
-    // Solo actualizar si es la primera vez o si no hay un rating previo del usuario
+    // Actualizar solo cuando initialRating cambie desde el componente padre
     useEffect(() => {
-        if (initialRating !== null && !hasUserRated) {
-            setRating(initialRating);
-            setHasUserRated(true);
-        } else if (initialRating === null && hasUserRated) {
-            // Si el rating se eliminó externamente, resetear
-            setRating(0);
-            setHasUserRated(false);
+        // Si hay un rating inicial (usuario ya había calificado)
+        if (initialRating !== null) {
+            setRating(initialRating)
+            setHasUserRated(true)
         }
-    }, [initialRating, hasUserRated]);
+        // Si no hay rating inicial (usuario no ha calificado)
+        else {
+            // Solo resetear si realmente no hay rating del usuario
+            // (evita resetear después de que el usuario acaba de calificar)
+            if (!hasUserRated) {
+                setRating(0)
+                setHasUserRated(false)
+            }
+        }
+    }, [initialRating]) // Removido hasUserRated de las dependencias
 
     return (
         <div style={{
@@ -59,7 +65,20 @@ const UserRatingDisplay: React.FC<Props> = ({ gameId, isAuthenticated, initialRa
             fontWeight: "bold"
         }}
         >
-            <span>Your rating:</span>
+            <span>
+                Your rating:
+                {hasUserRated && rating > 0 && (
+                    <span style={{
+                        marginLeft: "8px",
+                        color: "#f97316",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px"
+                    }}>
+                        {rating} ⭐
+                    </span>
+                )}
+            </span>
             <Rating style={{ maxWidth: 140 }} value={rating} onChange={setRating} readOnly={!isAuthenticated} />
             <button
                 onClick={handleRate}

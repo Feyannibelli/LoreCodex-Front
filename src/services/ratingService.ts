@@ -53,7 +53,7 @@ const ratingService = {
      * Trae { average, mine } en un solo request
      */
     async getRatingSummary(gameId: number): Promise<RatingSummaryDto> {
-        const res = await api.get<RatingSummaryDto>(`/rating/${gameId}/rating-summary`);
+        const res = await apiAuth.get<RatingSummaryDto>(`/rating/${gameId}/rating-summary`);
         return res.data;
     },
 };
