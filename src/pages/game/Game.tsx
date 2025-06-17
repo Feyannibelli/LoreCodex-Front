@@ -159,12 +159,10 @@ const Game: React.FC = () => {
                     <h1 className="game-detail-name">{game.name}</h1>
 
                     {/* Componente reutilizable de rating */}
-                    {isAuthenticated && id && (
                         <GameRating
                             gameId={parseInt(id, 10)}
                             isAuthenticated={isAuthenticated}
                         />
-                    )}
 
                     <div className="game-detail-description">
                         <h2>Description</h2>
