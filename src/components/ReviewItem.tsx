@@ -86,25 +86,30 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
                 </div>
 
                 <div className="review-actions">
-                    {canEdit && (
-                        <button
-                            className="edit-button"
-                            onClick={() => setIsEditing(true)}
-                            title="Edit review"
-                        >
-                            ✏️
-                        </button>
-                    )}
+                    {isAuthenticated && (
+                        <>
 
-                    {canDelete && (
-                        <button
-                            className="delete-button"
-                            onClick={() => setShowDeleteModal(true)}
-                            title="Delete review"
-                        >
-                            🗑️
-                        </button>
-                    )}
+                        {canEdit && (
+                            <button
+                                className="edit-button"
+                                onClick={() => setIsEditing(true)}
+                                title="Edit review"
+                            >
+                                ✏️
+                            </button>
+                        )}
+
+                        {canDelete && (
+                            <button
+                                className="delete-button"
+                                onClick={() => setShowDeleteModal(true)}
+                                title="Delete review"
+                            >
+                                🗑️
+                            </button>
+                        )}
+                        </>
+                        )}
                 </div>
             </div>
 

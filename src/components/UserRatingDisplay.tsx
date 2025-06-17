@@ -54,7 +54,7 @@ const UserRatingDisplay: React.FC<Props> = ({ gameId, isAuthenticated, initialRa
             <button
                 onClick={handleRate}
                 disabled={!isAuthenticated || rating === 0 || loading}
-                className="px-3 py-1 bg-blue-600 text-white rounded disabled:opacity-50"
+                className="px-3 py-1 bg-orange-500 text-white rounded disabled:opacity-50"
             >
                 {success ? "Done!" : "Rate"}
             </button>

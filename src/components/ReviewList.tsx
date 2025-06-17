@@ -79,6 +79,7 @@ const ReviewList: React.FC<ReviewListProps> = ({ gameId }) => {
         }
     };
 
+    /*
     // Handle liking a review
     const handleLikeReview = async (reviewId: number) => {
         if (!isAuthenticated) {
@@ -125,7 +126,7 @@ const ReviewList: React.FC<ReviewListProps> = ({ gameId }) => {
             console.error('Error disliking review:', err);
             setError('Failed to dislike review. Please try again.');
         }
-    };
+    };*/
 
     // Check if the current user has already submitted a review
     //const hasUserReviewed = isAuthenticated && reviews.some(review => review.userId === user?.id);
@@ -169,8 +170,8 @@ const ReviewList: React.FC<ReviewListProps> = ({ gameId }) => {
                             review={review}
                             onEdit={handleEditReview}
                             onDelete={handleDeleteReview}
-                            onLike={handleLikeReview}
-                            onDislike={handleDislikeReview}
+                            //onLike={handleLikeReview}
+                            //onDislike={handleDislikeReview}
                         />
                     ))}
                 </div>
