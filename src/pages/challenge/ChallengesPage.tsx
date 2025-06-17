@@ -11,7 +11,7 @@ const ChallengesPage: React.FC = () => {
     const [filteredChallenges, setFilteredChallenges] = useState<Challenge[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [difficultyFilter, setDifficultyFilter] = useState<number | null>(null);
+    const [difficultyFilter] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchChallenges = async () => {
@@ -57,30 +57,6 @@ const ChallengesPage: React.FC = () => {
         } else {
             setFilteredChallenges(challenges);
         }
-    };
-
-    const getDifficultyLabel = (difficulty?: number) => {
-        const labels = {
-            1: 'Super Fácil',
-            2: 'Fácil',
-            3: 'Normal',
-            4: 'Difícil',
-            5: 'Super Difícil',
-            6: 'Extremo'
-        };
-        return difficulty ? labels[difficulty as keyof typeof labels] : 'Sin especificar';
-    };
-
-    const getDifficultyColor = (difficulty?: number) => {
-        const colors = {
-            1: 'bg-green-100 text-green-800',
-            2: 'bg-blue-100 text-blue-800',
-            3: 'bg-yellow-100 text-yellow-800',
-            4: 'bg-orange-100 text-orange-800',
-            5: 'bg-red-100 text-red-800',
-            6: 'bg-purple-100 text-purple-800'
-        };
-        return difficulty ? colors[difficulty as keyof typeof colors] : 'bg-gray-100 text-gray-800';
     };
 
     if (loading) {
@@ -129,29 +105,6 @@ const ChallengesPage: React.FC = () => {
 
     {/* Filtro de dificultad */}
     <div className="flex gap-2 flex-wrap">
-    <button
-        onClick={() => setDifficultyFilter(null)}
-    className={`px-3 py-1 rounded-full text-sm ${
-        difficultyFilter === null
-            ? 'bg-[#F47E00] text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-    }`}
->
-    Todos
-    </button>
-    {Array.from({ length: 6 }, (_, i) => i + 1).map((level) => (
-        <button
-            key={level}
-        onClick={() => setDifficultyFilter(level)}
-        className={`px-3 py-1 rounded-full text-sm ${
-            difficultyFilter === level
-                ? 'bg-[#F47E00] text-white'
-                : `${getDifficultyColor(level)} hover:opacity-80`
-        }`}
-    >
-        {getDifficultyLabel(level)}
-        </button>
-    ))}
     </div>
     </div>
 
@@ -201,9 +154,6 @@ const ChallengesPage: React.FC = () => {
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
             {challenge.title}
             </h3>
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(challenge.difficulty)}`}>
-        {getDifficultyLabel(challenge.difficulty)}
-        </span>
         </div>
 
         <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">

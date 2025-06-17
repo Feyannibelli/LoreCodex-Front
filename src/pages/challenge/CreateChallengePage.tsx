@@ -39,7 +39,7 @@ const CreateChallengePage: React.FC = () => {
         mediaType: 'none'
     });
 
-    const [mediaMode, setMediaMode] = useState<'image' | 'video' | 'comment'>('comment');
+ //   const [mediaMode, setMediaMode] = useState<'image' | 'video' | 'comment'>('comment');
     const [previewMode, setPreviewMode] = useState(false);
 
     useEffect(() => {
@@ -100,7 +100,7 @@ const CreateChallengePage: React.FC = () => {
             }));
         }
     };
-
+/*
     const handleMediaModeChange = (mode: 'image' | 'video' | 'comment') => {
         setMediaMode(mode);
         if (mode === 'comment') {
@@ -117,7 +117,7 @@ const CreateChallengePage: React.FC = () => {
             }));
         }
     };
-
+*/
     const handleGameSelect = (game: Game) => {
         setSelectedGame(game);
         setShowGameSearch(false);
@@ -165,8 +165,7 @@ const CreateChallengePage: React.FC = () => {
             setLoading(false);
         }
     };
-
-    /*
+/*
     const getDifficultyLabel = (difficulty: number) => {
         const labels = {
             1: 'Super Fácil',
@@ -179,7 +178,6 @@ const CreateChallengePage: React.FC = () => {
         return labels[difficulty as keyof typeof labels];
     };
 
-
     const getDifficultyColor = (difficulty: number) => {
         const colors = {
             1: 'bg-green-100 text-green-800',
@@ -191,7 +189,7 @@ const CreateChallengePage: React.FC = () => {
         };
         return colors[difficulty as keyof typeof colors];
     };
-     */
+*/
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl">
             {/* Header */}
@@ -320,6 +318,7 @@ const CreateChallengePage: React.FC = () => {
                         </div>
                     </div>
                 </div>
+
 
                 {/* Descripción */}
                 <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">

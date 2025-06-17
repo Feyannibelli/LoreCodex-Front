@@ -5,7 +5,7 @@ import challengeService, { Challenge, ChallengeProgress } from '../../services/c
 import MarkdownViewer from '../../components/MarkdownViewer';
 import { MentionDisplay } from '../../components/MentionDisplay';
 import Button from '../../components/Button';
-import { ArrowLeft, Play, Circle, Trophy, User, Clock, Star, Crown } from 'lucide-react';
+import { ArrowLeft, Play, Circle, Trophy, User, Clock, Crown } from 'lucide-react';
 import PrettyCheckbox from "../../components/PrettyCheckbox.tsx";
 
 const ChallengeDetailPage: React.FC = () => {
@@ -133,35 +133,6 @@ const ChallengeDetailPage: React.FC = () => {
         }
     };
 
-    const getDifficultyLabel = (difficulty?: number) => {
-        const labels = {
-            1: 'Super Fácil',
-            2: 'Fácil',
-            3: 'Normal',
-            4: 'Difícil',
-            5: 'Super Difícil',
-            6: 'Extremo'
-        };
-        return difficulty ? labels[difficulty as keyof typeof labels] : 'Sin especificar';
-    };
-
-    const getDifficultyColor = (difficulty?: number) => {
-        const colors = {
-            1: 'bg-green-100 text-green-800',
-            2: 'bg-blue-100 text-blue-800',
-            3: 'bg-yellow-100 text-yellow-800',
-            4: 'bg-orange-100 text-orange-800',
-            5: 'bg-red-100 text-red-800',
-            6: 'bg-purple-100 text-purple-800'
-        };
-        return difficulty ? colors[difficulty as keyof typeof colors] : 'bg-gray-100 text-gray-800';
-    };
-
-    const getStarRating = (difficulty?: number) => {
-        if (!difficulty) return [];
-        return Array.from({ length: 6 }, (_, i) => i < difficulty);
-    };
-
     if (loading) {
         return (
             <div className="container mx-auto px-4 py-8">
@@ -230,20 +201,6 @@ const ChallengeDetailPage: React.FC = () => {
                             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                                 {challenge.title}
                             </h1>
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getDifficultyColor(challenge.difficulty)}`}>
-                                {getDifficultyLabel(challenge.difficulty)}
-                            </span>
-                        </div>
-
-                        {/* Difficulty stars */}
-                        <div className="flex items-center gap-1 mb-4">
-                            {getStarRating(challenge.difficulty).map((filled, index) => (
-                                <Star
-                                    key={index}
-                                    size={20}
-                                    className={filled ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
-                                />
-                            ))}
                         </div>
 
                         {/* Challenge info */}
