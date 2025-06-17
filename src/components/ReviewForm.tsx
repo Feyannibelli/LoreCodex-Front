@@ -45,7 +45,6 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
                 <h3>{isEditing ? 'Edit your review' : 'Write a review'}</h3>
 
                 <div className="rating-select">
-                    <label>Rating:</label>
                     <div className="star-rating-select">
                         {[1, 2, 3, 4, 5].map(star => (
                             <span

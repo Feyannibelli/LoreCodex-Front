@@ -9,16 +9,14 @@ interface ReviewItemProps {
     review: Review;
     onEdit: (reviewId: number, content: string, rating: number) => void;
     onDelete: (reviewId: number) => void;
-    onLike: (reviewId: number) => void;
-    onDislike: (reviewId: number) => void;
+    //onLike: (reviewId: number) => void;
+    //onDislike: (reviewId: number) => void;
 }
 
 const ReviewItem: React.FC<ReviewItemProps> = ({
                                                    review,
                                                    onEdit,
-                                                   onDelete,
-                                                   onLike,
-                                                   onDislike
+                                                   onDelete
                                                }) => {
     const { user, isAuthenticated, isAdmin } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
@@ -35,13 +33,13 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
         setIsEditing(false);
     };
 
-    const handleLike = () => {
+    /*const handleLike = () => {
         onLike(review.id);
     };
 
     const handleDislike = () => {
         onDislike(review.id);
-    };
+    };*/
 
     const confirmDelete = () => {
         onDelete(review.id);
@@ -88,35 +86,6 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
                 </div>
 
                 <div className="review-actions">
-                    {isAuthenticated && (
-                        <div className="reaction-buttons">
-                            <button
-                                className={`like-button ${review.userHasLiked ? 'active' : ''}`}
-                                onClick={handleLike}
-                                title="Like"
-                            >
-                                <span className="like-icon">👍</span>
-                                <span className="count">{review.likes}</span>
-                            </button>
-
-                            <button
-                                className={`dislike-button ${review.userHasDisliked ? 'active' : ''}`}
-                                onClick={handleDislike}
-                                title="Dislike"
-                            >
-                                <span className="dislike-icon">👎</span>
-                                <span className="count">{review.dislikes}</span>
-                            </button>
-                        </div>
-                    )}
-
-                    {!isAuthenticated && (
-                        <div className="reaction-counts">
-                            <span className="likes-count">👍 {review.likes}</span>
-                            <span className="dislikes-count">👎 {review.dislikes}</span>
-                        </div>
-                    )}
-
                     {canEdit && (
                         <button
                             className="edit-button"
