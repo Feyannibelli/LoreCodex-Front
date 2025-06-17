@@ -5,7 +5,7 @@ import challengeService, { Challenge, ChallengeProgress } from '../../services/c
 import MarkdownViewer from '../../components/MarkdownViewer';
 import { MentionDisplay } from '../../components/MentionDisplay';
 import Button from '../../components/Button';
-import { ArrowLeft, Play, Circle, Trophy, User, Clock, Star } from 'lucide-react';
+import { ArrowLeft, Play, Circle, Trophy, User, Clock, Star, Crown } from 'lucide-react';
 import PrettyCheckbox from "../../components/PrettyCheckbox.tsx";
 
 const ChallengeDetailPage: React.FC = () => {
@@ -28,8 +28,8 @@ const ChallengeDetailPage: React.FC = () => {
                 const challengeData = await challengeService.getChallengeById(parseInt(id));
                 setChallenge(challengeData);
 
-                //si el usuario esta autenticado, no es el creador y no ha unido al challenge, obtener progreso
-                if (isAuthenticated && user?.username !== challengeData.creatorUsername && !hasJoined) {
+                // Si el usuario está autenticado, intentar obtener progreso (incluye autores)
+                if (isAuthenticated) {
                     try {
                         const progressData = await challengeService.getChallengeProgress(parseInt(id));
                         setProgress(progressData);
@@ -50,7 +50,6 @@ const ChallengeDetailPage: React.FC = () => {
         fetchChallenge();
     }, [id, isAuthenticated, user]);
 
-    // ← NUEVA FUNCIÓN PARA MANEJAR CLICS EN MENCIONES
     const handleMentionClick = (mention: any) => {
         const baseUrl = mention.type.endsWith('s') ? mention.type : mention.type + 's';
         navigate(`/${baseUrl}/${mention.id}`);
@@ -77,7 +76,7 @@ const ChallengeDetailPage: React.FC = () => {
     const handleToggleItem = async (itemId: number, isCompletedNow: boolean) => {
         if (!challenge || !hasJoined) return;
 
-        // 1️⃣  Actualización optimista -----------------------------
+        // 1️⃣  Actualización optimista
         setProgress(prev =>
             prev
                 ? {
@@ -90,7 +89,7 @@ const ChallengeDetailPage: React.FC = () => {
                 : prev
         );
 
-        // 2️⃣  Llamada real al API --------------------------------
+        // 2️⃣  Llamada real al API
         try {
             const newProgress = isCompletedNow
                 ? await challengeService.uncompleteItem(challenge.id, itemId)
@@ -232,8 +231,8 @@ const ChallengeDetailPage: React.FC = () => {
                                 {challenge.title}
                             </h1>
                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${getDifficultyColor(challenge.difficulty)}`}>
-    {getDifficultyLabel(challenge.difficulty)}
-    </span>
+                                {getDifficultyLabel(challenge.difficulty)}
+                            </span>
                         </div>
 
                         {/* Difficulty stars */}
@@ -253,9 +252,12 @@ const ChallengeDetailPage: React.FC = () => {
                                 <User size={18}/>
                                 <span>Creado por{' '}
                                     <strong className="cursor-pointer text-blue-600 hover:underline" onClick={() => navigate(`/profile/${challenge?.creatorId}`)}>
-                {challenge.creatorUsername}
-                </strong>
-            </span>
+                                        {challenge.creatorUsername}
+                                    </strong>
+                                    {isOwner && (
+                                        <Crown size={16} className="inline ml-1 text-yellow-500" title="Eres el creador" />
+                                    )}
+                                </span>
                             </div>
                             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                                 <Clock size={18}/>
@@ -263,16 +265,21 @@ const ChallengeDetailPage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Progress bar (solo si se unió) */}
+                        {/* Progress bar (si se unió o es el autor participando) */}
                         {hasJoined && progress && (
                             <div className="mb-6">
                                 <div className="flex justify-between items-center mb-2">
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            Progreso: {progress.completed}/{progress.total}
-    </span>
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Progreso: {progress.completed}/{progress.total}
+                                        {isOwner && (
+                                            <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                                Creador participando
+                                            </span>
+                                        )}
+                                    </span>
                                     <span className="text-sm text-gray-500 dark:text-gray-400">
-        {Math.round(progressPercentage)}%
-        </span>
+                                        {Math.round(progressPercentage)}%
+                                    </span>
                                 </div>
                                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
                                     <div
@@ -283,7 +290,10 @@ const ChallengeDetailPage: React.FC = () => {
                                 {progressPercentage === 100 && (
                                     <div className="flex items-center gap-2 mt-2 text-green-600">
                                         <Trophy size={20} />
-                                        <span className="font-medium">¡Challenge completado!</span>
+                                        <span className="font-medium">
+                                            ¡Challenge completado!
+                                            {isOwner && " 🎉 ¡Completaste tu propio challenge!"}
+                                        </span>
                                     </div>
                                 )}
                             </div>
@@ -300,38 +310,45 @@ const ChallengeDetailPage: React.FC = () => {
                                         Iniciar Sesión
                                     </Button>
                                 </div>
-                            ) : !hasJoined && !isOwner ? (
+                            ) : !hasJoined ? (
+                                // Ahora cualquier usuario autenticado puede unirse, incluido el autor
                                 <Button
                                     onClick={handleJoinChallenge}
                                     disabled={joining}
                                     className="w-full flex items-center justify-center gap-2"
                                 >
                                     <Play size={20} />
-                                    {joining ? 'Uniéndose...' : 'Unirse al Challenge'}
+                                    {joining ? 'Uniéndose...' : isOwner ? 'Participar en mi Challenge' : 'Unirse al Challenge'}
                                 </Button>
-                            ) : isOwner ? (
-                                <div>
-                                    <div className="text-center p-4 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                                        <p className="text-blue-800 dark:text-blue-200">
-                                            Eres el creador de este challenge
-                                        </p>
-                                    </div>
-                                    <Button
-                                        onClick={handleDeleteChallenge}
-                                        disabled={deleting}
-                                        className="w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 mt-2"
-                                    >
-                                        {deleting ? 'Eliminando...' : 'Eliminar Challenge'}
-                                    </Button>
-                                </div>
                             ) : (
-                                <Button
-                                    onClick={handleLeaveChallenge}
-                                    disabled={leaving}
-                                    className="w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600"
-                                >
-                                    {leaving ? 'Saliendo...' : 'Leave Challenge'}
-                                </Button>
+                                // Usuario ya unido (puede ser autor o no)
+                                <div className="space-y-2">
+                                    {isOwner && (
+                                        <div className="text-center p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                                            <p className="text-blue-800 dark:text-blue-200 text-sm">
+                                                Estás participando en tu propio challenge
+                                            </p>
+                                        </div>
+                                    )}
+                                    <div className="flex gap-2">
+                                        <Button
+                                            onClick={handleLeaveChallenge}
+                                            disabled={leaving}
+                                            className="flex-1 flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600"
+                                        >
+                                            {leaving ? 'Saliendo...' : 'Salir del Challenge'}
+                                        </Button>
+                                        {isOwner && (
+                                            <Button
+                                                onClick={handleDeleteChallenge}
+                                                disabled={deleting}
+                                                className="flex-1 flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700"
+                                            >
+                                                {deleting ? 'Eliminando...' : 'Eliminar Challenge'}
+                                            </Button>
+                                        )}
+                                    </div>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -344,7 +361,6 @@ const ChallengeDetailPage: React.FC = () => {
                     Descripción
                 </h2>
                 <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                    {/* ← CAMBIO AQUÍ: Usar MentionDisplay en lugar de MarkdownViewer */}
                     <MentionDisplay
                         text={challenge.description}
                         onMentionClick={handleMentionClick}
@@ -382,20 +398,18 @@ const ChallengeDetailPage: React.FC = () => {
                                             />
                                         ) : (
                                             <Circle size={24} className="text-gray-400 mt-1 flex-shrink-0"/>
-                                        )
-                                        }
+                                        )}
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-2">
-                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                Tarea {item.order}
-                            </span>
+                                                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                                    Tarea {item.order}
+                                                </span>
                                                 {isCompleted && (
                                                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                                    Completado
-                                </span>
+                                                        Completado
+                                                    </span>
                                                 )}
                                             </div>
-                                            {/* ← CAMBIO AQUÍ: Usar MentionDisplay en lugar de MarkdownViewer */}
                                             <MentionDisplay
                                                 text={item.description}
                                                 onMentionClick={handleMentionClick}

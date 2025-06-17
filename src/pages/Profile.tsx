@@ -183,22 +183,6 @@ const Profile: React.FC = () => {
                     View My Lists
                 </Link>
             </div>
-
-            {/* Estadísticas placeholder */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10 w-full max-w-5xl">
-                <div className="flex flex-col items-center p-6 bg-white dark:bg-[#313E3F] rounded-lg shadow-md">
-                    <p className="text-2xl font-bold">0</p>
-                    <p className="text-gray-600 dark:text-gray-300">Games Played</p>
-                </div>
-                <div className="flex flex-col items-center p-6 bg-white dark:bg-[#313E3F] rounded-lg shadow-md">
-                    <p className="text-2xl font-bold">0</p>
-                    <p className="text-gray-600 dark:text-gray-300">Guides Created</p>
-                </div>
-                <div className="flex flex-col items-center p-6 bg-white dark:bg-[#313E3F] rounded-lg shadow-md">
-                    <p className="text-2xl font-bold">0</p>
-                    <p className="text-gray-600 dark:text-gray-300">Games in Wishlist</p>
-                </div>
-            </div>
         </div>
     );
 };
