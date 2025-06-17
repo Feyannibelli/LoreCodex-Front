@@ -7,7 +7,7 @@ export interface Game {
     releaseDate: string;
     imageUrl?: string;
     awards?: string;
-    rating?: number;
+    averageRating?: number;
     likes?: number;
 }
 

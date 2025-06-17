@@ -1,7 +1,6 @@
 import React from 'react'
 import '../css/Button.css';
 
-
 interface ButtonProps {
     onClick?: () => void,
     children: React.ReactNode,

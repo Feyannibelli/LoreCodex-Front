@@ -6,6 +6,7 @@ import searchService from "../../services/searchService.ts";
 import GameFilters, { FiltersState } from "../../components/GameFilters.tsx";
 import "../../css/Games.css";
 import "../../css/GameFilters.css";
+import ratingService from "../../services/ratingService.ts";
 
 const Games: React.FC = () => {
     const [allGames, setAllGames] = useState<Game[]>([]);
@@ -155,11 +156,8 @@ const Games: React.FC = () => {
                                 <div className="game-genre">{game.genre}</div>
                                 <div className="game-meta">
                                     <span>{new Date(game.releaseDate).getFullYear()}</span>
-                                    {game.rating !== undefined && (
-                                        <span>★ {game.rating.toFixed(1)}</span>
-                                    )}
-                                    {game.likes !== undefined && (
-                                        <span>❤️ {game.likes}</span>
+                                    {game.averageRating !== undefined && (
+                                        <span>★ {game.averageRating}</span>
                                     )}
                                 </div>
                                 {game.awards && (

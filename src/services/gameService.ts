@@ -10,7 +10,7 @@ interface BackendGame {
     description: string;
     coverImage: string;
     releaseDate: string;
-    rating: number;
+    averageRating: number;
     likes: number;
     genres: string[];
     awards: string[];
@@ -34,7 +34,7 @@ const adaptBackendGameToFrontend = (backendGame: BackendGame): Game => {
         releaseDate: backendGame.releaseDate,
         imageUrl: backendGame.coverImage,
         //awards: backendGame.awards.join(', '),
-        rating: backendGame.rating,
+        averageRating: backendGame.averageRating,
         likes: backendGame.likes
     };
 };

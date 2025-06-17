@@ -57,7 +57,7 @@ const searchService = {
             // Filter by minimum rating
             if (filters.minRating !== null) {
                 filteredGames = filteredGames.filter(game =>
-                    game.rating !== undefined && game.rating >= filters.minRating!
+                    game.averageRating !== undefined && game.averageRating >= filters.minRating!
                 );
             }
 
