@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { NewsForm as FormValues } from "../interfaces/News";
-import MarkdownEditor from "./MarkdownEditor";
 import { MentionInput } from "./MentionInput";
 import { MentionDisplay } from "./MentionDisplay";
 

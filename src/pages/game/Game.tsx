@@ -5,9 +5,10 @@ import gameService from "../../services/gameService.ts";
 import { useAuth } from "../../context/AuthContext.tsx";
 import ReviewList from "../../components/ReviewList.tsx";
 import "../../css/Game.css";
-//import ratingService from "../../services/ratingService.ts";
 import GameNotesSection from "../../components/GameNotesSection.tsx";
 import GameRating from "../../components/GameRating.tsx";
+import UserRatingDisplay from "../../components/UserRatingDisplay.tsx";
+import ratingService, {RatingSummaryDto} from "../../services/ratingService.ts";
 
 const Game: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -15,6 +16,8 @@ const Game: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<string>("reviews");
+    const [summary, setSummary] = useState<RatingSummaryDto | null>(null);
+
     //const [userRating, setUserRating] = useState<number>(0);
 
     // Use the auth context instead of direct auth service calls
@@ -23,6 +26,21 @@ const Game: React.FC = () => {
     useEffect(() => {
         if (id) loadGame();
     }, [id]);
+
+    useEffect(() => {
+        const fetchSummary = async () => {
+            if (id) {
+                try {
+                    const res = await ratingService.getRatingSummary(parseInt(id));
+                    setSummary(res);
+                } catch (err) {
+                    console.error("Error fetching rating summary:", err);
+                }
+            }
+        };
+        fetchSummary();
+    }, [id]);
+
 
     /*useEffect(() => {
         const fetchRatings = async () => {
@@ -132,7 +150,7 @@ const Game: React.FC = () => {
             <div className="game-detail-header">
                 <div className="game-detail-image">
                     {game.imageUrl ? (
-                        <img src={game.imageUrl} alt={game.name} />
+                        <img src={game.imageUrl} alt={game.name}/>
                     ) : (
                         <div className="no-image">No image</div>
                     )}
@@ -148,6 +166,11 @@ const Game: React.FC = () => {
                         />
                     )}
 
+                    <div className="game-detail-description">
+                        <h2>Description</h2>
+                        <p>{game.description}</p>
+                    </div>
+
                     <div className="game-detail-meta">
                         <div className="meta-item">
                             <strong>Genre:</strong> {game.genre}
@@ -162,11 +185,21 @@ const Game: React.FC = () => {
                         )}
                     </div>
                 </div>
-            </div>
 
-            <div className="game-detail-description">
-                <h2>Description</h2>
-                <p>{game.description}</p>
+            </div>
+            <div className="user-rating-frame">
+                <UserRatingDisplay
+                    gameId={parseInt(id!)}
+                    isAuthenticated={isAuthenticated}
+                    initialRating={summary?.mine ?? null}
+                    onRated={async () => {
+                        // Refresca el summary después de votar
+                        if (id) {
+                            const res = await ratingService.getRatingSummary(parseInt(id));
+                            setSummary(res);
+                        }
+                    }}
+                />
             </div>
 
             <div className="game-detail-tabs">
@@ -212,12 +245,12 @@ const Game: React.FC = () => {
                 <div className="tab-content">
                     {activeTab === "reviews" && (
                         <div className="reviews-tab-content">
-                            {id && <ReviewList gameId={parseInt(id)} />}
+                            {id && <ReviewList gameId={parseInt(id)}/>}
                         </div>
                     )}
 
                     {activeTab === "notes" && id && (
-                        <GameNotesSection gameId={parseInt(id)} />
+                        <GameNotesSection gameId={parseInt(id)}/>
                     )}
 
                     {activeTab === "guides" && (

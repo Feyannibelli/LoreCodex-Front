@@ -11,7 +11,7 @@ const AverageRatingDisplay: React.FC<Props> = ({ rating }) => {
     if (rating === null) return <span>No ratings yet</span>
 
     return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '20px' }}>
             <Rating style={{ maxWidth: 160 }} value={rating} readOnly />
             <span>{rating.toFixed(1)} / 5</span>
         </div>

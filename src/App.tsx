@@ -7,7 +7,6 @@ import Header from './components/Header'
 import Profile from './pages/Profile'
 import AdminUsers from './pages/admin/AdminUsers.tsx'
 import Games from './pages/game/Games.tsx'
-import Game from './pages/game/Game.tsx'
 import AdminGames from './pages/admin/AdminGames.tsx'
 import CreateGame from './pages/game/CreateGame.tsx'
 import EditGame from './pages/admin/EditGame.tsx'
@@ -34,7 +33,8 @@ import ChallengesPage from './pages/challenge/ChallengesPage.tsx';
 import ChallengeDetailPage from './pages/challenge/ChallengeDetailPage.tsx';
 import CreateChallengePage from './pages/challenge/CreateChallengePage.tsx';
 import PublicProfile from "./pages/PublicProfile.tsx";
-import GuideDetailPage2 from "./pages/guide/GuideDetailPage.tsx";
+import GuideDetailPage from "./pages/guide/GuideDetailPage.tsx";
+import Game from "./pages/game/Game.tsx";
 
 // Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -135,7 +135,7 @@ const App: React.FC = () => {
 
                 {/* Guías */}
                 <Route path="/guides" element={<GuidePage />} />
-                <Route path="/guides/:id" element={<GuideDetailPage2 />} />
+                <Route path="/guides/:id" element={<GuideDetailPage />} />
                 <Route path="/guides/create" element={<PrivateRoute><CreateGuidePage /></PrivateRoute>} />
                 <Route path="/guides/edit/:id" element={<PrivateRoute><EditGuidePage /></PrivateRoute>} />
                 <Route path="/my-drafts" element={<PrivateRoute><MyDraftsPage /></PrivateRoute>} />
