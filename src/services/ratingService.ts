@@ -10,7 +10,7 @@ export interface UserRatingResponse {
 
 export interface RatingSummaryDto {
     average: number;
-    mine: number | null;
+    mine: number;
 }
 
 // El body que envías al back
@@ -31,10 +31,10 @@ const ratingService = {
     /**
      * Trae tu rating para un juego (o 204 No Content si no votaste)
      */
-    async getMyRatingForGame(gameId: number): Promise<number | null> {
+    async getMyRatingForGame(gameId: number): Promise<UserRatingResponse | null> {
         try {
-            const res = await api.get<UserRatingResponse>(`/rating/my/${gameId}`);
-            return res.data.rating;
+            const res = await apiAuth.get<UserRatingResponse>(`/rating/my/${gameId}`);
+            return res.data;
         } catch (e: any) {
             if (e.response?.status === 204) return null;
             throw e;

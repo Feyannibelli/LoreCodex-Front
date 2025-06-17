@@ -6,7 +6,6 @@ import searchService from "../../services/searchService.ts";
 import GameFilters, { FiltersState } from "../../components/GameFilters.tsx";
 import "../../css/Games.css";
 import "../../css/GameFilters.css";
-import ratingService from "../../services/ratingService.ts";
 
 const Games: React.FC = () => {
     const [allGames, setAllGames] = useState<Game[]>([]);

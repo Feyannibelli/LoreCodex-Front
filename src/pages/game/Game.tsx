@@ -138,7 +138,7 @@ const Game: React.FC = () => {
 
                     {/* Componente reutilizable de rating */}
                         <GameRating
-                            gameId={parseInt(id, 10)}
+                            gameId={id ? parseInt(id, 10) : 0}
                             isAuthenticated={isAuthenticated}
                         />
 
