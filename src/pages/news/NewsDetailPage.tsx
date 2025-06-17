@@ -3,7 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.tsx";
 import { News } from "../../interfaces/News.ts";
 import newsService from "../../services/newsService.ts";
-import MarkdownRenderer from "../../components/MarkdownRenderer"; // Ajusta la ruta según tu estructura
+import MarkdownRenderer from "../../components/MarkdownRenderer";
+import { MentionDisplay, useMentions } from "../../components/MentionDisplay";
 
 const NewsDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -12,6 +13,9 @@ const NewsDetailPage: React.FC = () => {
 
     const [news, setNews] = useState<News | null>(null);
     const [loading, setLoading] = useState(true);
+
+    // Hook para extraer información de menciones
+    const { mentions, hasMentions, mentionCount, getMentionsByType } = useMentions(news?.content || "");
 
     /* cargar noticia */
     useEffect(() => {
@@ -26,6 +30,13 @@ const NewsDetailPage: React.FC = () => {
     const toggleLike = () => {
         if (!news) return;
         newsService.toggleLike(news.id).then(res => setNews(res.data));
+    };
+
+    /* manejar clic en menciones */
+    const handleMentionClick = (mention: any) => {
+        // Navegar al contenido mencionado
+        const baseUrl = mention.type.endsWith('s') ? mention.type : mention.type + 's';
+        navigate(`/${baseUrl}/${mention.id}`);
     };
 
     if (loading) return <div className="p-4">Loading…</div>;
@@ -47,6 +58,9 @@ const NewsDetailPage: React.FC = () => {
             <div className="text-sm text-gray-500 mb-6 flex gap-4 items-center flex-wrap">
                 <span>📅 {new Date(news.createdAt).toLocaleDateString()}</span>
                 <span>❤️ {news.likes} likes</span>
+                {hasMentions && (
+                    <span>🔗 {mentionCount} {mentionCount === 1 ? 'mención' : 'menciones'}</span>
+                )}
                 {news.tags?.map(t => (
                     <span key={t} className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
                         #{t}
@@ -54,12 +68,47 @@ const NewsDetailPage: React.FC = () => {
                 ))}
             </div>
 
-            {/* Contenido renderizado con markdown */}
+            {/* Mostrar menciones destacadas si las hay */}
+            {hasMentions && (
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                    <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        🔗 Contenido relacionado mencionado
+                    </h3>
+                    <div className="space-y-2">
+                        {['games', 'guides', 'challenges', 'lists', 'news'].map(type => {
+                            const typeMentions = getMentionsByType(type);
+                            if (typeMentions.length === 0) return null;
+
+                            return (
+                                <div key={type} className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-sm font-medium text-gray-600 capitalize">
+                                        {type.slice(0, -1)}s:
+                                    </span>
+                                    {typeMentions.map((mention, index) => (
+                                        <span
+                                            key={index}
+                                            onClick={() => handleMentionClick(mention)}
+                                            className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors bg-blue-100 text-blue-800 hover:bg-blue-200"
+                                            title={`${type.slice(0, -1)}: ${mention.name}`}
+                                        >
+                                            {mention.name}
+                                        </span>
+                                    ))}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
+            {/* Contenido con menciones renderizadas */}
             <article className="mb-8 bg-white">
-                <MarkdownRenderer
-                    content={news.content}
-                    className="prose prose-slate max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-code:text-pink-600 prose-code:bg-pink-50 prose-a:text-blue-600 prose-blockquote:text-gray-600 prose-blockquote:border-gray-300"
-                />
+                <div className="prose prose-slate max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-code:text-pink-600 prose-code:bg-pink-50 prose-a:text-blue-600 prose-blockquote:text-gray-600 prose-blockquote:border-gray-300">
+                    <MentionDisplay
+                        text={news.content}
+                        onMentionClick={handleMentionClick}
+                    />
+                </div>
             </article>
 
             {/* Like button (usuario) */}

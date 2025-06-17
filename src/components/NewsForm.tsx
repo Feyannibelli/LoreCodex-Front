@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { NewsForm as FormValues } from "@/interfaces/News";
+import { NewsForm as FormValues } from "../interfaces/News";
 import MarkdownEditor from "./MarkdownEditor";
+import { MentionInput } from "./MentionInput";
+import { MentionDisplay } from "./MentionDisplay";
 
 interface Props {
     initial?: FormValues;
@@ -12,6 +14,7 @@ const NewsForm: React.FC<Props> = ({ initial, onSubmit, submitLabel }) => {
     const [form, setForm] = useState<FormValues>(
         initial ?? { title: "", content: "", coverImage: "", tags: [] }
     );
+    const [showPreview, setShowPreview] = useState(false);
 
     /* maneja cambios genéricos */
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -19,7 +22,7 @@ const NewsForm: React.FC<Props> = ({ initial, onSubmit, submitLabel }) => {
         setForm(prev => ({ ...prev, [name]: value }));
     };
 
-    /* maneja cambios del editor markdown */
+    /* maneja cambios del editor markdown con menciones */
     const handleContentChange = (value: string) => {
         setForm(prev => ({ ...prev, content: value }));
     };
@@ -52,20 +55,57 @@ const NewsForm: React.FC<Props> = ({ initial, onSubmit, submitLabel }) => {
                 />
             </div>
 
-            {/* Contenido con editor markdown */}
+            {/* Contenido con editor markdown y sistema de menciones */}
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Contenido *
-                    <span className="text-xs text-gray-500 ml-2">
-                        (Usa Markdown para dar formato al texto)
-                    </span>
-                </label>
-                <MarkdownEditor
-                    value={form.content}
-                    onChange={handleContentChange}
-                    placeholder="Escribe el contenido de tu noticia usando Markdown..."
-                    rows={12}
-                />
+                <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                        Contenido *
+                        <span className="text-xs text-gray-500 ml-2">
+                            (Usa Markdown y menciones como /games/, /guides/, etc.)
+                        </span>
+                    </label>
+                    <button
+                        type="button"
+                        onClick={() => setShowPreview(!showPreview)}
+                        className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded transition-colors"
+                    >
+                        {showPreview ? "📝 Editar" : "👁️ Vista Previa"}
+                    </button>
+                </div>
+
+                {showPreview ? (
+                    <div className="border border-gray-300 rounded-lg p-4 min-h-[300px] bg-gray-50">
+                        <div className="prose prose-slate max-w-none">
+                            <MentionDisplay text={form.content} />
+                        </div>
+                    </div>
+                ) : (
+                    <MentionInput
+                        value={form.content}
+                        onChange={handleContentChange}
+                        placeholder="Escribe el contenido de tu noticia usando Markdown...
+
+Puedes mencionar:
+• /games/ para mencionar juegos
+• /guides/ para mencionar guías
+• /challenges/ para mencionar desafíos
+• /lists/ para mencionar listas
+• /news/ para mencionar otras noticias"
+                        multiline={true}
+                        rows={12}
+                        className="font-mono text-sm"
+                    />
+                )}
+
+                {/* Ayuda sobre menciones */}
+                <div className="mt-2 p-3 bg-blue-50 rounded text-sm text-blue-700">
+                    <strong>💡 Cómo usar menciones:</strong>
+                    <ul className="mt-1 space-y-1 text-xs">
+                        <li>• Escribe <code>/games/</code> y empieza a escribir el nombre del juego</li>
+                        <li>• Usa las flechas ↑↓ para navegar y Enter para seleccionar</li>
+                        <li>• Las menciones se mostrarán como enlaces en la vista previa</li>
+                    </ul>
+                </div>
             </div>
 
             {/* Imagen de portada */}

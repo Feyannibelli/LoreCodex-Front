@@ -6,6 +6,9 @@ import gameService from '../../services/gameService';
 import { Game } from '../../interfaces/Game';
 import Button from '../../components/Button';
 import MarkdownViewer from '../../components/MarkdownViewer';
+import { MentionInput } from '../../components/MentionInput';
+
+
 import {
     ArrowLeft,
     Plus,
@@ -464,13 +467,13 @@ const CreateChallengePage: React.FC = () => {
                             <MarkdownViewer content={formData.description} />
                         </div>
                     ) : (
-                        <textarea
+                        <MentionInput
                             value={formData.description}
-                            onChange={(e) => handleInputChange('description', e.target.value)}
-                            placeholder="Describe tu challenge en detalle. Puedes usar Markdown para dar formato..."
+                            onChange={(value) => handleInputChange('description', value)}
+                            placeholder="Describe tu challenge en detalle. Puedes usar Markdown para dar formato y mencionar elementos con /games/, /guides/, /challenges/, /lists/, /news/..."
+                            multiline={true}
                             rows={8}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#F47E00] focus:border-transparent dark:bg-gray-700 dark:text-white resize-vertical"
-                            required
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#F47E00] focus:border-transparent dark:bg-gray-700 dark:text-white resize-vertical"
                         />
                     )}
 
