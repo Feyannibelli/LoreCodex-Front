@@ -72,7 +72,7 @@
 .content-items {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 15px;
+    gap: 37px;
 }
 
 .item-card {
