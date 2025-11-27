@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import challengeService, { Challenge, ChallengeProgress } from '../../services/challengeService';
-import MarkdownViewer from '../../components/MarkdownViewer';
-import { MentionDisplay } from '../../components/MentionDisplay';
+import UnifiedContentRenderer from '../../components/UnifiedContentRenderer';
 import Button from '../../components/Button';
 import { ArrowLeft, Play, Circle, Trophy, User, Clock, Crown } from 'lucide-react';
 import PrettyCheckbox from "../../components/PrettyCheckbox.tsx";
@@ -28,7 +27,6 @@ const ChallengeDetailPage: React.FC = () => {
                 const challengeData = await challengeService.getChallengeById(parseInt(id));
                 setChallenge(challengeData);
 
-                // Si el usuario está autenticado, intentar obtener progreso (incluye autores)
                 if (isAuthenticated) {
                     try {
                         const progressData = await challengeService.getChallengeProgress(parseInt(id));
@@ -36,7 +34,6 @@ const ChallengeDetailPage: React.FC = () => {
                         setHasJoined(true);
                     } catch (error) {
                         console.error('Error fetching challenge progress:', error);
-                        // Si no hay progreso, significa que no se ha unido al challenge
                         setHasJoined(false);
                     }
                 }
@@ -50,11 +47,6 @@ const ChallengeDetailPage: React.FC = () => {
         fetchChallenge();
     }, [id, isAuthenticated, user]);
 
-    const handleMentionClick = (mention: any) => {
-        const baseUrl = mention.type.endsWith('s') ? mention.type : mention.type + 's';
-        navigate(`/${baseUrl}/${mention.id}`);
-    };
-
     const handleJoinChallenge = async () => {
         if (!challenge || !isAuthenticated) return;
 
@@ -62,7 +54,6 @@ const ChallengeDetailPage: React.FC = () => {
         try {
             await challengeService.joinChallenge(challenge.id);
             setHasJoined(true);
-            // Obtener progreso inicial
             const progressData = await challengeService.getChallengeProgress(challenge.id);
             setProgress(progressData);
         } catch (error) {
@@ -76,7 +67,6 @@ const ChallengeDetailPage: React.FC = () => {
     const handleToggleItem = async (itemId: number, isCompletedNow: boolean) => {
         if (!challenge || !hasJoined) return;
 
-        // 1️⃣  Actualización optimista
         setProgress(prev =>
             prev
                 ? {
@@ -89,13 +79,11 @@ const ChallengeDetailPage: React.FC = () => {
                 : prev
         );
 
-        // 2️⃣  Llamada real al API
         try {
             const newProgress = isCompletedNow
                 ? await challengeService.uncompleteItem(challenge.id, itemId)
                 : await challengeService.completeItem(challenge.id, itemId);
 
-            // 3️⃣  Asegurarse de tener el dato definitivo que devuelve el back
             setProgress(newProgress);
         } catch (err) {
             console.error('Error toggling item completion:', err);
@@ -222,7 +210,7 @@ const ChallengeDetailPage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Progress bar (si se unió o es el autor participando) */}
+                        {/* Progress bar */}
                         {hasJoined && progress && (
                             <div className="mb-6">
                                 <div className="flex justify-between items-center mb-2">
@@ -268,7 +256,6 @@ const ChallengeDetailPage: React.FC = () => {
                                     </Button>
                                 </div>
                             ) : !hasJoined ? (
-                                // Ahora cualquier usuario autenticado puede unirse, incluido el autor
                                 <Button
                                     onClick={handleJoinChallenge}
                                     disabled={joining}
@@ -278,7 +265,6 @@ const ChallengeDetailPage: React.FC = () => {
                                     {joining ? 'Uniéndose...' : isOwner ? 'Participar en mi Challenge' : 'Unirse al Challenge'}
                                 </Button>
                             ) : (
-                                // Usuario ya unido (puede ser autor o no)
                                 <div className="space-y-2">
                                     {isOwner && (
                                         <div className="text-center p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
@@ -312,17 +298,13 @@ const ChallengeDetailPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Description */}
+            {/* Description - UNIFICADO */}
             <div className="mb-8">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
                     Descripción
                 </h2>
                 <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <MentionDisplay
-                        text={challenge.description}
-                        onMentionClick={handleMentionClick}
-                        className="prose dark:prose-invert max-w-none"
-                    />
+                    <UnifiedContentRenderer content={challenge.description} />
                 </div>
             </div>
 
@@ -367,9 +349,8 @@ const ChallengeDetailPage: React.FC = () => {
                                                     </span>
                                                 )}
                                             </div>
-                                            <MentionDisplay
-                                                text={item.description}
-                                                onMentionClick={handleMentionClick}
+                                            <UnifiedContentRenderer
+                                                content={item.description}
                                                 className={`prose dark:prose-invert max-w-none ${isCompleted ? 'text-green-700 dark:text-green-300' : ''}`}
                                             />
                                         </div>

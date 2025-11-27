@@ -1,0 +1,209 @@
+import React, { useState } from 'react';
+import { MentionInput } from './MentionInput';
+import UnifiedContentRenderer from './UnifiedContentRenderer.tsx';
+
+interface UnifiedContentEditorProps {
+    value: string;
+    onChange: (value: string) => void;
+    placeholder?: string;
+    rows?: number;
+    label?: string;
+    helpText?: string;
+}
+
+/**
+ * Editor unificado que permite escribir contenido con:
+ * - Markdown (botones de ayuda)
+ * - Menciones (autocompletado con /games/, /guides/, etc.)
+ *
+ * Incluye vista previa en tiempo real.
+ */
+const UnifiedContentEditor: React.FC<UnifiedContentEditorProps> = ({
+                                                                       value,
+                                                                       onChange,
+                                                                       placeholder = "Escribe tu contenido... Usa Markdown para formato y /games/, /guides/, etc. para menciones",
+                                                                       rows = 10,
+                                                                       label,
+                                                                       helpText
+                                                                   }) => {
+    const [showPreview, setShowPreview] = useState(false);
+
+    return (
+        <div className="space-y-3">
+            {/* Label */}
+            {label && (
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {label}
+                </label>
+            )}
+
+            {/* Tabs: Editar / Vista Previa */}
+            <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700">
+                <button
+                    type="button"
+                    onClick={() => setShowPreview(false)}
+                    className={`px-4 py-2 text-sm font-medium transition-colors ${
+                        !showPreview
+                            ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                    }`}
+                >
+                    ✏️ Editar
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setShowPreview(true)}
+                    className={`px-4 py-2 text-sm font-medium transition-colors ${
+                        showPreview
+                            ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                    }`}
+                >
+                    👁️ Vista Previa
+                </button>
+            </div>
+
+            {/* Toolbar con ayuda de Markdown (solo en modo edición) */}
+            {!showPreview && (
+                <div className="flex flex-wrap gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-t-lg border border-gray-200 dark:border-gray-700">
+                    <span className="text-xs text-gray-600 dark:text-gray-400 font-medium self-center mr-2">
+                        Formato rápido:
+                    </span>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const textarea = document.querySelector('textarea[data-unified-editor]') as HTMLTextAreaElement;
+                            if (textarea) {
+                                const start = textarea.selectionStart;
+                                const end = textarea.selectionEnd;
+                                const selected = value.substring(start, end) || 'texto';
+                                const newValue = value.substring(0, start) + `**${selected}**` + value.substring(end);
+                                onChange(newValue);
+                                setTimeout(() => {
+                                    textarea.focus();
+                                    textarea.setSelectionRange(start + 2, start + 2 + selected.length);
+                                }, 0);
+                            }
+                        }}
+                        className="px-2 py-1 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 font-bold"
+                        title="Negrita"
+                    >
+                        B
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const textarea = document.querySelector('textarea[data-unified-editor]') as HTMLTextAreaElement;
+                            if (textarea) {
+                                const start = textarea.selectionStart;
+                                const end = textarea.selectionEnd;
+                                const selected = value.substring(start, end) || 'texto';
+                                const newValue = value.substring(0, start) + `*${selected}*` + value.substring(end);
+                                onChange(newValue);
+                                setTimeout(() => {
+                                    textarea.focus();
+                                    textarea.setSelectionRange(start + 1, start + 1 + selected.length);
+                                }, 0);
+                            }
+                        }}
+                        className="px-2 py-1 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 italic"
+                        title="Cursiva"
+                    >
+                        I
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const textarea = document.querySelector('textarea[data-unified-editor]') as HTMLTextAreaElement;
+                            if (textarea) {
+                                const start = textarea.selectionStart;
+                                const newValue = value.substring(0, start) + '\n## ' + value.substring(start);
+                                onChange(newValue);
+                            }
+                        }}
+                        className="px-2 py-1 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
+                        title="Título"
+                    >
+                        H
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const textarea = document.querySelector('textarea[data-unified-editor]') as HTMLTextAreaElement;
+                            if (textarea) {
+                                const start = textarea.selectionStart;
+                                const newValue = value.substring(0, start) + '\n* ' + value.substring(start);
+                                onChange(newValue);
+                            }
+                        }}
+                        className="px-2 py-1 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
+                        title="Lista"
+                    >
+                        •
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const textarea = document.querySelector('textarea[data-unified-editor]') as HTMLTextAreaElement;
+                            if (textarea) {
+                                const start = textarea.selectionStart;
+                                const end = textarea.selectionEnd;
+                                const selected = value.substring(start, end) || 'código';
+                                const newValue = value.substring(0, start) + `\`${selected}\`` + value.substring(end);
+                                onChange(newValue);
+                            }
+                        }}
+                        className="px-2 py-1 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 font-mono"
+                        title="Código"
+                    >
+                        &lt;/&gt;
+                    </button>
+                </div>
+            )}
+
+            {/* Contenido: Editor o Vista Previa */}
+            {showPreview ? (
+                <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 min-h-[300px] bg-gray-50 dark:bg-gray-800">
+                    {value.trim() ? (
+                        <UnifiedContentRenderer content={value} />
+                    ) : (
+                        <p className="text-gray-500 dark:text-gray-400 italic text-center py-8">
+                            Escribe algo en el editor para ver la vista previa...
+                        </p>
+                    )}
+                </div>
+            ) : (
+                <MentionInput
+                    value={value}
+                    onChange={onChange}
+                    placeholder={placeholder}
+                    multiline={true}
+                    rows={rows}
+                    className="font-mono text-sm"
+                />
+            )}
+
+            {/* Ayuda */}
+            {helpText && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {helpText}
+                </p>
+            )}
+
+            {/* Instrucciones */}
+            {!showPreview && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                    <p className="text-xs text-blue-800 dark:text-blue-200">
+                        <strong>💡 Tip:</strong> Usa <strong>**negrita**</strong>, <em>*cursiva*</em>,
+                        <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">`código`</code>,
+                        <strong>## Títulos</strong>, y menciones como <strong>/games/</strong>,
+                        <strong>/guides/</strong>, <strong>/challenges/</strong>, <strong>/lists/</strong>,
+                        <strong>/news/</strong> para referenciar contenido.
+                    </p>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default UnifiedContentEditor;

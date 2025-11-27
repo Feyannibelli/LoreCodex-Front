@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { GuideForm as Form } from "../../interfaces/Guide";
-import { MentionInput } from "../MentionInput.tsx";
-import { MentionDisplay, useMentions } from "../MentionDisplay.tsx";
-import MarkdownEditor from "../MarkdownEditor.tsx";
+import UnifiedContentEditor from "../UnifiedContentEditor";
 
 interface Props {
     initial?: Form;
@@ -17,7 +15,7 @@ const GuideForm: React.FC<Props> = ({
                                         submitLabel,
                                         onSubmit,
                                         onPublish,
-                                        publishLabel = "Create Guide"
+                                        publishLabel = "Publicar Guía"
                                     }) => {
     const [form, setForm] = useState<Form>(
         initial ?? {
@@ -29,13 +27,6 @@ const GuideForm: React.FC<Props> = ({
             draft: true
         }
     );
-
-    // Modo de edición: 'mentions' o 'markdown'
-    const [editorMode, setEditorMode] = useState<'mentions' | 'markdown'>('markdown');
-
-    // Preview mode para mostrar cómo se verán las menciones (solo para modo mentions)
-    const [isPreviewMode, setIsPreviewMode] = useState(false);
-    const { hasMentions, mentionCount } = useMentions(form.content);
 
     const handle = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -60,13 +51,8 @@ const GuideForm: React.FC<Props> = ({
             tags: e.target.value.split(",").map(t => t.trim()).filter(Boolean),
         }));
 
-    const handleMentionClick = (mention: any) => {
-        // Aquí puedes manejar clicks en menciones (ej: abrir modal, navegar, etc.)
-        console.log('Mention clicked:', mention);
-    };
-
     return (
-        <div className="space-y-4 max-w-4xl mx-auto">
+        <div className="space-y-6 max-w-4xl mx-auto">
             <form
                 onSubmit={e => {
                     e.preventDefault();
@@ -75,38 +61,39 @@ const GuideForm: React.FC<Props> = ({
                 className="space-y-6"
             >
                 {/* Title */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Title
+                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Título de la Guía *
                     </label>
                     <input
                         name="title"
                         value={form.title}
                         onChange={handle}
-                        className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Enter guide title..."
+                        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="Ej: Guía completa para principiantes..."
                         required
                     />
                 </div>
 
                 {/* Cover Image URL */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Cover Image URL (optional)
+                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Imagen de Portada (URL) - Opcional
                     </label>
                     <input
                         name="coverImageUrl"
                         value={form.coverImageUrl ?? ""}
                         onChange={handle}
-                        className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="https://example.com/image.jpg"
+                        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="https://ejemplo.com/imagen.jpg"
                     />
                     {form.coverImageUrl && (
-                        <div className="mt-2">
+                        <div className="mt-3">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Vista previa:</p>
                             <img
                                 src={form.coverImageUrl}
                                 alt="Cover preview"
-                                className="max-w-xs h-32 object-cover rounded border"
+                                className="max-w-xs h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
                                 onError={(e) => {
                                     (e.target as HTMLImageElement).style.display = 'none';
                                 }}
@@ -115,159 +102,63 @@ const GuideForm: React.FC<Props> = ({
                     )}
                 </div>
 
-                {/* Content Editor Mode Selector */}
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                        <label className="block text-sm font-medium text-gray-700">
-                            Content
-                        </label>
-                        <div className="flex items-center space-x-2">
-                            <span className="text-sm text-gray-600">Editor:</span>
-                            <button
-                                type="button"
-                                onClick={() => setEditorMode('markdown')}
-                                className={`px-3 py-1 text-sm rounded ${
-                                    editorMode === 'markdown'
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                }`}
-                            >
-                                📝 Markdown
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setEditorMode('mentions')}
-                                className={`px-3 py-1 text-sm rounded ${
-                                    editorMode === 'mentions'
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                }`}
-                            >
-                                🔗 Mentions
-                            </button>
-                            {editorMode === 'mentions' && hasMentions && (
-                                <span className="text-sm text-blue-600">
-                                    {mentionCount} mention{mentionCount !== 1 ? 's' : ''}
-                                </span>
-                            )}
-                        </div>
-                    </div>
+                {/* Content - UNIFICADO */}
+                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                    <UnifiedContentEditor
+                        label="Contenido de la Guía *"
+                        value={form.content}
+                        onChange={handleContentChange}
+                        rows={18}
+                        placeholder="Escribe tu guía usando Markdown y menciones...
 
-                    {/* Markdown Editor */}
-                    {editorMode === 'markdown' && (
-                        <MarkdownEditor
-                            value={form.content}
-                            onChange={handleContentChange}
-                            placeholder="Write your guide content using Markdown...
+# Título Principal
+## Subtítulo
+### Sección
 
-# Main Title
-## Subtitle
-### Section
+**Texto en negrita** y *texto en cursiva*
 
-**Bold text** and *italic text*
+- Elemento de lista 1
+- Elemento de lista 2
 
-- List item 1
-- List item 2
+[Texto del enlace](https://ejemplo.com)
 
-[Link text](https://example.com)
+`fragmento de código`
 
-`code snippet`
+> Esto es una cita
 
-> This is a quote"
-                            rows={15}
-                        />
-                    )}
-
-                    {/* Mentions Editor */}
-                    {editorMode === 'mentions' && (
-                        <>
-                            {!isPreviewMode ? (
-                                <MentionInput
-                                    value={form.content}
-                                    onChange={handleContentChange}
-                                    multiline={true}
-                                    rows={12}
-                                    className="min-h-[300px] font-mono text-sm"
-                                    placeholder="Write your guide content here...
-
-Use mentions to reference other content:
-• /games/Game Name - to mention games
-• /guides/Guide Title - to reference other guides
-• /challenges/Challenge Title - to mention challenges
-• /lists/List Name - to reference lists
-• /news/Article Title - to mention news articles"
-                                />
-                            ) : (
-                                <div className="border border-gray-300 rounded-lg p-4 min-h-[300px] bg-gray-50">
-                                    <div className="prose prose-slate max-w-none">
-                                        <MentionDisplay
-                                            text={form.content}
-                                            onMentionClick={handleMentionClick}
-                                            className="whitespace-pre-wrap"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Preview Toggle and Mention Help for Mentions Mode */}
-                            <div className="mt-2 flex items-center justify-between">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsPreviewMode(!isPreviewMode)}
-                                    className="text-sm text-gray-600 hover:text-gray-800 underline"
-                                >
-                                    {isPreviewMode ? 'Edit' : 'Preview'}
-                                </button>
-
-                                <div className="text-xs text-gray-500">
-                                    <details>
-                                        <summary className="cursor-pointer hover:text-gray-700">
-                                            How to use mentions
-                                        </summary>
-                                        <div className="mt-2 space-y-1 text-right">
-                                            <p>• Type <code>/games/</code> and start typing a game name</p>
-                                            <p>• Type <code>/guides/</code> to reference other guides</p>
-                                            <p>• Type <code>/challenges/</code> to mention challenges</p>
-                                            <p>• Type <code>/lists/</code> to reference lists</p>
-                                            <p>• Type <code>/news/</code> to mention news articles</p>
-                                            <p className="text-blue-600">Use arrow keys to navigate suggestions, Enter to select</p>
-                                        </div>
-                                    </details>
-                                </div>
-                            </div>
-                        </>
-                    )}
-
-                    {/* Editor Help */}
-                    <div className="mt-2 text-xs text-gray-500">
-                        <p>
-                            💡 <strong>Tip:</strong> Use{' '}
-                            <span className="font-medium">Markdown mode</span> for rich formatting with headers, lists, and links.{' '}
-                            Use <span className="font-medium">Mentions mode</span> to reference other content in your platform.
-                        </p>
-                    </div>
+Puedes mencionar contenido:
+• /games/ para mencionar juegos
+• /guides/ para referenciar otras guías
+• /challenges/ para mencionar desafíos
+• /lists/ para referenciar listas
+• /news/ para mencionar noticias"
+                        helpText="Escribe tu guía completa. Usa Markdown para formato enriquecido y menciones para referenciar otros contenidos de la plataforma."
+                    />
                 </div>
 
                 {/* Tags */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Tags (optional)
+                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Etiquetas - Opcional
+                        <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                            (Separadas por comas)
+                        </span>
                     </label>
                     <input
                         name="tags"
                         onChange={handleTags}
                         value={form.tags?.join(", ") ?? ""}
-                        className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="tutorial, beginner, strategy (comma-separated)"
+                        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        placeholder="tutorial, principiante, estrategia"
                     />
                     {form.tags && form.tags.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-2">
+                        <div className="mt-3 flex flex-wrap gap-2">
                             {form.tags.map((tag, index) => (
                                 <span
                                     key={index}
-                                    className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs"
+                                    className="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs font-medium"
                                 >
-                                    {tag}
+                                    #{tag}
                                 </span>
                             ))}
                         </div>
@@ -275,14 +166,13 @@ Use mentions to reference other content:
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t">
+                <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                     {/* Primary Save Button */}
                     <button
-                        type="button"
-                        onClick={() => onSubmit(form)}
-                        className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+                        type="submit"
+                        className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium shadow-sm flex items-center justify-center gap-2"
                     >
-                        {submitLabel}
+                        💾 {submitLabel}
                     </button>
 
                     {/* Publish Button (if available) */}
@@ -290,20 +180,9 @@ Use mentions to reference other content:
                         <button
                             type="button"
                             onClick={() => onPublish({ ...form, published: true, draft: false })}
-                            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium"
+                            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm flex items-center justify-center gap-2"
                         >
-                            {publishLabel}
-                        </button>
-                    )}
-
-                    {/* Preview Toggle for Mobile (only for mentions mode) */}
-                    {editorMode === 'mentions' && (
-                        <button
-                            type="button"
-                            onClick={() => setIsPreviewMode(!isPreviewMode)}
-                            className="sm:hidden bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                        >
-                            {isPreviewMode ? '✏️ Edit Mode' : '👁️ Preview Mode'}
+                            🚀 {publishLabel}
                         </button>
                     )}
                 </div>

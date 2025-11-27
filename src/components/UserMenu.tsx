@@ -39,13 +39,6 @@ const UserMenu: React.FC = () => {
             >
                 News
             </Link>
-
-            <Link
-                to="/challenges"
-                className="text-gray-700 hover:text-blue-500 font-semibold"
-            >
-                Challenges
-        </Link>
         </nav>
     );
 };

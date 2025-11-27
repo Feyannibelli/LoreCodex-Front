@@ -6,6 +6,7 @@ import Button from '../../components/Button';
 import gameService from '../../services/gameService';
 import guideService from '../../services/guideService';
 import challengeService from '../../services/challengeService';
+import UnifiedContentEditor from '../../components/UnifiedContentEditor';
 
 interface SearchableItem {
     id: number;
@@ -102,7 +103,6 @@ const CreateListPage: React.FC = () => {
 
     const removeItemFromList = (index: number) => {
         const newItems = selectedItems.filter((_, i) => i !== index);
-        // Actualizar posiciones
         const updatedItems = newItems.map((item, i) => ({
             ...item,
             position: i + 1
@@ -116,7 +116,6 @@ const CreateListPage: React.FC = () => {
 
         if (targetIndex >= 0 && targetIndex < newItems.length) {
             [newItems[index], newItems[targetIndex]] = [newItems[targetIndex], newItems[index]];
-            // Actualizar posiciones
             const updatedItems = newItems.map((item, i) => ({
                 ...item,
                 position: i + 1
@@ -175,16 +174,14 @@ const CreateListPage: React.FC = () => {
                         />
                     </div>
 
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Description
-                        </label>
-                        <textarea
+                    {/* Descripción con Unified Editor */}
+                    <div>
+                        <UnifiedContentEditor
+                            label="Description"
                             value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            rows={3}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Describe your list..."
+                            onChange={setDescription}
+                            rows={8}
+                            helpText="Describe tu lista. Puedes usar Markdown para formato y menciones para referenciar contenido."
                         />
                     </div>
                 </div>

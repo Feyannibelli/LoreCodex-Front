@@ -5,18 +5,11 @@ import challengeService, { ChallengeFormData } from '../../services/challengeSer
 import gameService from '../../services/gameService';
 import { Game } from '../../interfaces/Game';
 import Button from '../../components/Button';
-import MarkdownViewer from '../../components/MarkdownViewer';
-import { MentionInput } from '../../components/MentionInput';
-
-
+import UnifiedContentEditor from '../../components/UnifiedContentEditor';
 import {
     ArrowLeft,
     Plus,
     Trash2,
-    Image,
-    Video,
-    FileText,
-    Star,
     Search,
     X
 } from 'lucide-react';
@@ -39,16 +32,12 @@ const CreateChallengePage: React.FC = () => {
         mediaType: 'none'
     });
 
- //   const [mediaMode, setMediaMode] = useState<'image' | 'video' | 'comment'>('comment');
-    const [previewMode, setPreviewMode] = useState(false);
-
     useEffect(() => {
         if (!isAuthenticated) {
             navigate('/login');
             return;
         }
 
-        // Cargar juegos para el buscador
         const fetchGames = async () => {
             try {
                 const gamesData = await gameService.getAllGames();
@@ -100,28 +89,10 @@ const CreateChallengePage: React.FC = () => {
             }));
         }
     };
-/*
-    const handleMediaModeChange = (mode: 'image' | 'video' | 'comment') => {
-        setMediaMode(mode);
-        if (mode === 'comment') {
-            setFormData(prev => ({
-                ...prev,
-                mediaType: 'none',
-                mediaUrl: ''
-            }));
-        } else {
-            setFormData(prev => ({
-                ...prev,
-                mediaType: mode,
-                mediaUrl: ''
-            }));
-        }
-    };
-*/
+
     const handleGameSelect = (game: Game) => {
         setSelectedGame(game);
         setShowGameSearch(false);
-        // Opcionalmente, agregar información del juego a la descripción
         if (!formData.description.includes(game.name)) {
             const gameInfo = `\n\n## Juego: ${game.name}\n${game.description}\n`;
             setFormData(prev => ({
@@ -134,7 +105,6 @@ const CreateChallengePage: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validaciones
         if (!formData.title.trim()) {
             alert('El título es obligatorio');
             return;
@@ -165,31 +135,7 @@ const CreateChallengePage: React.FC = () => {
             setLoading(false);
         }
     };
-/*
-    const getDifficultyLabel = (difficulty: number) => {
-        const labels = {
-            1: 'Super Fácil',
-            2: 'Fácil',
-            3: 'Normal',
-            4: 'Difícil',
-            5: 'Super Difícil',
-            6: 'Extremo'
-        };
-        return labels[difficulty as keyof typeof labels];
-    };
 
-    const getDifficultyColor = (difficulty: number) => {
-        const colors = {
-            1: 'bg-green-100 text-green-800',
-            2: 'bg-blue-100 text-blue-800',
-            3: 'bg-yellow-100 text-yellow-800',
-            4: 'bg-orange-100 text-orange-800',
-            5: 'bg-red-100 text-red-800',
-            6: 'bg-purple-100 text-purple-800'
-        };
-        return colors[difficulty as keyof typeof colors];
-    };
-*/
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl">
             {/* Header */}
@@ -319,40 +265,15 @@ const CreateChallengePage: React.FC = () => {
                     </div>
                 </div>
 
-
-                {/* Descripción */}
+                {/* Descripción - UNIFICADO */}
                 <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                            Descripción del Challenge *
-                        </h2>
-                        <button
-                            type="button"
-                            onClick={() => setPreviewMode(!previewMode)}
-                            className="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
-                        >
-                            {previewMode ? 'Editar' : 'Preview'}
-                        </button>
-                    </div>
-
-                    {previewMode ? (
-                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 min-h-32 bg-gray-50 dark:bg-gray-700">
-                            <MarkdownViewer content={formData.description} />
-                        </div>
-                    ) : (
-                        <MentionInput
-                            value={formData.description}
-                            onChange={(value) => handleInputChange('description', value)}
-                            placeholder="Describe tu challenge en detalle. Puedes usar Markdown para dar formato y mencionar elementos con /games/, /guides/, /challenges/, /lists/, /news/..."
-                            multiline={true}
-                            rows={8}
-                            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#F47E00] focus:border-transparent dark:bg-gray-700 dark:text-white resize-vertical"
-                        />
-                    )}
-
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                        Soporta Markdown: **negrita**, *cursiva*, `código`, etc.
-                    </p>
+                    <UnifiedContentEditor
+                        label="Descripción del Challenge *"
+                        value={formData.description}
+                        onChange={(value) => handleInputChange('description', value)}
+                        rows={12}
+                        helpText="Describe tu challenge en detalle. Puedes usar Markdown para dar formato y menciones para referenciar otros contenidos."
+                    />
                 </div>
 
                 {/* Tareas/Checklist */}
@@ -380,7 +301,7 @@ const CreateChallengePage: React.FC = () => {
                                 <textarea
                                     value={item}
                                     onChange={(e) => handleItemChange(index, e.target.value)}
-                                    placeholder="Describe la tarea... (soporta Markdown)"
+                                    placeholder="Describe la tarea..."
                                     rows={2}
                                     className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#F47E00] focus:border-transparent dark:bg-gray-700 dark:text-white resize-vertical"
                                     required

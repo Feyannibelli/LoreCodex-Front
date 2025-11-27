@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { listService, UserListResponse, ListItemType } from '../../services/listService';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/Button';
+import UnifiedContentRenderer from '../../components/UnifiedContentRenderer';
 
 const ListDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -108,7 +109,7 @@ const ListDetailPage: React.FC = () => {
                         <h1 className="text-3xl font-bold text-gray-800 mb-2">{list.title}</h1>
                         <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
                             <span>By{' '}
-                            <Link to={`/profile/${list.userId}`} className="text-blue-500 hover:underline">
+                                <Link to={`/profile/${list.userId}`} className="text-blue-500 hover:underline">
                                 {list.username}
                             </Link>
                             </span>
@@ -117,8 +118,15 @@ const ListDetailPage: React.FC = () => {
                             <span>•</span>
                             <span>Created {new Date(list.createdAt).toLocaleDateString()}</span>
                         </div>
+
+                        {/* Descripción con Unified Renderer */}
                         {list.description && (
-                            <p className="text-gray-700 leading-relaxed">{list.description}</p>
+                            <div className="border-t pt-4">
+                                <h2 className="text-lg font-semibold text-gray-800 mb-3">Descripción</h2>
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <UnifiedContentRenderer content={list.description} />
+                                </div>
+                            </div>
                         )}
                     </div>
 
