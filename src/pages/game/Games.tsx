@@ -1,17 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Game } from "../../interfaces/Game.ts";
 import gameService from "../../services/gameService.ts";
 import searchService from "../../services/searchService.ts";
 import GameFilters, { FiltersState } from "../../components/GameFilters.tsx";
+import InfiniteScrollTrigger from "../../components/InfiniteScrollTrigger.tsx";
+import { useInfiniteScroll } from "../../hook/useInfiniteScroll.ts";
 import "../../css/Games.css";
 import "../../css/GameFilters.css";
 
 const Games: React.FC = () => {
-    const [allGames, setAllGames] = useState<Game[]>([]);
-    const [displayedGames, setDisplayedGames] = useState<Game[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [availableGenres, setAvailableGenres] = useState<string[]>([]);
     const [activeFilters, setActiveFilters] = useState<FiltersState | null>(null);
@@ -19,85 +17,63 @@ const Games: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        // Check if there's a search query in the URL
-        const searchParams = new URLSearchParams(location.search);
-        const searchQuery = searchParams.get('search');
+    // Función para cargar juegos paginados
+    const fetchGames = useCallback(async (page: number, pageSize: number): Promise<Game[]> => {
+        const games = await gameService.getAllGamesPaginated(page, pageSize);
 
-        if (searchQuery) {
-            setSearchTerm(searchQuery);
-        }
-
-        loadGames();
-    }, [location.search]);
-
-    const loadGames = async () => {
-        try {
-            setLoading(true);
-            const data = await gameService.getAllGames();
-            setAllGames(data);
-
-            // Extract available genres for filters
-            const genres = searchService.getAvailableGenres(data);
+        // Extraer géneros únicos de la primera carga
+        if (page === 0) {
+            const genres = searchService.getAvailableGenres(games);
             setAvailableGenres(genres);
-
-            // Initial filtering based on URL search param
-            const searchParams = new URLSearchParams(location.search);
-            const searchQuery = searchParams.get('search') || "";
-
-            if (searchQuery) {
-                const filtered = searchService.filterGames(data, searchQuery);
-                setDisplayedGames(filtered);
-            } else {
-                setDisplayedGames(data);
-            }
-
-            setError(null);
-        } catch (err) {
-            console.error("Error loading games:", err);
-            setError("Error loading games. Please try again later.");
-        } finally {
-            setLoading(false);
         }
-    };
+
+        return games;
+    }, []);
+
+    const {
+        items: allGames,
+        loading,
+        hasMore,
+        error,
+        loadMore,
+        refresh
+    } = useInfiniteScroll({
+        fetchFunction: fetchGames,
+        pageSize: 12
+    });
+
+    // Aplicar filtros localmente a los juegos cargados
+    const displayedGames = React.useMemo(() => {
+        return searchService.filterGames(allGames, searchTerm, activeFilters || undefined);
+    }, [allGames, searchTerm, activeFilters]);
 
     const handleSearch = async (e: React.FormEvent | null) => {
         if (e) e.preventDefault();
 
-        if (!searchTerm.trim() && !activeFilters) {
-            // If search is empty and no filters, show all games
-            setDisplayedGames(allGames);
-
-            // Update URL
-            navigate('/games');
-            return;
-        }
-
-        // Update URL with search term
         if (searchTerm.trim()) {
             navigate(`/games?search=${encodeURIComponent(searchTerm)}`);
+        } else {
+            navigate('/games');
         }
-
-        // Apply filters to the games
-        const filtered = searchService.filterGames(allGames, searchTerm, activeFilters || undefined);
-        setDisplayedGames(filtered);
     };
 
     const handleFilterChange = (filters: FiltersState) => {
         setActiveFilters(filters);
-
-        // Apply both search and filters
-        const filtered = searchService.filterGames(allGames, searchTerm, filters);
-        setDisplayedGames(filtered);
     };
 
     const resetFilters = () => {
         setActiveFilters(null);
-
-        // Apply only search term without filters
-        const filtered = searchService.filterGames(allGames, searchTerm);
-        setDisplayedGames(filtered);
+        setSearchTerm("");
+        refresh();
     };
+
+    React.useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const searchQuery = searchParams.get('search');
+        if (searchQuery) {
+            setSearchTerm(searchQuery);
+        }
+    }, [location.search]);
 
     return (
         <div className="games-container">
@@ -130,44 +106,50 @@ const Games: React.FC = () => {
 
             {/* Results summary */}
             <div className="results-summary">
-                {!loading && (
-                    <p>Showing {displayedGames.length} of {allGames.length} games</p>
-                )}
+                <p>Showing {displayedGames.length} games {hasMore && '(loading more...)'}</p>
             </div>
 
             {error && <div className="error-message">{error}</div>}
 
-            {loading ? (
+            {loading && allGames.length === 0 ? (
                 <div className="loading">Loading games...</div>
             ) : displayedGames.length > 0 ? (
-                <div className="games-grid">
-                    {displayedGames.map((game) => (
-                        <Link to={`/games/${game.id}`} className="game-card" key={game.id}>
-                            <div className="game-image">
-                                {game.imageUrl ? (
-                                    <img src={game.imageUrl} alt={game.name} />
-                                ) : (
-                                    "Game"
-                                )}
-                            </div>
-                            <div className="game-info">
-                                <div className="game-name">{game.name}</div>
-                                <div className="game-genre">{game.genre}</div>
-                                <div className="game-meta">
-                                    <span>{new Date(game.releaseDate).getFullYear()}</span>
-                                    {game.averageRating !== undefined && (
-                                        <span>★ {game.averageRating}</span>
+                <>
+                    <div className="games-grid">
+                        {displayedGames.map((game) => (
+                            <Link to={`/games/${game.id}`} className="game-card" key={game.id}>
+                                <div className="game-image">
+                                    {game.imageUrl ? (
+                                        <img src={game.imageUrl} alt={game.name} />
+                                    ) : (
+                                        "Game"
                                     )}
                                 </div>
-                                {game.awards && (
-                                    <div className="game-awards">
-                                        <span>🏆</span>
+                                <div className="game-info">
+                                    <div className="game-name">{game.name}</div>
+                                    <div className="game-genre">{game.genre}</div>
+                                    <div className="game-meta">
+                                        <span>{new Date(game.releaseDate).getFullYear()}</span>
+                                        {game.averageRating !== undefined && (
+                                            <span>★ {game.averageRating}</span>
+                                        )}
                                     </div>
-                                )}
-                            </div>
-                        </Link>
-                    ))}
-                </div>
+                                    {game.awards && (
+                                        <div className="game-awards">
+                                            <span>🏆</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+
+                    <InfiniteScrollTrigger
+                        onIntersect={loadMore}
+                        loading={loading}
+                        hasMore={hasMore && displayedGames.length === allGames.length}
+                    />
+                </>
             ) : (
                 <div className="no-games-found">
                     No games found with the current search criteria.

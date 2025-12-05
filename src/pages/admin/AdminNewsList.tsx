@@ -1,24 +1,52 @@
-import { useEffect, useState } from "react";
+import { useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import newsService from "@/services/newsService.ts";
-import { News } from "@/interfaces/News.ts";
+import newsService from "../../services/newsService.ts";
+import { News } from "../../interfaces/News.ts";
+import { useInfiniteScroll } from "../../hook/useInfiniteScroll.ts";
+import InfiniteScrollTrigger from "../../components/InfiniteScrollTrigger.tsx";
 
 const AdminNewsList: React.FC = () => {
-    const [news, setNews] = useState<News[]>([]);
-    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    const load = async () => {
-        const res = await newsService.getAll();
-        setNews(res.data);
-        setLoading(false);
-    };
-
-    useEffect(() => {
-        load();               // si se ejecuta, pero el efecto devuelve void
+    const fetchNews = useCallback(async (page: number, pageSize: number): Promise<News[]> => {
+        const response = await newsService.getAllPaginated(page, pageSize);
+        return response.data;
     }, []);
 
-    if (loading) return <div className="p-4">Loading…</div>;
+    const {
+        items: news,
+        loading,
+        hasMore,
+        error,
+        loadMore,
+        refresh
+    } = useInfiniteScroll({
+        fetchFunction: fetchNews,
+        pageSize: 15
+    });
+
+    const handleTogglePublish = async (item: News) => {
+        try {
+            if (item.published) {
+                await newsService.unpublish(item.id);
+            } else {
+                await newsService.publish(item.id);
+            }
+            refresh();
+        } catch (err) {
+            console.error("Error toggling publish:", err);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!confirm("Delete this news item?")) return;
+        try {
+            await newsService.delete(id);
+            refresh();
+        } catch (err) {
+            console.error("Error deleting news:", err);
+        }
+    };
 
     return (
         <div className="p-4">
@@ -32,69 +60,79 @@ const AdminNewsList: React.FC = () => {
                 </Link>
             </div>
 
-            <table className="min-w-full border">
-                <thead className="bg-gray-100 text-left">
-                <tr>
-                    <th className="p-2">ID</th>
-                    <th className="p-2">Title</th>
-                    <th className="p-2">Published</th>
-                    <th className="p-2">Likes</th>
-                    <th className="p-2">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {news.map(n => (
-                    <tr key={n.id} className="border-t">
-                        <td className="p-2">{n.id}</td>
-                        <td className="p-2">
-                            <Link to={`/news/${n.id}`} className="hover:underline">
-                                {n.title}
-                            </Link>
-                        </td>
-                        <td className="p-2">{n.published ? "Yes" : "No"}</td>
-                        <td className="p-2">{n.likes}</td>
-                        <td className="p-2 space-x-2">
-                            {n.published ? (
-                                <button
-                                    onClick={() =>
-                                        newsService.unpublish(n.id).then(load)
-                                    }
-                                    className="text-sm bg-yellow-500 text-white px-2 py-1 rounded"
-                                >
-                                    Unpublish
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={() =>
-                                        newsService.publish(n.id).then(load)
-                                    }
-                                    className="text-sm bg-green-600 text-white px-2 py-1 rounded"
-                                >
-                                    Publish
-                                </button>
-                            )}
+            {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    {error}
+                </div>
+            )}
 
-                            <button
-                                onClick={() => navigate(`/admin/news/edit/${n.id}`)}
-                                className="text-sm bg-gray-500 text-white px-2 py-1 rounded"
-                            >
-                                Edit
-                            </button>
+            {loading && news.length === 0 ? (
+                <div className="flex justify-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                </div>
+            ) : (
+                <>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full border">
+                            <thead className="bg-gray-100 text-left">
+                            <tr>
+                                <th className="p-2">ID</th>
+                                <th className="p-2">Title</th>
+                                <th className="p-2">Published</th>
+                                <th className="p-2">Likes</th>
+                                <th className="p-2">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {news.map(n => (
+                                <tr key={n.id} className="border-t">
+                                    <td className="p-2">{n.id}</td>
+                                    <td className="p-2">
+                                        <Link to={`/news/${n.id}`} className="hover:underline">
+                                            {n.title}
+                                        </Link>
+                                    </td>
+                                    <td className="p-2">{n.published ? "Yes" : "No"}</td>
+                                    <td className="p-2">{n.likes}</td>
+                                    <td className="p-2 space-x-2">
+                                        <button
+                                            onClick={() => handleTogglePublish(n)}
+                                            className={`text-sm px-2 py-1 rounded ${
+                                                n.published
+                                                    ? "bg-yellow-500 text-white"
+                                                    : "bg-green-600 text-white"
+                                            }`}
+                                        >
+                                            {n.published ? "Unpublish" : "Publish"}
+                                        </button>
 
-                            <button
-                                onClick={() => {
-                                    if (confirm("Delete?"))
-                                        newsService.delete(n.id).then(load);
-                                }}
-                                className="text-sm bg-red-600 text-white px-2 py-1 rounded"
-                            >
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+                                        <button
+                                            onClick={() => navigate(`/admin/news/edit/${n.id}`)}
+                                            className="text-sm bg-gray-500 text-white px-2 py-1 rounded"
+                                        >
+                                            Edit
+                                        </button>
+
+                                        <button
+                                            onClick={() => handleDelete(n.id)}
+                                            className="text-sm bg-red-600 text-white px-2 py-1 rounded"
+                                        >
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <InfiniteScrollTrigger
+                        onIntersect={loadMore}
+                        loading={loading}
+                        hasMore={hasMore}
+                    />
+                </>
+            )}
         </div>
     );
 };

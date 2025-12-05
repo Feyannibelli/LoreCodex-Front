@@ -80,6 +80,13 @@ export const listService = {
         await apiAuth.delete(`/lists/${listId}/delete`);
     },
 
+    getAllListsPaginated: async (page: number, pageSize: number): Promise<UserListResponse[]> => {
+        const response = await api.get('/lists/get-all', {
+            params: { page, size: pageSize }
+        });
+        return response.data;
+    },
+
     // Agregar un item a una lista
     addItemToList: async (listId: number, item: ListItemRequest): Promise<void> => {
         await apiAuth.post(`/lists/${listId}/items/add`, item);

@@ -137,6 +137,18 @@ const gameService = {
         }
     },
 
+    getAllGamesPaginated: async (page: number, pageSize: number): Promise<Game[]> => {
+        try {
+            const response = await api.get('/games/allGames', {
+                params: { page, size: pageSize }
+            });
+            return response.data.map(adaptBackendGameToFrontend);
+        } catch (error) {
+            console.error('Error fetching paginated games:', error);
+            return [];
+        }
+    },
+
     // Dar like a un juego
     likeGame: async (id: number): Promise<Game> => {
         try {

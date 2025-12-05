@@ -1,12 +1,16 @@
 import api from "./api";
 import apiAuth from "./apiAuth";
-import { News, NewsForm } from "@/interfaces/News";
+import { News, NewsForm } from "../interfaces/News";
 
 const ENDPOINT = "/news";
 
 const newsService = {
     /* ---------- lecturas públicas ---------- */
     getAll:       ()                 => api.get<News[]>(ENDPOINT),
+    getAllPaginated: (page: number, pageSize: number) =>
+        api.get<News[]>(ENDPOINT, {
+            params: { page, size: pageSize }
+        }),
     getById:      (id: number)       => api.get<News>(`${ENDPOINT}/${id}`),
     getRecent:    (limit = 5)        =>
         api.get<News[]>(`${ENDPOINT}/recent`, { params: { limit } }),
