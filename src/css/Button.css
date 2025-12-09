@@ -1,40 +1,79 @@
 .custom-button {
     padding: 8px 15px;
-    background-color: #333;
     color: white;
     border: none;
     border-radius: 3px;
     font-size: 16px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, transform 0.1s;
 }
 
-.custom-button.submit-button {
-    background-color: #4a76a8;
-    color: white;
+.custom-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.custom-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.custom-button.submit-button,
+.custom-button.update-button,
+.custom-button.save-button {
+    background-color: #22c55e;
+}
+
+.custom-button.submit-button:hover:not(:disabled),
+.custom-button.update-button:hover:not(:disabled),
+.custom-button.save-button:hover:not(:disabled) {
+    background-color: #16a34a;
+}
+
+.custom-button.delete-button,
+.custom-button.remove-button {
+    background-color: #ef4444;
+}
+
+.custom-button.delete-button:hover:not(:disabled),
+.custom-button.remove-button:hover:not(:disabled) {
+    background-color: #dc2626;
+}
+
+.custom-button.edit-button {
+    background-color: #6b7280;
+}
+
+.custom-button.edit-button:hover:not(:disabled) {
+    background-color: #4b5563;
 }
 
 .custom-button.cancel-button {
-    background-color: #e0e0e0;
-    color: #333;
+    background-color: #9ca3af;
+    color: #1f2937;
 }
 
-.custom-button.confirm-button {
-    background-color: #d32f2f;
+.custom-button.cancel-button:hover:not(:disabled) {
+    background-color: #6b7280;
     color: white;
 }
 
-.custom-button:hover {
+.custom-button.confirm-button,
+.custom-button.primary-button {
+    background-color: #3b82f6;
+}
+
+.custom-button.confirm-button:hover:not(:disabled),
+.custom-button.primary-button:hover:not(:disabled) {
+    background-color: #2563eb;
+}
+
+.custom-button:not([class*="-button"]) {
+    background-color: #333;
+}
+
+.custom-button:not([class*="-button"]):hover:not(:disabled) {
     background-color: #555;
-}
-
-.delete-button {
-    background-color: #e74c3c;
-    color: white;
-}
-
-.delete-button:hover {
-    background-color: #c0392b;
 }
 
 .auth-button {
@@ -43,4 +82,8 @@
     background-color: #333;
     color: white;
     margin-top: 10px;
+}
+
+.auth-button:hover {
+    background-color: #555;
 }
