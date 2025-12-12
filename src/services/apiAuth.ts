@@ -8,6 +8,14 @@ const apiAuth = axios.create({
 
 apiAuth.interceptors.request.use(
     (config) => {
+        // Primero intentar con Auth0 token
+        const auth0Token = localStorage.getItem('auth0Token');
+        if (auth0Token && config.headers) {
+            config.headers['Authorization'] = `Bearer ${auth0Token}`;
+            return config;
+        }
+
+        // Si no hay Auth0 token, usar el tradicional
         const token = localStorage.getItem('token');
         if (token && config.headers) {
             config.headers['Authorization'] = `Bearer ${token}`;
@@ -33,9 +41,12 @@ apiAuth.interceptors.response.use(
                         error.config?.url?.includes('/rate') ||
                         error.config?.method !== 'get'));
 
-            if (localStorage.getItem('token') && isSecureEndpoint) {
+            const hasToken = localStorage.getItem('token') || localStorage.getItem('auth0Token');
+
+            if (hasToken && isSecureEndpoint) {
                 localStorage.removeItem('token');
                 localStorage.removeItem('userId');
+                localStorage.removeItem('auth0Token');
                 window.location.href = '/login';
             }
         }

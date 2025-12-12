@@ -16,11 +16,11 @@ import PrivateRoute from './components/PrivateRoute';
 import UserMenu from "./components/UserMenu";
 import GamesPage from './pages/game/GamesPage.tsx';
 import ListsPage from './pages/list/ListsPage.tsx';
-import NewsPage        from "./pages/news/NewsPage";
-import NewsDetailPage  from "./pages/news/NewsDetailPage";
-import CreateNewsPage  from "./pages/news/CreateNewsPage";
-import EditNewsPage    from "./pages/news/EditNewsPage";
-import AdminNewsList   from "./pages/admin/AdminNewsList";
+import NewsPage from "./pages/news/NewsPage";
+import NewsDetailPage from "./pages/news/NewsDetailPage";
+import CreateNewsPage from "./pages/news/CreateNewsPage";
+import EditNewsPage from "./pages/news/EditNewsPage";
+import AdminNewsList from "./pages/admin/AdminNewsList";
 import EditGuidePage from "./pages/guide/EditGuidePage.tsx";
 import MyDraftsPage from "./pages/guide/MyDraftsPage.tsx";
 import GuidePage from "./pages/guide/GuidePage.tsx";
@@ -35,6 +35,7 @@ import CreateChallengePage from './pages/challenge/CreateChallengePage.tsx';
 import PublicProfile from "./pages/PublicProfile.tsx";
 import GuideDetailPage from "./pages/guide/GuideDetailPage.tsx";
 import Game from "./pages/game/Game.tsx";
+import Auth0Callback from './pages/Auth0Callback';
 
 // Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -50,6 +51,9 @@ const App: React.FC = () => {
             <UserMenu />
             <Routes>
                 <Route path="/" element={<Home />} />
+
+                {/* Auth0 Callback Route */}
+                <Route path="/callback" element={<Auth0Callback />} />
 
                 {/* Rutas públicas solo para no logueados */}
                 <Route
@@ -84,7 +88,6 @@ const App: React.FC = () => {
                     path="/profile/:userId"
                     element={<PublicProfile />}
                 />
-
 
                 {/* Ruta protegida solo para admins */}
                 <Route path="/games" element={<Games />} />
@@ -121,6 +124,7 @@ const App: React.FC = () => {
                         </AdminRoute>
                     }
                 />
+
                 {/* Rutas de Challenges */}
                 <Route path="/challenges" element={<ChallengesPage />} />
                 <Route path="/challenges/:id" element={<ChallengeDetailPage />} />
@@ -152,7 +156,7 @@ const App: React.FC = () => {
                     }
                 />
                 <Route
-                    path="/my-lists"//para profile
+                    path="/my-lists"
                     element={
                         <PrivateRoute>
                             <MyListsPage />
@@ -179,9 +183,9 @@ const App: React.FC = () => {
                 <Route path="/news/:id" element={<NewsDetailPage />} />
 
                 {/* ADMIN News */}
-                <Route path="/admin/news"           element={<AdminRoute><AdminNewsList /></AdminRoute>} />
-                <Route path="/admin/news/create"    element={<AdminRoute><CreateNewsPage /></AdminRoute>} />
-                <Route path="/admin/news/edit/:id"  element={<AdminRoute><EditNewsPage /></AdminRoute>} />
+                <Route path="/admin/news" element={<AdminRoute><AdminNewsList /></AdminRoute>} />
+                <Route path="/admin/news/create" element={<AdminRoute><CreateNewsPage /></AdminRoute>} />
+                <Route path="/admin/news/edit/:id" element={<AdminRoute><EditNewsPage /></AdminRoute>} />
             </Routes>
         </div>
     );

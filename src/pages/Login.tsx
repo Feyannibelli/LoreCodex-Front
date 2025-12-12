@@ -8,7 +8,7 @@ const Login: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const { login } = useAuth();
+    const { login, loginWithAuth0 } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -21,6 +21,10 @@ const Login: React.FC = () => {
         } catch (err) {
             setError('Incorrect username or password. Please try again.');
         }
+    };
+
+    const handleAuth0Login = () => {
+        loginWithAuth0();
     };
 
     return (
@@ -56,6 +60,36 @@ const Login: React.FC = () => {
 
                 <Button type="submit" className="auth-button">Log In</Button>
             </form>
+
+            {/* Separador */}
+            <div style={{ margin: '20px 0', textAlign: 'center', color: '#666' }}>
+                <hr style={{ marginBottom: '10px' }} />
+                <span>OR</span>
+            </div>
+
+            {/* Botón de Auth0 */}
+            <Button
+                onClick={handleAuth0Login}
+                className="auth-button"
+                style={{
+                    backgroundColor: '#EB5424',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '10px'
+                }}
+            >
+                <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 128 128"
+                    fill="white"
+                    style={{ marginRight: '5px' }}
+                >
+                    <path d="M64 0L41 22.9l23 23 23-23L64 0zm23 45.9L64 69 41 45.9 18 69l23 23 23-23 23 23 23-23-23-23.1z"/>
+                </svg>
+                Continue with Auth0
+            </Button>
 
             <div className="auth-links">
                 <p>

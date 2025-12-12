@@ -10,7 +10,7 @@ const Register: React.FC = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
-    const { register } = useAuth();
+    const { register, loginWithAuth0 } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -38,6 +38,11 @@ const Register: React.FC = () => {
                 setError('Registration error. Please try again.');
             }
         }
+    };
+
+    const handleAuth0Register = () => {
+        // Auth0 usa el mismo flujo para login y registro
+        loginWithAuth0();
     };
 
     return (
@@ -93,8 +98,38 @@ const Register: React.FC = () => {
                     />
                 </div>
 
-                <Button type="submit" className="auth-button">Log In</Button>
+                <Button type="submit" className="auth-button">Register</Button>
             </form>
+
+            {/* Separador */}
+            <div style={{ margin: '20px 0', textAlign: 'center', color: '#666' }}>
+                <hr style={{ marginBottom: '10px' }} />
+                <span>OR</span>
+            </div>
+
+            {/* Botón de Auth0 */}
+            <Button
+                onClick={handleAuth0Register}
+                className="auth-button"
+                style={{
+                    backgroundColor: '#EB5424',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '10px'
+                }}
+            >
+                <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 128 128"
+                    fill="white"
+                    style={{ marginRight: '5px' }}
+                >
+                    <path d="M64 0L41 22.9l23 23 23-23L64 0zm23 45.9L64 69 41 45.9 18 69l23 23 23-23 23 23 23-23-23-23.1z"/>
+                </svg>
+                Sign up with Auth0
+            </Button>
 
             <div className="auth-links">
                 <p>
