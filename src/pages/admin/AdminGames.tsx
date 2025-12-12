@@ -5,7 +5,7 @@ import Modal from "../../components/Modal.tsx";
 import "../../css/AdminGames.css";
 import {Game} from "../../interfaces/Game.ts";
 import Button from "../../components/Button.tsx";
-import {Plus} from "lucide-react";
+import {FileJson, Plus} from "lucide-react";
 
 const AdminGames: React.FC = () => {
     const [games, setGames] = useState<Game[]>([]);
@@ -61,6 +61,18 @@ const AdminGames: React.FC = () => {
                         <Plus size={20} /> Create Game
                     </Button>
                 </Link>
+                <div className="flex gap-3">
+                    <Link to="/admin/games/create">
+                        <Button className="flex items-center gap-2">
+                            <Plus size={20} /> Create Game
+                        </Button>
+                    </Link>
+                    <Link to="/admin/games/batch-import">
+                        <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
+                            <FileJson size={20} /> Batch Import
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             {error && <div className="error-message">{error}</div>}
