@@ -11,7 +11,7 @@ import api from "../services/api";
 import {Guide} from "../interfaces/Guide.ts";
 
 const Home: React.FC = () => {
-    /* ---------- estado ---------- */
+    /* ---------- state ---------- */
     const [popularGuides, setPopularGuides] = useState<Guide[]>([]);
 
     const [recentlyAdded, setRecentlyAdded] = useState<Game[]>([]);
@@ -22,20 +22,21 @@ const Home: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState("");
 
     const navigate = useNavigate();
-    /* ---------- efectos ---------- */
-    /* guías publicadas */
+
+    /* ---------- effects ---------- */
+    /* published guides */
     useEffect(() => {
         api.get("/guides/all/published")
             .then(res => setPopularGuides(res.data))
             .catch(err => console.error("Error fetching guides:", err));
     }, []);
 
-    /* juegos */
+    /* games */
     useEffect(() => { loadGames(); }, []);
 
-    /* noticias recientes */
+    /* recent news */
     useEffect(() => {
-        newsService.getRecent(5)                       // ⬅️  NUEVO
+        newsService.getRecent(5)
             .then(res => setLatestNews(res.data))
             .catch(err => console.error("Error loading news:", err));
     }, []);
@@ -109,14 +110,15 @@ const Home: React.FC = () => {
                                 <div key={item.id} className="news-item">
                                     <Link to={`/news/${item.id}`} className="item-card">
                                         {item.coverImage && (
-                                            <img
-                                                src={item.coverImage}
-                                                alt={item.title}
-                                                className="h-24 w-full object-cover rounded mb-2"
-                                            />
+                                            <div className="item-image">
+                                                <img
+                                                    src={item.coverImage}
+                                                    alt={item.title}
+                                                />
+                                            </div>
                                         )}
-                                        <div className="item-title font-semibold">{item.title}</div>
-                                        <div className="text-xs text-gray-500">
+                                        <div className="item-title">{item.title}</div>
+                                        <div className="item-meta">
                                             {new Date(item.createdAt).toLocaleDateString()}
                                         </div>
                                     </Link>
@@ -140,7 +142,11 @@ const Home: React.FC = () => {
                             recentlyAdded.map(game => (
                                 <Link to={`/games/${game.id}`} key={game.id} className="item-card">
                                     <div className="item-image">
-                                        {game.imageUrl ? <img src={game.imageUrl} alt={game.name} /> : "Game"}
+                                        {game.imageUrl ? (
+                                            <img src={game.imageUrl} alt={game.name} />
+                                        ) : (
+                                            <span>Game</span>
+                                        )}
                                     </div>
                                     <div className="item-title">{game.name}</div>
                                     <div className="item-meta">{new Date(game.releaseDate).getFullYear()}</div>
@@ -167,9 +173,14 @@ const Home: React.FC = () => {
                         popularGames.map(game => (
                             <Link to={`/games/${game.id}`} key={game.id} className="item-card">
                                 <div className="item-image">
-                                    {game.imageUrl ? <img src={game.imageUrl} alt={game.name} /> : "Game"}
+                                    {game.imageUrl ? (
+                                        <img src={game.imageUrl} alt={game.name} />
+                                    ) : (
+                                        <span>Game</span>
+                                    )}
                                 </div>
                                 <div className="item-title">{game.name}</div>
+                                <div className="item-meta">{game.genre}</div>
                             </Link>
                         ))
                     ) : (
@@ -194,7 +205,7 @@ const Home: React.FC = () => {
                                 <div className="rating">User · Game · Guide Name</div>
                             </div>
                             <div className="review-content">
-                                Text
+                                Preview text
                             </div>
                         </div>
                     ))}
