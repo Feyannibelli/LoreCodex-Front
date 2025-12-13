@@ -42,6 +42,7 @@ const BatchImportGames: React.FC = () => {
     const [validationError, setValidationError] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [importResult, setImportResult] = useState<BatchGameResponse | null>(null);
+    const [importError, setImportError] = useState<string>(''); // NUEVO: Estado para errores de importación
 
     const validateJson = (content: string) => {
         if (!content.trim()) {
@@ -93,6 +94,7 @@ const BatchImportGames: React.FC = () => {
         const content = e.target.value;
         setJsonContent(content);
         validateJson(content);
+        setImportError(''); // Limpiar errores anteriores
     };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,12 +102,12 @@ const BatchImportGames: React.FC = () => {
         if (!file) return;
 
         if (!file.name.endsWith('.json')) {
-            alert('Por favor selecciona un archivo .json');
+            setImportError('Por favor selecciona un archivo .json');
             return;
         }
 
         if (file.size > 5 * 1024 * 1024) {
-            alert('El archivo es demasiado grande (máximo 5MB)');
+            setImportError('El archivo es demasiado grande (máximo 5MB)');
             return;
         }
 
@@ -114,9 +116,10 @@ const BatchImportGames: React.FC = () => {
             const content = event.target?.result as string;
             setJsonContent(content);
             validateJson(content);
+            setImportError('');
         };
         reader.onerror = () => {
-            alert('Error al leer el archivo');
+            setImportError('Error al leer el archivo');
         };
         reader.readAsText(file);
     };
@@ -125,19 +128,28 @@ const BatchImportGames: React.FC = () => {
         const exampleStr = JSON.stringify(EXAMPLE_JSON, null, 2);
         setJsonContent(exampleStr);
         validateJson(exampleStr);
+        setImportError('');
     };
 
     const handleSubmit = async () => {
         if (!isValidJson) {
-            alert('Por favor corrige los errores en el JSON antes de importar');
+            setImportError('Por favor corrige los errores en el JSON antes de importar');
             return;
         }
 
         setIsSubmitting(true);
         setImportResult(null);
+        setImportError(''); // Limpiar errores anteriores
 
         try {
             const token = localStorage.getItem('token');
+
+            if (!token) {
+                setImportError('No se encontró token de autenticación. Por favor inicia sesión nuevamente.');
+                setIsSubmitting(false);
+                return;
+            }
+
             const response = await fetch('http://localhost:8081/games/batch/import', {
                 method: 'POST',
                 headers: {
@@ -147,8 +159,26 @@ const BatchImportGames: React.FC = () => {
                 body: jsonContent
             });
 
+            // Manejar diferentes códigos de error
+            if (response.status === 403) {
+                setImportError('❌ Acceso denegado. Solo los administradores pueden importar juegos.');
+                setIsSubmitting(false);
+                return;
+            }
+
+            if (response.status === 401) {
+                setImportError('❌ Sesión expirada. Por favor inicia sesión nuevamente.');
+                setIsSubmitting(false);
+                // Opcional: redirigir al login
+                setTimeout(() => navigate('/login'), 2000);
+                return;
+            }
+
             if (!response.ok) {
-                throw new Error(`Error ${response.status}: ${response.statusText}`);
+                const errorText = await response.text();
+                setImportError(`❌ Error del servidor (${response.status}): ${errorText || response.statusText}`);
+                setIsSubmitting(false);
+                return;
             }
 
             const result: BatchGameResponse = await response.json();
@@ -162,7 +192,7 @@ const BatchImportGames: React.FC = () => {
             }
         } catch (error) {
             console.error('Error importing games:', error);
-            alert('Error al importar juegos: ' + (error as Error).message);
+            setImportError(`❌ Error de conexión: ${(error as Error).message}. Verifica que el servidor esté corriendo.`);
         } finally {
             setIsSubmitting(false);
         }
@@ -173,6 +203,7 @@ const BatchImportGames: React.FC = () => {
         setIsValidJson(null);
         setValidationError('');
         setImportResult(null);
+        setImportError('');
     };
 
     return (
@@ -200,6 +231,25 @@ const BatchImportGames: React.FC = () => {
                         </p>
                     </div>
                 </div>
+
+                {/* NUEVO: Banner de error de importación */}
+                {importError && (
+                    <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
+                        <div className="flex items-start gap-3">
+                            <XCircle className="text-red-600 flex-shrink-0 mt-0.5" size={24} />
+                            <div className="flex-1">
+                                <h3 className="text-red-800 font-semibold mb-1">Error al Importar</h3>
+                                <p className="text-red-700 text-sm">{importError}</p>
+                            </div>
+                            <button
+                                onClick={() => setImportError('')}
+                                className="text-red-500 hover:text-red-700"
+                            >
+                                <XCircle size={20} />
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -250,14 +300,14 @@ const BatchImportGames: React.FC = () => {
                             <h2 className="text-xl font-semibold mb-4">2. Editar JSON</h2>
 
                             <div className="relative">
-                <textarea
-                    value={jsonContent}
-                    onChange={handleJsonChange}
-                    placeholder='{"games": [{"name": "..."}]}'
-                    className="w-full h-96 p-4 font-mono text-sm border rounded-lg
+                                <textarea
+                                    value={jsonContent}
+                                    onChange={handleJsonChange}
+                                    placeholder='{"games": [{"name": "..."}]}'
+                                    className="w-full h-96 p-4 font-mono text-sm border rounded-lg
                     focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                    spellCheck={false}
-                />
+                                    spellCheck={false}
+                                />
 
                                 {isValidJson !== null && (
                                     <div className="absolute top-2 right-2">
@@ -447,6 +497,7 @@ const BatchImportGames: React.FC = () => {
                                     <li>• Fecha: YYYY-MM-DD (ej: 2024-03-15)</li>
                                     <li>• Máximo 100 juegos por vez</li>
                                     <li>• Procesamiento individual</li>
+                                    <li>• Requiere permisos de administrador</li>
                                 </ul>
                             </div>
                         )}

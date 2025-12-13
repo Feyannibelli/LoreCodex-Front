@@ -56,14 +56,10 @@ const AdminGames: React.FC = () => {
         <div className="admin-games-container">
             <div className="admin-games-header">
                 <h1>Manage Games</h1>
-                <Link to="/admin/games/create">
-                    <Button className="flex items-center gap-2">
-                        <Plus size={20} /> Create Game
-                    </Button>
-                </Link>
+                {/* CORREGIDO: Solo un conjunto de botones */}
                 <div className="flex gap-3">
                     <Link to="/admin/games/create">
-                        <Button className="flex items-center gap-2">
+                        <Button className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
                             <Plus size={20} /> Create Game
                         </Button>
                     </Link>
