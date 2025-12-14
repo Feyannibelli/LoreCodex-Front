@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import challengeService, { Challenge, ChallengeProgress } from '../../services/challengeService';
 import UnifiedContentRenderer from '../../components/UnifiedContentRenderer';
+import CommentSection from '../../components/comments/CommentSection';
 import Button from '../../components/Button';
 import { ArrowLeft, Play, Circle, Trophy, User, Clock, Crown } from 'lucide-react';
 import PrettyCheckbox from "../../components/PrettyCheckbox.tsx";
@@ -10,7 +11,7 @@ import PrettyCheckbox from "../../components/PrettyCheckbox.tsx";
 const ChallengeDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user, isAdmin } = useAuth();
     const [challenge, setChallenge] = useState<Challenge | null>(null);
     const [progress, setProgress] = useState<ChallengeProgress | null>(null);
     const [loading, setLoading] = useState(true);
@@ -150,7 +151,7 @@ const ChallengeDetailPage: React.FC = () => {
     const isOwner = user?.username === challenge.creatorUsername;
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
             {/* Header */}
             <div className="mb-6">
                 <button
@@ -298,7 +299,7 @@ const ChallengeDetailPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Description - UNIFICADO */}
+            {/* Description */}
             <div className="mb-8">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
                     Descripción
@@ -340,13 +341,13 @@ const ChallengeDetailPage: React.FC = () => {
                                         )}
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-2">
-                                                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    Tarea {item.order}
-                                                </span>
+                                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                                Tarea {item.order}
+                                            </span>
                                                 {isCompleted && (
                                                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                                                        Completado
-                                                    </span>
+                                                    Completado
+                                                </span>
                                                 )}
                                             </div>
                                             <UnifiedContentRenderer
@@ -360,8 +361,18 @@ const ChallengeDetailPage: React.FC = () => {
                         })}
                 </div>
             </div>
+
+            {/* ========== COMENTARIOS ========== */}
+            <CommentSection
+                entityType="challenge"
+                entityId={challenge.id}
+                currentUser={user ? {
+                    id: user.id,
+                    username: user.username,
+                    isAdmin: isAdmin
+                } : null}
+            />
         </div>
     );
 }
-
 export default ChallengeDetailPage;
