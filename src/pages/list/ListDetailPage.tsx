@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { listService, UserListResponse, ListItemType } from '../../services/listService';
 import { useAuth } from '../../context/AuthContext';
+import CommentSection from '../../components/comments/CommentSection';
 import Button from '../../components/Button';
 import UnifiedContentRenderer from '../../components/UnifiedContentRenderer';
 
@@ -10,7 +11,7 @@ const ListDetailPage: React.FC = () => {
     const [list, setList] = useState<UserListResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { user } = useAuth();
+    const { user, isAdmin } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -79,7 +80,9 @@ const ListDetailPage: React.FC = () => {
     if (loading) {
         return (
             <div className="container mx-auto px-4 py-8">
-                <div className="text-center">Loading list...</div>
+                <div className="flex justify-center items-center h-64">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                </div>
             </div>
         );
     }
@@ -101,13 +104,13 @@ const ListDetailPage: React.FC = () => {
     const isOwner = user && user.id === list.userId;
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
             {/* Header */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="bg-white dark:bg-[#313E3F] rounded-lg shadow-md p-6 mb-6">
                 <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
-                        <h1 className="text-3xl font-bold text-gray-800 mb-2">{list.title}</h1>
-                        <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">{list.title}</h1>
+                        <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
                             <span>By{' '}
                                 <Link to={`/profile/${list.userId}`} className="text-blue-500 hover:underline">
                                 {list.username}
@@ -119,11 +122,11 @@ const ListDetailPage: React.FC = () => {
                             <span>Created {new Date(list.createdAt).toLocaleDateString()}</span>
                         </div>
 
-                        {/* Descripción con Unified Renderer */}
+                        {/* Descripción */}
                         {list.description && (
                             <div className="border-t pt-4">
-                                <h2 className="text-lg font-semibold text-gray-800 mb-3">Descripción</h2>
-                                <div className="bg-gray-50 rounded-lg p-4">
+                                <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">Descripción</h2>
+                                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                                     <UnifiedContentRenderer content={list.description} />
                                 </div>
                             </div>
@@ -149,12 +152,12 @@ const ListDetailPage: React.FC = () => {
             </div>
 
             {/* Items List */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Items</h2>
+            <div className="bg-white dark:bg-[#313E3F] rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Items</h2>
 
                 {list.items.length === 0 ? (
                     <div className="text-center py-8">
-                        <p className="text-gray-500">This list is empty.</p>
+                        <p className="text-gray-500 dark:text-gray-400">This list is empty.</p>
                     </div>
                 ) : (
                     <div className="space-y-3">
@@ -163,9 +166,9 @@ const ListDetailPage: React.FC = () => {
                             .map((item, index) => (
                                 <div
                                     key={item.id}
-                                    className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                                    className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                                 >
-                                    <div className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-full font-semibold text-sm">
+                                    <div className="flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full font-semibold text-sm">
                                         {index + 1}
                                     </div>
 
@@ -181,8 +184,8 @@ const ListDetailPage: React.FC = () => {
                                         )}
 
                                         <div className="flex-1">
-                                            <h3 className="font-semibold text-gray-800">{item.title}</h3>
-                                            <p className="text-sm text-gray-500 capitalize">{item.type.toLowerCase()}</p>
+                                            <h3 className="font-semibold text-gray-800 dark:text-white">{item.title}</h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{item.type.toLowerCase()}</p>
                                         </div>
                                     </div>
 
@@ -197,6 +200,17 @@ const ListDetailPage: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {/* ========== COMENTARIOS ========== */}
+            <CommentSection
+                entityType="list"
+                entityId={list.id}
+                currentUser={user ? {
+                    id: user.id,
+                    username: user.username,
+                    isAdmin: isAdmin
+                } : null}
+            />
 
             {/* Navigation */}
             <div className="mt-8 flex justify-between items-center">

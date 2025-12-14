@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext.tsx";
 import { News } from "../../interfaces/News.ts";
 import newsService from "../../services/newsService.ts";
 import UnifiedContentRenderer from "../../components/UnifiedContentRenderer";
+import CommentSection from "../../components/comments/CommentSection";
 import { ArrowLeft, Calendar, Heart, Tag } from "lucide-react";
 import Button from "../../components/Button";
 
@@ -14,6 +15,7 @@ const NewsDetailPage: React.FC = () => {
 
     const [news, setNews] = useState<News | null>(null);
     const [loading, setLoading] = useState(true);
+    const { user } = useAuth();
 
     useEffect(() => {
         if (id) {
@@ -54,7 +56,7 @@ const NewsDetailPage: React.FC = () => {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
             {/* Header */}
             <div className="mb-6">
                 <button
@@ -114,7 +116,7 @@ const NewsDetailPage: React.FC = () => {
                 )}
             </div>
 
-            {/* Content - UNIFICADO */}
+            {/* Content */}
             <article className="mb-8">
                 <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
                     <UnifiedContentRenderer content={news.content} />
@@ -136,7 +138,7 @@ const NewsDetailPage: React.FC = () => {
 
             {/* Admin Panel */}
             {isAdmin && (
-                <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg mb-8">
                     <h3 className="font-semibold mb-4 text-gray-900 dark:text-white">
                         Acciones de Administrador
                     </h3>
@@ -181,6 +183,17 @@ const NewsDetailPage: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            {/* ========== COMENTARIOS ========== */}
+            <CommentSection
+                entityType="news"
+                entityId={news.id}
+                currentUser={user ? {
+                    id: user.id,
+                    username: user.username,
+                    isAdmin: isAdmin
+                } : null}
+            />
         </div>
     );
 };

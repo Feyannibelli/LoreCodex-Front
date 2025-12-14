@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Guide } from "../../interfaces/Guide";
 import UnifiedContentRenderer from "../../components/UnifiedContentRenderer";
+import CommentSection from "../../components/comments/CommentSection";
 import guideService from "../../services/guideService";
 import { useAuth } from "../../context/AuthContext";
 import Button from "../../components/Button";
@@ -11,7 +12,7 @@ const GuideDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [guide, setGuide] = useState<Guide | null>(null);
     const [loading, setLoading] = useState(true);
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, isAdmin } = useAuth();
     const navigate = useNavigate();
     const [authorUsername, setAuthorUsername] = useState<string | null>(null);
 
@@ -66,7 +67,7 @@ const GuideDetailPage: React.FC = () => {
     const canEdit = guide.authorId === user?.id;
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
             {/* Header */}
             <div className="mb-6">
                 <button
@@ -147,7 +148,7 @@ const GuideDetailPage: React.FC = () => {
                 )}
             </div>
 
-            {/* Content - UNIFICADO */}
+            {/* Content */}
             <article className="mb-8">
                 <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
                     <UnifiedContentRenderer content={guide.content} />
@@ -179,7 +180,7 @@ const GuideDetailPage: React.FC = () => {
 
             {/* Author Actions */}
             {canEdit && (
-                <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg mb-8">
                     <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
                         Acciones del Autor
                     </h3>
@@ -224,6 +225,17 @@ const GuideDetailPage: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            {/* ========== COMENTARIOS ========== */}
+            <CommentSection
+                entityType="guide"
+                entityId={guide.id}
+                currentUser={user ? {
+                    id: user.id,
+                    username: user.username,
+                    isAdmin: isAdmin
+                } : null}
+            />
         </div>
     );
 };
