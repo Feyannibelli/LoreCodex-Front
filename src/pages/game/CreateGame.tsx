@@ -11,8 +11,7 @@ const CreateGame: React.FC = () => {
         description: "",
         genre: "",
         releaseDate: "",
-        imageUrl: "",
-        awards: ""
+        imageUrl: ""
     };
 
     const [formData, setFormData] = useState<GameFormData>(initialFormData);
@@ -52,7 +51,7 @@ const CreateGame: React.FC = () => {
 
             <form className="game-form" onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label htmlFor="name">Name</label>
+                    <label htmlFor="name">Name *</label>
                     <input
                         type="text"
                         id="name"
@@ -60,22 +59,24 @@ const CreateGame: React.FC = () => {
                         value={formData.name}
                         onChange={handleChange}
                         required
+                        placeholder="Enter game name"
                     />
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="description">Description</label>
+                    <label htmlFor="description">Description *</label>
                     <textarea
                         id="description"
                         name="description"
                         value={formData.description}
                         onChange={handleChange}
                         required
+                        placeholder="Enter game description"
                     />
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="genre">Genre</label>
+                    <label htmlFor="genre">Genre *</label>
                     <input
                         type="text"
                         id="genre"
@@ -83,11 +84,12 @@ const CreateGame: React.FC = () => {
                         value={formData.genre}
                         onChange={handleChange}
                         required
+                        placeholder="e.g., Action, RPG, Adventure"
                     />
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="releaseDate">Release Date</label>
+                    <label htmlFor="releaseDate">Release Date *</label>
                     <input
                         type="date"
                         id="releaseDate"
@@ -106,17 +108,7 @@ const CreateGame: React.FC = () => {
                         name="imageUrl"
                         value={formData.imageUrl || ""}
                         onChange={handleChange}
-                    />
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="awards">Awards</label>
-                    <input
-                        type="text"
-                        id="awards"
-                        name="awards"
-                        value={formData.awards || ""}
-                        onChange={handleChange}
+                        placeholder="https://example.com/image.jpg"
                     />
                 </div>
 
@@ -131,7 +123,7 @@ const CreateGame: React.FC = () => {
                     <Button
                         type="submit"
                         className="submit-button"
-                        onClick={() => {}}
+                        disabled={loading}
                     >
                         {loading ? "Creating..." : "Create Game"}
                     </Button>

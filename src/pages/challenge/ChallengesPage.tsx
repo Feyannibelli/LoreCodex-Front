@@ -12,12 +12,10 @@ const ChallengesPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredChallenges, setFilteredChallenges] = useState<Challenge[]>([]);
 
-    // Función para cargar challenges paginados
     const fetchChallenges = useCallback(async (page: number, pageSize: number): Promise<Challenge[]> => {
         return await challengeService.getAllChallengesPaginated(page, pageSize);
     }, []);
 
-    // Hook de infinite scroll
     const {
         items: challenges,
         loading,
@@ -29,7 +27,6 @@ const ChallengesPage: React.FC = () => {
         pageSize: 12
     });
 
-    // Filtrar challenges localmente cuando cambia el término de búsqueda
     useEffect(() => {
         if (searchTerm.trim() === '') {
             setFilteredChallenges(challenges);
@@ -43,12 +40,9 @@ const ChallengesPage: React.FC = () => {
     }, [searchTerm, challenges]);
 
     const handleSearch = () => {
-        // El filtrado se hace automáticamente con el useEffect de arriba
-        // Esta función se puede usar si quieres hacer búsqueda en el backend
         console.log('Searching for:', searchTerm);
     };
 
-    // Loading inicial
     if (loading && challenges.length === 0) {
         return (
             <div className="container mx-auto px-4 py-8">
@@ -68,7 +62,7 @@ const ChallengesPage: React.FC = () => {
                 </h1>
                 {isAuthenticated && (
                     <Link to="/challenges/create">
-                        <Button className="flex items-center gap-2">
+                        <Button className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white">
                             <Plus size={20} /> Crear Challenge
                         </Button>
                     </Link>
@@ -92,20 +86,18 @@ const ChallengesPage: React.FC = () => {
                             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F47E00] focus:border-transparent"
                         />
                     </div>
-                    <Button onClick={handleSearch}>
+                    <Button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-700 text-white">
                         Buscar
                     </Button>
                 </div>
             </div>
 
-            {/* Error Message */}
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                     {error}
                 </div>
             )}
 
-            {/* Lista de challenges */}
             {filteredChallenges.length === 0 ? (
                 <div className="text-center py-12">
                     <Trophy className="mx-auto h-12 w-12 text-gray-400 mb-4" />
@@ -126,7 +118,6 @@ const ChallengesPage: React.FC = () => {
                                 key={challenge.id}
                                 className="bg-white dark:bg-[#313E3F] rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700"
                             >
-                                {/* Media preview */}
                                 {challenge.mediaUrl && (
                                     <div className="aspect-video rounded-t-lg overflow-hidden">
                                         {challenge.mediaType === 'image' ? (
@@ -169,7 +160,7 @@ const ChallengesPage: React.FC = () => {
                                     </div>
 
                                     <Link to={`/challenges/${challenge.id}`}>
-                                        <Button className="w-full">
+                                        <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white">
                                             Ver Challenge
                                         </Button>
                                     </Link>
@@ -178,7 +169,6 @@ const ChallengesPage: React.FC = () => {
                         ))}
                     </div>
 
-                    {/* Infinite Scroll Trigger - solo si no hay búsqueda activa */}
                     {searchTerm === '' && (
                         <InfiniteScrollTrigger
                             onIntersect={loadMore}

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from "./ui/dropdown-menu.tsx";
 import Button from '../components/Button';
 
-// Define filter option interfaces
 export interface DateFilter {
     before?: string;
     after?: string;
@@ -11,7 +10,6 @@ export interface DateFilter {
 export interface FiltersState {
     genres: string[];
     dateFilter: DateFilter;
-    hasAwards: boolean;
     minRating: number | null;
     sortBy: 'popularity' | 'releaseDate' | 'name' | null;
     sortOrder: 'asc' | 'desc';
@@ -31,7 +29,6 @@ const GameFilters: React.FC<GameFiltersProps> = ({
     const [filters, setFilters] = useState<FiltersState>({
         genres: [],
         dateFilter: {},
-        hasAwards: false,
         minRating: null,
         sortBy: null,
         sortOrder: 'desc'
@@ -56,12 +53,6 @@ const GameFilters: React.FC<GameFiltersProps> = ({
         onFilterChange(newFilters);
     };
 
-    const handleAwardsChange = (value: boolean) => {
-        const newFilters = { ...filters, hasAwards: value };
-        setFilters(newFilters);
-        onFilterChange(newFilters);
-    };
-
     const handleRatingChange = (value: string) => {
         const rating = value === '' ? null : parseInt(value, 10);
         const newFilters = { ...filters, minRating: rating };
@@ -70,7 +61,6 @@ const GameFilters: React.FC<GameFiltersProps> = ({
     };
 
     const handleSortChange = (sortBy: 'popularity' | 'releaseDate' | 'name') => {
-        // If clicking the same sort option, toggle sort order
         const newSortOrder: 'asc' | 'desc' = filters.sortBy === sortBy && filters.sortOrder === 'desc' ? 'asc' : 'desc';
         const newFilters = { ...filters, sortBy, sortOrder: newSortOrder };
         setFilters(newFilters);
@@ -81,7 +71,6 @@ const GameFilters: React.FC<GameFiltersProps> = ({
         const initialFilters: FiltersState = {
             genres: [],
             dateFilter: {},
-            hasAwards: false,
             minRating: null,
             sortBy: null,
             sortOrder: 'desc'
@@ -96,7 +85,7 @@ const GameFilters: React.FC<GameFiltersProps> = ({
                 <h2>Game Filters</h2>
                 <Button
                     onClick={() => setShowFilters(!showFilters)}
-                    className={`filter-toggle-button ${showFilters ? 'active' : ''}`}
+                    className={`bg-gray-700 hover:bg-gray-800 text-white ${showFilters ? 'active' : ''}`}
                 >
                     {showFilters ? 'Hide Filters' : 'Show Filters'}
                 </Button>
@@ -149,20 +138,6 @@ const GameFilters: React.FC<GameFiltersProps> = ({
                                     onChange={(e) => handleDateChange('before', e.target.value)}
                                 />
                             </div>
-                        </div>
-                    </div>
-
-                    {/* Awards Filter */}
-                    <div className="filter-section">
-                        <h3>Awards</h3>
-                        <div className="checkbox-filter">
-                            <input
-                                type="checkbox"
-                                id="has-awards"
-                                checked={filters.hasAwards}
-                                onChange={(e) => handleAwardsChange(e.target.checked)}
-                            />
-                            <label htmlFor="has-awards">Has Awards</label>
                         </div>
                     </div>
 

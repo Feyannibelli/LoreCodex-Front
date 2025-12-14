@@ -7,13 +7,12 @@ import { Game } from "../interfaces/Game";
 import gameService from "../services/gameService";
 import newsService from "../services/newsService";
 import { News } from "../interfaces/News";
-import api from "../services/api";
-import {Guide} from "../interfaces/Guide.ts";
+import { Guide } from "../interfaces/Guide.ts";
+import guideService from "../services/guideService.ts";
 
 const Home: React.FC = () => {
     /* ---------- state ---------- */
     const [popularGuides, setPopularGuides] = useState<Guide[]>([]);
-
     const [recentlyAdded, setRecentlyAdded] = useState<Game[]>([]);
     const [popularGames,  setPopularGames]  = useState<Game[]>([]);
     const [latestNews,    setLatestNews]    = useState<News[]>([]);
@@ -26,8 +25,14 @@ const Home: React.FC = () => {
     /* ---------- effects ---------- */
     /* published guides */
     useEffect(() => {
-        api.get("/guides/all/published")
-            .then(res => setPopularGuides(res.data))
+        guideService.getPublishedGuides()
+            .then(guides => {
+                // Mostrar las 6 más recientes
+                const recent = guides
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .slice(0, 6);
+                setPopularGuides(recent);
+            })
             .catch(err => console.error("Error fetching guides:", err));
     }, []);
 
@@ -189,26 +194,32 @@ const Home: React.FC = () => {
                 </div>
             </div>
 
-            {/* Popular guides */}
+            {/* -------- Popular Guides (SOLO PUBLICADAS) -------- */}
             <div className="content-section">
                 <div className="section-header">
                     <span className="section-title">Recently Published Guides</span>
-                    <a href="/guides/published" className="view-more">More +</a>
+                    <Link to="/guides" className="view-more">More +</Link>
                 </div>
                 <div className="reviews-grid">
-                    {popularGuides.map((guide) => (
-                        <div key={guide.id} className="review-card">
-                            <div className="review-header">
-                                <Link to={`/guides/${guide.id}`} className="item-title">
-                                    {guide.title}
-                                </Link>
-                                <div className="rating">User · Game · Guide Name</div>
+                    {popularGuides.length === 0 ? (
+                        <div className="p-2 text-gray-500">No published guides yet.</div>
+                    ) : (
+                        popularGuides.map((guide) => (
+                            <div key={guide.id} className="review-card">
+                                <div className="review-header">
+                                    <Link to={`/guides/${guide.id}`} className="item-title">
+                                        {guide.title}
+                                    </Link>
+                                    <div className="rating text-xs text-gray-500">
+                                        {new Date(guide.createdAt).toLocaleDateString()}
+                                    </div>
+                                </div>
+                                <div className="review-content text-sm text-gray-600">
+                                    {guide.content.substring(0, 100)}...
+                                </div>
                             </div>
-                            <div className="review-content">
-                                Preview text
-                            </div>
-                        </div>
-                    ))}
+                        ))
+                    )}
                 </div>
             </div>
         </div>
