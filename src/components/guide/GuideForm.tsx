@@ -5,7 +5,7 @@ import ProInput from "../ui/ProInput";
 import ProEditorLayout from "../layout/ProEditorLayout";
 import Button from "../Button";
 import { Save, Send, Image as ImageIcon, Tag, Hash, FileText, Eye } from "lucide-react";
-import { cn } from "../../lib/utils";
+
 
 interface Props {
     initial?: Form;
@@ -94,7 +94,7 @@ const GuideForm: React.FC<Props> = ({
 
             {onPublish && (
                 <Button
-                    variant="primary" // Assuming you have a primary variant or use default/className
+                    variant="default"
                     size="sm"
                     onClick={handlePublish}
                     className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shadow-primary/20"

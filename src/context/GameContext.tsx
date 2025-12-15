@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import {Game} from "../interfaces/Game.ts";
+import { Game } from "../interfaces/Game.ts";
 import gameService from "../services/gameService.ts";
 
 interface GameContextType {
@@ -19,9 +19,9 @@ const GameContext = createContext<GameContextType>({
     popularGames: [],
     loading: true,
     error: null,
-    refreshGames: async () => {},
-    refreshRecentGames: async () => {},
-    refreshPopularGames: async () => {},
+    refreshGames: async () => { },
+    refreshRecentGames: async () => { },
+    refreshPopularGames: async () => { },
 });
 
 export const useGames = () => useContext(GameContext);
@@ -40,8 +40,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     const refreshGames = async () => {
         try {
             setLoading(true);
-            const data = await gameService.getAllGames();
-            setGames(data);
+            const response = await gameService.getDiscoveryGamesPaginated(0, 100);
+            setGames(response.content);
             setError(null);
         } catch (err) {
             console.error('Error fetching games:', err);
@@ -53,8 +53,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
 
     const refreshRecentGames = async (limit?: number) => {
         try {
-            const data = await gameService.getRecentlyAddedGames(limit);
-            setRecentGames(data);
+            const response = await gameService.getDiscoveryGamesPaginated(0, limit || 10, 'releaseDate,desc');
+            setRecentGames(response.content);
         } catch (err) {
             console.error('Error fetching recent games:', err);
         }
@@ -62,8 +62,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
 
     const refreshPopularGames = async (limit?: number) => {
         try {
-            const data = await gameService.getPopularGames(limit);
-            setPopularGames(data);
+            const response = await gameService.getDiscoveryGamesPaginated(0, limit || 8, 'rating,desc');
+            setPopularGames(response.content);
         } catch (err) {
             console.error('Error fetching popular games:', err);
         }

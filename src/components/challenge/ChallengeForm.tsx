@@ -15,8 +15,7 @@ import {
     Gamepad2,
     X,
     Swords,
-    Target,
-    Clock
+    Target
 } from 'lucide-react';
 
 interface ChallengeFormProps {
@@ -50,7 +49,7 @@ const ChallengeForm: React.FC<ChallengeFormProps> = ({
     const [selectedGame, setSelectedGame] = useState<Game | null>(initialGame);
     const [gameSearchTerm, setGameSearchTerm] = useState('');
     const [games, setGames] = useState<Game[]>([]); // Should ideally use searching
-    const [isSearchingGames, setIsSearchingGames] = useState(false);
+
     const [showGameSearch, setShowGameSearch] = useState(false);
 
     // Layout Status
@@ -60,8 +59,8 @@ const ChallengeForm: React.FC<ChallengeFormProps> = ({
     useEffect(() => {
         const loadGames = async () => {
             try {
-                const data = await gameService.getAllGames(); // Optimization: use search endpoint if available
-                setGames(data);
+                const response = await gameService.getGames({ page: 0, size: 50, sort: 'title,asc' }); // Optimization: use search endpoint if available
+                setGames(response.content);
             } catch (err) {
                 console.error("Error loading games", err);
             }
@@ -97,7 +96,7 @@ const ChallengeForm: React.FC<ChallengeFormProps> = ({
     };
 
     const filteredGames = games.filter(g =>
-        g.name.toLowerCase().includes(gameSearchTerm.toLowerCase())
+        g.title.toLowerCase().includes(gameSearchTerm.toLowerCase())
     ).slice(0, 10);
 
     const handleGameSelect = (game: Game) => {
@@ -106,7 +105,7 @@ const ChallengeForm: React.FC<ChallengeFormProps> = ({
         setGameSearchTerm('');
 
         // Auto-inject game info if not present
-        if (!description.includes(game.name)) {
+        if (!description.includes(game.title)) {
             // Optional: Don't force this if user doesn't want it, but original did it.
             // We'll leave it as a user choice or subtle suggestion in PRO editor, 
             // but for parity we can append it or just let the user link it.
@@ -125,13 +124,13 @@ const ChallengeForm: React.FC<ChallengeFormProps> = ({
             title,
             description,
             difficulty,
-            itemType: 'checklist', // Default
+            // itemType: 'checklist', // Default - Removed as not in interface
             items: items.filter(i => i.trim() !== ''),
             // gameId: selectedGame?.id // If backend supports gameId direct link
             // For now, mapping broadly
             mediaUrl,
             mediaType: mediaUrl ? 'image' : 'none',
-            targetGameId: selectedGame?.id
+            // targetGameId: selectedGame?.id
         });
         setStatus('saved');
     };
@@ -181,14 +180,14 @@ const ChallengeForm: React.FC<ChallengeFormProps> = ({
                             {selectedGame ? (
                                 <div className="flex items-center gap-3 p-3 rounded-lg border border-primary/20 bg-primary/5 group">
                                     <div className="h-10 w-10 rounded bg-black/40 overflow-hidden shrink-0">
-                                        {selectedGame.imageUrl ? (
-                                            <img src={selectedGame.imageUrl} alt="" className="h-full w-full object-cover" />
+                                        {selectedGame.coverImage ? (
+                                            <img src={selectedGame.coverImage} alt="" className="h-full w-full object-cover" />
                                         ) : (
                                             <div className="flex h-full items-center justify-center text-muted-foreground"><Gamepad2 className="h-5 w-5" /></div>
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium truncate">{selectedGame.name}</p>
+                                        <p className="text-sm font-medium truncate">{selectedGame.title}</p>
                                     </div>
                                     <Button
                                         size="icon"
@@ -220,8 +219,8 @@ const ChallengeForm: React.FC<ChallengeFormProps> = ({
                                                         onClick={() => handleGameSelect(game)}
                                                         className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 text-left transition-colors"
                                                     >
-                                                        <img src={game.imageUrl || ''} className="h-8 w-8 rounded bg-black/50 object-cover" alt="" />
-                                                        <span className="text-sm truncate">{game.name}</span>
+                                                        <img src={game.coverImage || ''} className="h-8 w-8 rounded bg-black/50 object-cover" alt="" />
+                                                        <span className="text-sm truncate">{game.title}</span>
                                                     </button>
                                                 ))
                                             ) : (

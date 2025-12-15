@@ -13,7 +13,10 @@ const EditGame: React.FC = () => {
         genre: "",
         releaseDate: "",
         imageUrl: "",
-        awards: ""
+        awards: "",
+        genres: [],
+        tags: [],
+        developersAndPublishers: []
     });
     const [loading, setLoading] = useState<boolean>(true);
     const [submitting, setSubmitting] = useState<boolean>(false);
@@ -40,7 +43,10 @@ const EditGame: React.FC = () => {
                         genre: gameData.genres?.[0] || "",
                         releaseDate: gameData.releaseDate || "",
                         imageUrl: gameData.coverImage || "",
-                        awards: gameData.awards?.join(", ") || ""
+                        awards: gameData.awards?.join(", ") || "",
+                        genres: gameData.genres || [],
+                        tags: gameData.tags || [],
+                        developersAndPublishers: gameData.developersAndPublishers || []
                     });
                     setError(null);
                 }

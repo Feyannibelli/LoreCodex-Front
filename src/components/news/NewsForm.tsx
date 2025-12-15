@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { News, NewsForm as NewsFormData } from '../../interfaces/News';
+import { NewsForm as NewsFormData } from '../../interfaces/News';
 import UnifiedContentEditor from '../UnifiedContentEditor';
 import ProEditorLayout from '../layout/ProEditorLayout';
 import ProInput from '../ui/ProInput';

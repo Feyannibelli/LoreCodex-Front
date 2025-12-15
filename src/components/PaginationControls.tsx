@@ -21,7 +21,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
     totalPages = 0,
     onNext,
     onPrev,
-    onPageChange,
+
     className
 }) => {
     // Generate page numbers to display (e.g., 1 2 3 ... 10)

@@ -190,7 +190,7 @@ const CreateListPage: React.FC = () => {
                                         className="w-full px-4 py-3 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none border-b border-gray-100 last:border-b-0"
                                         disabled={items.some(i => i.referenceId === game.id)}
                                     >
-                                        <div className="font-medium text-gray-900">{game.name}</div>
+                                        <div className="font-medium text-gray-900">{game.title}</div>
                                         {items.some(i => i.referenceId === game.id) && (
                                             <div className="text-sm text-green-600">✓ Ya agregado</div>
                                         )}
@@ -221,7 +221,7 @@ const CreateListPage: React.FC = () => {
                                             </span>
                                             <div>
                                                 <span className="font-medium text-gray-900">
-                                                    🎮 {game?.name || `Juego ID: ${item.referenceId}`}
+                                                    🎮 {game?.title || `Juego ID: ${item.referenceId}`}
                                                 </span>
                                             </div>
                                         </div>

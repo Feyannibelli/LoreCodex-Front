@@ -12,7 +12,7 @@ const searchService = {
         if (searchTerm && searchTerm.trim() !== '') {
             const term = searchTerm.toLowerCase().trim();
             filteredGames = filteredGames.filter(game =>
-                game.name.toLowerCase().includes(term) ||
+                game.title.toLowerCase().includes(term) ||
                 game.description.toLowerCase().includes(term)
             );
         }
@@ -34,7 +34,7 @@ const searchService = {
             if (filters.dateFilter.after) {
                 const afterDate = new Date(filters.dateFilter.after);
                 filteredGames = filteredGames.filter(game =>
-                    new Date(game.releaseDate) >= afterDate
+                    game.releaseDate ? new Date(game.releaseDate) >= afterDate : false
                 );
             }
 
@@ -42,19 +42,19 @@ const searchService = {
             if (filters.dateFilter.before) {
                 const beforeDate = new Date(filters.dateFilter.before);
                 filteredGames = filteredGames.filter(game =>
-                    new Date(game.releaseDate) <= beforeDate
+                    game.releaseDate ? new Date(game.releaseDate) <= beforeDate : false
                 );
             }
 
             // Filter by awards
             if (filters.hasAwards) {
-                filteredGames = filteredGames.filter(game => (game.awards ?? '').trim() !== '');
+                filteredGames = filteredGames.filter(game => (game.awards?.length ?? 0) > 0);
             }
 
             // Filter by minimum rating
             if (filters.minRating !== null) {
                 filteredGames = filteredGames.filter(game =>
-                    game.averageRating !== undefined && game.averageRating >= filters.minRating!
+                    game.averageRating != null && game.averageRating >= filters.minRating!
                 );
             }
 
@@ -71,12 +71,14 @@ const searchService = {
 
                         case 'releaseDate':
                             // Sort by release date
-                            comparison = new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime();
+                            const dateA = a.releaseDate ? new Date(a.releaseDate).getTime() : 0;
+                            const dateB = b.releaseDate ? new Date(b.releaseDate).getTime() : 0;
+                            comparison = dateB - dateA;
                             break;
 
                         case 'name':
                             // Sort by name alphabetically
-                            comparison = a.name.localeCompare(b.name);
+                            comparison = a.title.localeCompare(b.title);
                             break;
                     }
 

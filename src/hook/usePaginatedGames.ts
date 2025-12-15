@@ -18,7 +18,7 @@ export interface PaginationFilters {
 }
 
 export const usePaginatedGames = (
-    apiFunction: (page: number, size: number) => Promise<PagedResponse<Game>> = gameService.getAllGamesPaginated,
+    apiFunction: (page: number, size: number) => Promise<PagedResponse<Game>> = (p, s) => gameService.getDiscoveryGamesPaginated(p, s),
     filters?: PaginationFilters
 ): UsePaginatedGamesReturn => {
     const [page, setPage] = useState(0);

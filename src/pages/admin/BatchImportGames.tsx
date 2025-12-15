@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Upload, FileJson, CheckCircle, XCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+
+import { Upload, FileJson, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import apiAuth from '../../services/apiAuth';
 import axios from 'axios';
 
@@ -38,7 +38,7 @@ const EXAMPLE_JSON = {
 };
 
 const BatchImportGames: React.FC = () => {
-    const navigate = useNavigate();
+
     const [jsonContent, setJsonContent] = useState<string>('');
     const [isValidJson, setIsValidJson] = useState<boolean | null>(null);
     const [validationError, setValidationError] = useState<string>('');

@@ -11,7 +11,10 @@ const CreateGame: React.FC = () => {
         description: "",
         genre: "",
         releaseDate: "",
-        imageUrl: ""
+        imageUrl: "",
+        genres: [],
+        tags: [],
+        developersAndPublishers: []
     };
 
     const [formData, setFormData] = useState<GameFormData>(initialFormData);
