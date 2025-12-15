@@ -1,6 +1,6 @@
 import apiAuth from './apiAuth';
 import api from "./api.ts";
-import {UserListRequest} from "../interfaces/UserListRequest.ts";
+import { UserListRequest } from "../interfaces/UserListRequest.ts";
 
 export interface ListItemRequest {
     type: 'GAME' | 'GUIDE' | 'NEWS';
@@ -32,52 +32,52 @@ export interface UserListResponse {
 }
 
 const userListService = {
-    // crear una lista nueva
+    // create a new list
     createList: (userId: number, body: CreateListRequest) =>
         apiAuth.post<UserListResponse>(`/lists/${userId}/create`, body).then(r => r.data),
 
-    /** Añade un ítem a la lista */
+    /** Add an item to the list */
     addItemToList: (listId: number, item: ListItemRequest): Promise<void> =>
-        apiAuth.post(`/lists/${listId}/items/add`, item).then(() => {}),
+        apiAuth.post(`/lists/${listId}/items/add`, item).then(() => { }),
 
-    /** Trae todas las listas publicadas */
+    /** Fetch all published lists */
     getAll: (): Promise<UserListResponse[]> =>
-        // Backend expone GET /lists/{someId}/get-all que ignora el ID,
-        // así que podemos pasar “0” como placeholder:
+        // Backend exposes GET /lists/{someId}/get-all which ignores the ID,
+        // so we can pass "0" as a placeholder:
         api.get(`/lists/get-all`).then(r => r.data),
 
-    /** Trae listas de un usuario */
+    /** Fetch lists for a user */
     getForUser: (userId: number): Promise<UserListResponse[]> =>
         apiAuth.get(`/lists/user/${userId}/get-lists`).then(r => r.data),
 
     addItem: (listId: number, item: ListItemRequest): Promise<void> =>
-        apiAuth.post(`/lists/${listId}/items`, item).then(() => {}),
+        apiAuth.post(`/lists/${listId}/items`, item).then(() => { }),
 
-    /** Elimina un ítem de la lista */
+    /** Remove an item from the list */
     removeItem: (listId: number, itemId: number): Promise<void> =>
-        apiAuth.delete(`/lists/${listId}/items/${itemId}`).then(() => {}),
+        apiAuth.delete(`/lists/${listId}/items/${itemId}`).then(() => { }),
 
-    /** Actualiza una lista */
+    /** Update a list */
     updateList: (listId: number, payload: UserListRequest): Promise<UserListResponse> =>
         apiAuth.put(`/lists/${listId}/update`, payload).then(r => r.data),
 
-    /** Elimina una lista */
+    /** Delete a list */
     deleteList: (listId: number): Promise<void> =>
-        apiAuth.delete(`/lists/${listId}/delete`).then(() => {}),
+        apiAuth.delete(`/lists/${listId}/delete`).then(() => { }),
 
-    /** Obtiene una lista por ID */
+    /** Get a list by ID */
     getListById: (listId: number): Promise<UserListResponse> =>
         apiAuth.get(`/lists/${listId}/get-list`).then(r => r.data),
 
-    /** Obtiene las listas creadas por el usuario autenticado */
+    /** Get lists created by the authenticated user */
     getMyLists: (): Promise<UserListResponse[]> =>
         apiAuth.get('/lists/my-created').then(r => r.data),
 
-    /** Busca listas por título */
+    /** Search lists by title */
     search: (query: string): Promise<UserListResponse[]> =>
         apiAuth.get(`/lists/search`, { params: { query } }).then(r => r.data),
 
-    /** Obtiene el autor de una lista por ID de la lista*/
+    /** Get the author of a list by list ID */
     getListAuthor: (listId: number): Promise<string> =>
         apiAuth.get(`/lists/${listId}/author`).then(r => r.data),
 };

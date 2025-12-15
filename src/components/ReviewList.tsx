@@ -4,7 +4,7 @@ import ReviewItem from './ReviewItem';
 import ReviewForm from './ReviewForm';
 import { useAuth } from '../context/AuthContext';
 import reviewService from '../services/reviewService';
-import '../css/ReviewList.css';
+import Button from './Button';
 
 interface ReviewListProps {
     gameId: number;
@@ -27,7 +27,7 @@ const ReviewList: React.FC<ReviewListProps> = ({ gameId }) => {
         try {
             setLoading(true);
             const [reviewsData] = await Promise.all([reviewService.getGameReviews(gameId)]);
-            console.log("Reviews loaded:", reviewsData); // <--- VERIFICA
+            console.log("Reviews loaded:", reviewsData);
             setReviews(reviewsData);
             setError(null);
         } catch (err) {
@@ -79,99 +79,60 @@ const ReviewList: React.FC<ReviewListProps> = ({ gameId }) => {
         }
     };
 
-    /*
-    // Handle liking a review
-    const handleLikeReview = async (reviewId: number) => {
-        if (!isAuthenticated) {
-            setError('You must be logged in to like reviews');
-            return;
-        }
-
-        try {
-            const review = reviews.find(r => r.id === reviewId);
-            if (review?.userHasLiked) {
-                // If already liked, remove the like
-                const updatedReview = await reviewService.removeReaction(reviewId);
-                setReviews(reviews.map(r => r.id === reviewId ? updatedReview : r));
-            } else {
-                // Add like
-                const updatedReview = await reviewService.likeReview(reviewId);
-                setReviews(reviews.map(r => r.id === reviewId ? updatedReview : r));
-            }
-        } catch (err) {
-            console.error('Error liking review:', err);
-            setError('Failed to like review. Please try again.');
-        }
-    };
-
-    // Handle disliking a review
-    const handleDislikeReview = async (reviewId: number) => {
-        if (!isAuthenticated) {
-            setError('You must be logged in to dislike reviews');
-            return;
-        }
-
-        try {
-            const review = reviews.find(r => r.id === reviewId);
-            if (review?.userHasDisliked) {
-                // If already disliked, remove the dislike
-                const updatedReview = await reviewService.removeReaction(reviewId);
-                setReviews(reviews.map(r => r.id === reviewId ? updatedReview : r));
-            } else {
-                // Add dislike
-                const updatedReview = await reviewService.dislikeReview(reviewId);
-                setReviews(reviews.map(r => r.id === reviewId ? updatedReview : r));
-            }
-        } catch (err) {
-            console.error('Error disliking review:', err);
-            setError('Failed to dislike review. Please try again.');
-        }
-    };*/
-
-    // Check if the current user has already submitted a review
-    //const hasUserReviewed = isAuthenticated && reviews.some(review => review.userId === user?.id);
     const hasUserReviewed = reviews.some(review => review.userId === user?.id);
-    if (loading) return <div className="loading-reviews">Loading reviews...</div>;
+
+    if (loading) {
+        return (
+            <div className="flex justify-center p-8">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+            </div>
+        );
+    }
 
     return (
-        <div className="review-list-container">
-            {error && <div className="error-message">{error}</div>}
+        <div className="space-y-6">
+            {error && (
+                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive font-medium border border-destructive/20">
+                    {error}
+                </div>
+            )}
 
             {isAuthenticated && !hasUserReviewed && !showForm && (
-                <div className="review-prompt">
-                    <button
-                        className="write-review-button"
-                        onClick={() => setShowForm(true)}
-                    >
+                <div className="rounded-xl border border-dashed border-border bg-secondary/20 p-8 text-center">
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Played this game?</h3>
+                    <p className="text-muted-foreground mb-4">Share your experience with the community.</p>
+                    <Button onClick={() => setShowForm(true)}>
                         Leave a review
-                    </button>
+                    </Button>
                 </div>
             )}
 
             {showForm && (
-                <ReviewForm
-                    onSubmit={handleSubmitReview}
-                    onCancel={() => setShowForm(false)}
-                />
+                <div className="animate-fade-in-up">
+                    <ReviewForm
+                        onSubmit={handleSubmitReview}
+                        onCancel={() => setShowForm(false)}
+                    />
+                </div>
             )}
 
             {reviews.length === 0 && !showForm ? (
-                <div className="no-reviews">
-                    <p>No reviews available for this game.</p>
+                <div className="rounded-xl border border-white/5 bg-card py-12 text-center text-muted-foreground">
+                    <p className="mb-2">No reviews yet.</p>
                     {isAuthenticated && !hasUserReviewed && (
-                        <p>Be the first to share your thoughts!</p>
+                        <p className="text-sm">Be the first to share your thoughts!</p>
                     )}
                 </div>
             ) : (
-                <div className="reviews-list">
+                <div className="space-y-4">
                     {reviews.map(review => (
                         <ReviewItem
                             key={review.id}
                             review={review}
                             onEdit={handleEditReview}
                             onDelete={handleDeleteReview}
-                            //onLike={handleLikeReview}
-                            //onDislike={handleDislikeReview}
+                        //onLike={handleLikeReview}
+                        //onDislike={handleDislikeReview}
                         />
                     ))}
                 </div>

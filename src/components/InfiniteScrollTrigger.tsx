@@ -36,7 +36,7 @@ const InfiniteScrollTrigger: React.FC<InfiniteScrollTriggerProps> = ({
         <div ref={observerRef} className="flex justify-center py-8">
             {loading && (
                 <div className="flex items-center gap-2 text-gray-600">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                     <span>Cargando más...</span>
                 </div>
             )}

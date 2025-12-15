@@ -45,37 +45,24 @@ export interface ReorderItemRequest {
 }
 
 export const listService = {
-    // Crear una nueva lista
+    // Create a new list
     createList: async (userId: number, listData: UserListRequest): Promise<UserListResponse> => {
         const response = await apiAuth.post(`/lists/${userId}/create`, listData);
         return response.data;
     },
 
-    // Obtener listas de un usuario específico
+    // Get lists for a specific user
     getUserLists: async (userId: number): Promise<UserListResponse[]> => {
         const response = await api.get(`/lists/user/${userId}/get-lists`);
         return response.data;
     },
 
-    // Obtener todas las listas públicas
+    // Get all public lists
     getAllLists: async (): Promise<UserListResponse[]> => {
-        const response = await api.get('/lists/get-all'); // El 1 es placeholder, el backend ignora este parámetro
+        const response = await api.get('/lists/get-all'); // The 1 is a placeholder, backend ignores this parameter
         return response.data;
     },
 
-    // Obtener una lista específica por ID
-    getListById: async (listId: number): Promise<UserListResponse> => {
-        const response = await api.get(`/lists/${listId}/get-list`);
-        return response.data;
-    },
-
-    // Actualizar una lista
-    updateList: (id: number, body: UserListRequest) => {
-        console.log("→ update list", id, body);               // para ver que se llama
-        return apiAuth.put(`/lists/${id}/update`, body);
-    },
-
-    // Eliminar una lista
     deleteList: async (listId: number): Promise<void> => {
         await apiAuth.delete(`/lists/${listId}/delete`);
     },
@@ -87,24 +74,36 @@ export const listService = {
         return response.data;
     },
 
-    // Agregar un item a una lista
+    // Add an item to a list
     addItemToList: async (listId: number, item: ListItemRequest): Promise<void> => {
         await apiAuth.post(`/lists/${listId}/items/add`, item);
     },
 
-    // Remover un item de una lista
+    // Remove an item from a list
     removeItemFromList: async (listId: number, itemId: number): Promise<void> => {
         await apiAuth.delete(`/lists/${listId}/items/${itemId}/remove-item`);
     },
 
-    // Reordenar items en una lista
+    // Reorder items in a list
     reorderItems: async (listId: number, reorderData: ReorderItemRequest[]): Promise<void> => {
         await apiAuth.put(`/lists/${listId}/items/reorder`, reorderData);
     },
 
-    // Obtener el autor de una lista
+    // Get the author of a list
     getListAuthor: async (listId: number): Promise<string> => {
         const response = await api.get(`/lists/${listId}/author`);
+        return response.data;
+    },
+
+    // Get list by ID
+    getListById: async (listId: number): Promise<UserListResponse> => {
+        const response = await api.get(`/lists/${listId}`);
+        return response.data;
+    },
+
+    // Update a list
+    updateList: async (listId: number, listData: UserListRequest): Promise<UserListResponse> => {
+        const response = await apiAuth.put(`/lists/${listId}/update`, listData);
         return response.data;
     }
 };

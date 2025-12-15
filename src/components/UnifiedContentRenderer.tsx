@@ -34,7 +34,7 @@ const UnifiedContentRenderer: React.FC<UnifiedContentRendererProps> = ({
         mentions.forEach((mention, index) => {
             const placeholder = `__MENTION_${index}__`;
             mentionPlaceholders[placeholder] = `<span 
-                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors bg-blue-100 text-blue-800 hover:bg-blue-200" 
+                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors bg-orange-500/10 text-orange-600 hover:bg-orange-500/20" 
                 data-mention-type="${mention.type}" 
                 data-mention-id="${mention.id}"
                 title="${mention.type.slice(0, -1)}: ${mention.name}"
@@ -59,7 +59,7 @@ const UnifiedContentRenderer: React.FC<UnifiedContentRendererProps> = ({
         html = html.replace(/`([^`]*)`/g, '<code class="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-sm font-mono">$1</code>');
 
         // Links
-        html = html.replace(/\[([^\]]*)]\(([^)]*)\)/g, '<a href="$2" class="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">$1</a>');
+        html = html.replace(/\[([^\]]*)]\(([^)]*)\)/g, '<a href="$2" class="text-indigo-600 hover:underline" target="_blank" rel="noopener noreferrer">$1</a>');
 
         // Unordered lists
         html = html.replace(/^\* (.*$)/gim, '<li class="ml-4 list-disc">$1</li>');

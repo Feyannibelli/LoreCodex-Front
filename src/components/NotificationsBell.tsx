@@ -49,7 +49,7 @@ const NotificationsBell: React.FC = () => {
                     <>
                         <DropdownMenuItem
                             onClick={markAll}
-                            className="text-center justify-center font-semibold text-blue-600"
+                            className="text-center justify-center font-semibold text-indigo-600"
                         >
                             Mark all as read
                         </DropdownMenuItem>

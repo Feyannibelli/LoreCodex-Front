@@ -1,22 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GuideForm as Form } from "../../interfaces/Guide";
 import UnifiedContentEditor from "../UnifiedContentEditor";
+import ProInput from "../ui/ProInput";
+import ProEditorLayout from "../layout/ProEditorLayout";
+import Button from "../Button";
+import { Save, Send, Image as ImageIcon, Tag, Hash, FileText, Eye } from "lucide-react";
+import { cn } from "../../lib/utils";
 
 interface Props {
     initial?: Form;
-    submitLabel: string;                // texto del botón principal
-    onSubmit: (data: Form) => void;     // callback principal
-    onPublish?: (data: Form) => void;   // callback opcional "Publish"
+    submitLabel: string;
+    onSubmit: (data: Form) => void;
+    onPublish?: (data: Form) => void;
     publishLabel?: string;
+    pageTitle: string;
+    breadcrumbs: { label: string; href?: string }[];
 }
 
 const GuideForm: React.FC<Props> = ({
-                                        initial,
-                                        submitLabel,
-                                        onSubmit,
-                                        onPublish,
-                                        publishLabel = "Publicar Guía"
-                                    }) => {
+    initial,
+    submitLabel,
+    onSubmit,
+    onPublish,
+    publishLabel = "Publish Guide",
+    pageTitle,
+    breadcrumbs
+}) => {
+    // Form State
     const [form, setForm] = useState<Form>(
         initial ?? {
             title: "",
@@ -28,16 +38,21 @@ const GuideForm: React.FC<Props> = ({
         }
     );
 
-    const handle = (
+    // Save Status State (simulated for UI feedback)
+    const [status, setStatus] = useState<'saved' | 'unsaved' | 'saving'>('saved');
+
+    // Mark as unsaved on change
+    useEffect(() => {
+        setStatus('unsaved');
+    }, [form]);
+
+    const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         const { name, value, type } = e.target;
         setForm(prev => ({
             ...prev,
-            [name]:
-                type === "checkbox"
-                    ? (e.target as HTMLInputElement).checked
-                    : value,
+            [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
         }));
     };
 
@@ -51,143 +66,156 @@ const GuideForm: React.FC<Props> = ({
             tags: e.target.value.split(",").map(t => t.trim()).filter(Boolean),
         }));
 
-    return (
-        <div className="space-y-6 max-w-4xl mx-auto">
-            <form
-                onSubmit={e => {
-                    e.preventDefault();
-                    onSubmit(form);
-                }}
-                className="space-y-6"
+    const handleSubmit = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        setStatus('saving');
+        onSubmit(form);
+    };
+
+    const handlePublish = () => {
+        if (onPublish) {
+            setStatus('saving');
+            onPublish({ ...form, published: true, draft: false });
+        }
+    };
+
+    // Actions Component for Header
+    const FormActions = (
+        <div className="flex items-center gap-2">
+            <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleSubmit()}
+                className="text-muted-foreground hover:text-foreground hidden sm:flex"
             >
-                {/* Title */}
-                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Título de la Guía *
-                    </label>
-                    <input
-                        name="title"
-                        value={form.title}
-                        onChange={handle}
-                        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                        placeholder="Ej: Guía completa para principiantes..."
-                        required
-                    />
+                <Save className="h-4 w-4 mr-2" />
+                {submitLabel}
+            </Button>
+
+            {onPublish && (
+                <Button
+                    variant="primary" // Assuming you have a primary variant or use default/className
+                    size="sm"
+                    onClick={handlePublish}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shadow-primary/20"
+                >
+                    <Send className="h-4 w-4 mr-2" />
+                    {publishLabel}
+                </Button>
+            )}
+        </div>
+    );
+
+    return (
+        <ProEditorLayout
+            title={pageTitle}
+            breadcrumbs={breadcrumbs}
+            actions={FormActions}
+            status={status}
+            className="pb-20"
+        >
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Left Column: Basics & Metadata (Sticky on Desktop) */}
+                <div className="space-y-6 lg:col-span-1">
+                    {/* BASICS CARD */}
+                    <div className="rounded-xl border border-white/5 bg-card/60 backdrop-blur-sm p-5 space-y-6">
+                        <div className="flex items-center gap-2 text-muted-foreground pb-2 border-b border-white/5">
+                            <FileText className="h-4 w-4" />
+                            <h3 className="text-xs font-bold uppercase tracking-wider">Basics</h3>
+                        </div>
+
+                        <ProInput
+                            label="Title"
+                            name="title"
+                            value={form.title}
+                            onChange={handleChange}
+                            placeholder="Guide Title"
+                            required
+                            icon={Hash}
+                        />
+
+                        <div className="space-y-3">
+                            <ProInput
+                                label="Cover Image"
+                                name="coverImageUrl"
+                                value={form.coverImageUrl ?? ""}
+                                onChange={handleChange}
+                                placeholder="https://..."
+                                icon={ImageIcon}
+                            />
+
+                            {/* Small Cover Preview */}
+                            <div className="aspect-video w-full rounded-lg bg-black/40 border border-white/5 overflow-hidden relative group">
+                                {form.coverImageUrl ? (
+                                    <img
+                                        src={form.coverImageUrl}
+                                        alt="Preview"
+                                        className="w-full h-full object-cover transition-opacity group-hover:opacity-80"
+                                        onError={(e) => (e.currentTarget.style.display = 'none')}
+                                    />
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground/40">
+                                        <ImageIcon className="h-8 w-8 mb-2" />
+                                        <span className="text-xs">No cover image</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* METADATA CARD */}
+                    <div className="rounded-xl border border-white/5 bg-card/60 backdrop-blur-sm p-5 space-y-6">
+                        <div className="flex items-center gap-2 text-muted-foreground pb-2 border-b border-white/5">
+                            <Tag className="h-4 w-4" />
+                            <h3 className="text-xs font-bold uppercase tracking-wider">Metadata</h3>
+                        </div>
+
+                        <div className="space-y-2">
+                            <ProInput
+                                label="Tags"
+                                name="tags"
+                                value={form.tags?.join(", ") ?? ""}
+                                onChange={handleTags}
+                                placeholder="comma, separated, tags"
+                                helperText="Press comma to separate"
+                                icon={Tag}
+                            />
+                            {/* Tags Preview Pills */}
+                            {form.tags && form.tags.length > 0 && (
+                                <div className="flex flex-wrap gap-2 pt-2">
+                                    {form.tags.map((tag, i) => (
+                                        <span key={i} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary border border-primary/20">
+                                            #{tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
-                {/* Cover Image URL */}
-                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Imagen de Portada (URL) - Opcional
-                    </label>
-                    <input
-                        name="coverImageUrl"
-                        value={form.coverImageUrl ?? ""}
-                        onChange={handle}
-                        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                        placeholder="https://ejemplo.com/imagen.jpg"
-                    />
-                    {form.coverImageUrl && (
-                        <div className="mt-3">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Vista previa:</p>
-                            <img
-                                src={form.coverImageUrl}
-                                alt="Cover preview"
-                                className="max-w-xs h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = 'none';
-                                }}
+                {/* Right Column: Main Content Editor */}
+                <div className="lg:col-span-2 min-h-[500px]">
+                    <div className="rounded-xl border border-white/5 bg-card/90 shadow-sm overflow-hidden h-full flex flex-col">
+                        {/* Optional Toolbar Header provided by UnifiedContentEditor logic usually, simplified here */}
+                        <div className="p-1 border-b border-white/5 bg-muted/20 flex items-center justify-between px-4 py-2">
+                            <span className="text-xs font-medium text-muted-foreground uppercase">MD Editor</span>
+                            <Eye className="h-3 w-3 text-muted-foreground" />
+                        </div>
+
+                        <div className="flex-1 p-0">
+                            {/* Passing a wrapper style via className logic if supported, or modifying UnifiedContentEditor */}
+                            <UnifiedContentEditor
+                                value={form.content}
+                                onChange={handleContentChange}
+                                rows={30}
+                                placeholder="# Start writing your masterpiece..."
                             />
                         </div>
-                    )}
+                    </div>
                 </div>
-
-                {/* Content - UNIFICADO */}
-                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <UnifiedContentEditor
-                        label="Contenido de la Guía *"
-                        value={form.content}
-                        onChange={handleContentChange}
-                        rows={18}
-                        placeholder="Escribe tu guía usando Markdown y menciones...
-
-# Título Principal
-## Subtítulo
-### Sección
-
-**Texto en negrita** y *texto en cursiva*
-
-- Elemento de lista 1
-- Elemento de lista 2
-
-[Texto del enlace](https://ejemplo.com)
-
-`fragmento de código`
-
-> Esto es una cita
-
-Puedes mencionar contenido:
-• /games/ para mencionar juegos
-• /guides/ para referenciar otras guías
-• /challenges/ para mencionar desafíos
-• /lists/ para referenciar listas
-• /news/ para mencionar noticias"
-                        helpText="Escribe tu guía completa. Usa Markdown para formato enriquecido y menciones para referenciar otros contenidos de la plataforma."
-                    />
-                </div>
-
-                {/* Tags */}
-                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Etiquetas - Opcional
-                        <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
-                            (Separadas por comas)
-                        </span>
-                    </label>
-                    <input
-                        name="tags"
-                        onChange={handleTags}
-                        value={form.tags?.join(", ") ?? ""}
-                        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                        placeholder="tutorial, principiante, estrategia"
-                    />
-                    {form.tags && form.tags.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                            {form.tags.map((tag, index) => (
-                                <span
-                                    key={index}
-                                    className="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs font-medium"
-                                >
-                                    #{tag}
-                                </span>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    {/* Primary Save Button */}
-                    <button
-                        type="submit"
-                        className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium shadow-sm flex items-center justify-center gap-2"
-                    >
-                        💾 {submitLabel}
-                    </button>
-
-                    {/* Publish Button (if available) */}
-                    {onPublish && (
-                        <button
-                            type="button"
-                            onClick={() => onPublish({ ...form, published: true, draft: false })}
-                            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm flex items-center justify-center gap-2"
-                        >
-                            🚀 {publishLabel}
-                        </button>
-                    )}
-                </div>
-            </form>
-        </div>
+            </div>
+        </ProEditorLayout>
     );
 };
 

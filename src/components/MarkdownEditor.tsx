@@ -35,7 +35,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         html = html.replace(/`([^`]*)`/gim, '<code class="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-sm font-mono">$1</code>');
 
         // Links
-        html = html.replace(/\[([^\]]*)\]\(([^)]*)\)/gim, '<a href="$2" class="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">$1</a>');
+        html = html.replace(/\[([^\]]*)\]\(([^)]*)\)/gim, '<a href="$2" class="text-indigo-600 hover:underline" target="_blank" rel="noopener noreferrer">$1</a>');
 
         // Lists
         html = html.replace(/^\* (.*$)/gim, '<li class="ml-4 list-disc">$1</li>');
@@ -121,7 +121,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     onClick={() => setActiveTab('edit')}
                     className={`px-4 py-2 text-sm font-medium ${
                         activeTab === 'edit'
-                            ? 'bg-white dark:bg-gray-800 border-b-2 border-blue-500 text-blue-600'
+                            ? 'bg-white dark:bg-gray-800 border-b-2 border-orange-500 text-orange-600'
                             : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                 >
@@ -132,7 +132,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     onClick={() => setActiveTab('preview')}
                     className={`px-4 py-2 text-sm font-medium ${
                         activeTab === 'preview'
-                            ? 'bg-white dark:bg-gray-800 border-b-2 border-blue-500 text-blue-600'
+                            ? 'bg-white dark:bg-gray-800 border-b-2 border-orange-500 text-orange-600'
                             : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                 >
@@ -143,7 +143,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     onClick={() => setActiveTab('help')}
                     className={`px-4 py-2 text-sm font-medium ${
                         activeTab === 'help'
-                            ? 'bg-white dark:bg-gray-800 border-b-2 border-blue-500 text-blue-600'
+                            ? 'bg-white dark:bg-gray-800 border-b-2 border-orange-500 text-orange-600'
                             : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                 >
@@ -261,8 +261,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                                 </div>
                             ))}
                         </div>
-                        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
-                            <p className="text-sm text-blue-800 dark:text-blue-200">
+                        <div className="mt-4 p-3 bg-indigo-600/10 border border-indigo-600/20 rounded">
+                            <p className="text-sm text-indigo-700 dark:text-indigo-300">
                                 <strong>Tip:</strong> Puedes seleccionar texto y usar los botones de la barra de herramientas para aplicar formato rápidamente.
                             </p>
                         </div>

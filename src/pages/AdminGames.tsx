@@ -5,6 +5,8 @@ import Button from '../components/Button';
 import Modal from '../components/Modal';
 import { useAuth } from '../context/AuthContext';
 import '../css/AdminGames.css';
+import gameService from '../services/gameService';
+import { Search } from 'lucide-react';
 
 interface GameData {
     id: number;
@@ -42,6 +44,18 @@ const AdminGames: React.FC = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [gameToDelete, setGameToDelete] = useState<number | null>(null);
 
+    // Search
+    const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+
+    // Debounce search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchTerm);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
     useEffect(() => {
         // Redirect if not admin
         if (!isAdmin) {
@@ -53,47 +67,37 @@ const AdminGames: React.FC = () => {
         const fetchGames = async () => {
             setLoading(true);
             try {
-                // Replace with actual API call
-                // const response = await fetch('/api/admin/games');
-                // const data = await response.json();
+                const response = await gameService.getGames({
+                    page: 0,
+                    size: 100,
+                    sort: 'title,asc',
+                    search: debouncedSearch
+                });
 
-                // Placeholder data
-                const mockGames: GameData[] = [
-                    {
-                        id: 1,
-                        name: "The Last Guardian",
-                        description: "An action-adventure game about a boy and a giant creature.",
-                        imageUrl: "",
-                        rating: 4.5,
-                        likes: 1200,
-                        genre: "Adventure",
-                        releaseDate: "2023-06-15",
-                        awards: "Game of the Year, Best Art Direction"
-                    },
-                    {
-                        id: 2,
-                        name: "Horizon Zero Dawn",
-                        description: "Open world RPG set in a post-apocalyptic world.",
-                        imageUrl: "",
-                        rating: 4.8,
-                        likes: 2500,
-                        genre: "RPG",
-                        releaseDate: "2022-12-10",
-                        awards: "Best Narrative, Best Visual Design"
-                    }
-                ];
+                // Map to AdminGames format
+                const mappedGames: GameData[] = response.content.map(game => ({
+                    id: game.id,
+                    name: game.title,
+                    description: game.description,
+                    imageUrl: game.coverImage || '',
+                    rating: game.averageRating || 0,
+                    likes: game.likes || 0,
+                    genre: game.genres?.[0] || '',
+                    releaseDate: game.releaseDate || '',
+                    awards: game.awards?.join(', ') || ''
+                }));
 
-                setGames(mockGames);
+                setGames(mappedGames);
             } catch (err) {
                 console.error('Error fetching games:', err);
-                setError('Error al cargar los juegos');
+                setError('Error loading games');
             } finally {
                 setLoading(false);
             }
         };
 
         fetchGames();
-    }, [isAdmin, navigate]);
+    }, [isAdmin, navigate, debouncedSearch]);
 
     const openAddForm = () => {
         // Reset form fields
@@ -185,7 +189,7 @@ const AdminGames: React.FC = () => {
             closeForm();
         } catch (err) {
             console.error('Error saving game:', err);
-            setError('Error al guardar el juego');
+            setError('Error saving game');
         }
     };
 
@@ -203,54 +207,67 @@ const AdminGames: React.FC = () => {
             closeDeleteModal();
         } catch (err) {
             console.error('Error deleting game:', err);
-            setError('Error al eliminar el juego');
+            setError('Error deleting game');
             closeDeleteModal();
         }
     };
 
-    if (loading) return <div>Cargando juegos...</div>;
+    if (loading) return <div>Loading games...</div>;
 
     return (
         <div className="admin-games-container">
             <div className="admin-header">
-                <h2>Administración de Juegos</h2>
-                <Button onClick={openAddForm}>Añadir Juego</Button>
+                <h2>Game Administration</h2>
+                <div className="flex items-center gap-4">
+                    {/* Search Input */}
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <input
+                            type="text"
+                            placeholder="Search games by name..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="h-10 w-64 rounded-lg border border-white/10 bg-card/50 pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                        />
+                    </div>
+                    <Button onClick={openAddForm}>Add Game</Button>
+                </div>
             </div>
 
             {error && <div className="error-message">{error}</div>}
 
             <table className="games-table">
                 <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Género</th>
-                    <th>Fecha de Lanzamiento</th>
-                    <th>Rating</th>
-                    <th>Likes</th>
-                    <th>Acciones</th>
-                </tr>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Genre</th>
+                        <th>Release Date</th>
+                        <th>Rating</th>
+                        <th>Likes</th>
+                        <th>Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {games.map(game => (
-                    <tr key={game.id}>
-                        <td>{game.id}</td>
-                        <td>{game.name}</td>
-                        <td>{game.genre}</td>
-                        <td>{new Date(game.releaseDate).toLocaleDateString()}</td>
-                        <td>{game.rating}</td>
-                        <td>{game.likes}</td>
-                        <td className="action-buttons">
-                            <Button onClick={() => openEditForm(game)}>Editar</Button>
-                            <Button
-                                onClick={() => openDeleteModal(game.id)}
-                                className="delete-button"
-                            >
-                                Eliminar
-                            </Button>
-                        </td>
-                    </tr>
-                ))}
+                    {games.map(game => (
+                        <tr key={game.id}>
+                            <td>{game.id}</td>
+                            <td>{game.name}</td>
+                            <td>{game.genre}</td>
+                            <td>{new Date(game.releaseDate).toLocaleDateString()}</td>
+                            <td>{game.rating}</td>
+                            <td>{game.likes}</td>
+                            <td className="action-buttons">
+                                <Button onClick={() => openEditForm(game)}>Edit</Button>
+                                <Button
+                                    onClick={() => openDeleteModal(game.id)}
+                                    className="delete-button"
+                                >
+                                    Delete
+                                </Button>
+                            </td>
+                        </tr>
+                    ))}
                 </tbody>
             </table>
 
@@ -259,13 +276,13 @@ const AdminGames: React.FC = () => {
                 <div className="modal-overlay">
                     <div className="form-modal">
                         <div className="modal-header">
-                            <h3>{formMode === 'add' ? 'Añadir Juego Nuevo' : 'Editar Juego'}</h3>
+                            <h3>{formMode === 'add' ? 'Add New Game' : 'Edit Game'}</h3>
                             <button className="close-button" onClick={closeForm}>×</button>
                         </div>
 
                         <form onSubmit={handleSubmit}>
                             <div className="form-group">
-                                <label htmlFor="name">Nombre del Juego</label>
+                                <label htmlFor="name">Game Name</label>
                                 <input
                                     type="text"
                                     id="name"
@@ -276,7 +293,7 @@ const AdminGames: React.FC = () => {
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="description">Descripción</label>
+                                <label htmlFor="description">Description</label>
                                 <textarea
                                     id="description"
                                     value={description}
@@ -287,7 +304,7 @@ const AdminGames: React.FC = () => {
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="imageUrl">URL de la Imagen</label>
+                                <label htmlFor="imageUrl">Image URL</label>
                                 <input
                                     type="text"
                                     id="imageUrl"
@@ -297,7 +314,7 @@ const AdminGames: React.FC = () => {
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="genre">Género</label>
+                                <label htmlFor="genre">Genre</label>
                                 <input
                                     type="text"
                                     id="genre"
@@ -308,7 +325,7 @@ const AdminGames: React.FC = () => {
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="releaseDate">Fecha de Lanzamiento</label>
+                                <label htmlFor="releaseDate">Release Date</label>
                                 <input
                                     type="date"
                                     id="releaseDate"
@@ -319,7 +336,7 @@ const AdminGames: React.FC = () => {
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="awards">Premios (separados por comas)</label>
+                                <label htmlFor="awards">Awards (comma separated)</label>
                                 <input
                                     type="text"
                                     id="awards"
@@ -329,8 +346,8 @@ const AdminGames: React.FC = () => {
                             </div>
 
                             <div className="form-buttons">
-                                <Button type="button" onClick={closeForm}>Cancelar</Button>
-                                <Button type="submit">{formMode === 'add' ? 'Añadir' : 'Actualizar'}</Button>
+                                <Button type="button" onClick={closeForm}>Cancel</Button>
+                                <Button type="submit">{formMode === 'add' ? 'Add' : 'Update'}</Button>
                             </div>
                         </form>
                     </div>
@@ -342,8 +359,8 @@ const AdminGames: React.FC = () => {
                 isOpen={isDeleteModalOpen}
                 onClose={closeDeleteModal}
                 onConfirm={confirmDelete}
-                title="Confirmar eliminación"
-                message="¿Estás seguro de que deseas eliminar este juego? Esta acción no se puede deshacer."
+                title="Confirm Deletion"
+                message="Are you sure you want to delete this game? This action cannot be undone."
             />
         </div>
     );

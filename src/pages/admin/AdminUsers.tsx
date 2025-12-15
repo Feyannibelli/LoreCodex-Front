@@ -4,7 +4,7 @@ import Button from '../../components/Button.tsx';
 import Modal from '../../components/Modal.tsx';
 import { useAuth } from '../../context/AuthContext.tsx';
 import authService, { UserData } from '../../services/authService.ts';
-import '../../css/AdminUsers.css';
+import { Trash2 } from 'lucide-react';
 
 const AdminUsers: React.FC = () => {
     const [users, setUsers] = useState<UserData[]>([]);
@@ -67,45 +67,56 @@ const AdminUsers: React.FC = () => {
         }
     };
 
-    if (loading) return <div>Loading users...</div>;
+    if (loading) return (
+        <div className="flex justify-center p-8">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        </div>
+    );
 
     if (!Array.isArray(users)) {
-        return <div className="error-message">Error: Users could not be loaded correctly</div>;
+        return <div className="rounded-md bg-destructive/10 p-4 text-destructive">Error: Users could not be loaded correctly</div>;
     }
 
     return (
-        <div className="admin-users-container">
-            <h2>User Administration</h2>
+        <div className="max-w-6xl mx-auto p-6 space-y-6">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">User Administration</h2>
 
-            {error && <div className="error-message">{error}</div>}
+            {error && <div className="rounded-md bg-destructive/10 p-4 text-destructive">{error}</div>}
 
-            <table className="users-table">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {users.map(user => (
-                    <tr key={user.id}>
-                        <td>{user.id}</td>
-                        <td>{user.username}</td>
-                        <td>{user.email}</td>
-                        <td>
-                            <Button
-                                onClick={() => openDeleteModal(user.id)}
-                                className="delete-button"
-                            >
-                                Delete
-                            </Button>
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+            <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                        <thead className="bg-secondary/50 text-muted-foreground">
+                            <tr>
+                                <th className="px-6 py-3 font-medium">ID</th>
+                                <th className="px-6 py-3 font-medium">Username</th>
+                                <th className="px-6 py-3 font-medium">Email</th>
+                                <th className="px-6 py-3 font-medium text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                            {users.map(user => (
+                                <tr key={user.id} className="group hover:bg-muted/50 transition-colors">
+                                    <td className="px-6 py-4 font-mono text-muted-foreground">{user.id}</td>
+                                    <td className="px-6 py-4 font-medium text-foreground">{user.username}</td>
+                                    <td className="px-6 py-4 text-muted-foreground">{user.email}</td>
+                                    <td className="px-6 py-4 text-right">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => openDeleteModal(user.id)}
+                                            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                        >
+                                            <Trash2 className="h-4 w-4 mr-2" />
+                                            Delete
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
             <Modal
                 isOpen={isModalOpen}

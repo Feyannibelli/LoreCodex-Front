@@ -22,8 +22,10 @@ const searchService = {
             // Filter by genres
             if (filters.genres.length > 0) {
                 filteredGames = filteredGames.filter(game =>
-                    filters.genres.some(genre =>
-                        game.genre.toLowerCase() === genre.toLowerCase()
+                    filters.genres.some(filterGenre =>
+                        game.genres.some(gameGenre =>
+                            gameGenre.toLowerCase() === filterGenre.toLowerCase()
+                        )
                     )
                 );
             }
@@ -46,12 +48,7 @@ const searchService = {
 
             // Filter by awards
             if (filters.hasAwards) {
-                filteredGames = filteredGames.filter(game =>
-                    game.awards &&
-                    (typeof game.awards === 'string'
-                        ? game.awards.trim() !== ''
-                        : game.awards.length > 0)
-                );
+                filteredGames = filteredGames.filter(game => (game.awards ?? '').trim() !== '');
             }
 
             // Filter by minimum rating
@@ -97,8 +94,12 @@ const searchService = {
         const genres = new Set<string>();
 
         games.forEach(game => {
-            if (game.genre && game.genre.trim() !== '') {
-                genres.add(game.genre.trim());
+            if (game.genres && Array.isArray(game.genres)) {
+                game.genres.forEach(g => {
+                    if (g.trim() !== '') {
+                        genres.add(g.trim());
+                    }
+                });
             }
         });
 

@@ -4,7 +4,6 @@ import guideService from "../../services/guideService.ts";
 import { GuideForm as Form } from "../../interfaces/Guide";
 import GuideForm from "../../components/guide/GuideForm.tsx";
 
-
 const CreateGuidePage: React.FC = () => {
     const navigate = useNavigate();
 
@@ -12,7 +11,6 @@ const CreateGuidePage: React.FC = () => {
     const saveDraft = (data: Form) => {
         const payload = { ...data, published: false, draft: true };
         guideService.create(payload).then(g =>
-            // lleva directo al editor para seguir
             navigate(`/guides/edit/${g.id}`)
         );
     };
@@ -20,21 +18,25 @@ const CreateGuidePage: React.FC = () => {
     const publishGuide = (data: Form) => {
         const payload = { ...data, published: true, draft: false };
         guideService.create(payload).then(g =>
-            // ya está publicada → detalle
             navigate(`/guides/${g.id}`)
         );
     };
 
-    return (
-        <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">New Guide</h1>
+    const breadcrumbs = [
+        { label: "Home", href: "/" },
+        { label: "Guides", href: "/guides" },
+        { label: "Create New Guide" }
+    ];
 
-            <GuideForm
-                submitLabel="Save draft"
-                onSubmit={saveDraft}     // botón gris “Save draft”
-                onPublish={publishGuide} // botón verde “Publish”
-            />
-        </div>
+    return (
+        <GuideForm
+            pageTitle="Create New Guide"
+            breadcrumbs={breadcrumbs}
+            submitLabel="Save Draft"
+            onSubmit={saveDraft}
+            onPublish={publishGuide}
+            publishLabel="Publish Guide"
+        />
     );
 };
 

@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import gameService from "../../services/gameService.ts";
 import Modal from "../../components/Modal.tsx";
-import "../../css/AdminGames.css";
-import {Game} from "../../interfaces/Game.ts";
+// import "../../css/AdminGames.css";
+import { Game } from "../../interfaces/Game.ts";
 import Button from "../../components/Button.tsx";
-import {FileJson, Plus} from "lucide-react";
+import { FileJson, Plus } from "lucide-react";
 
 const AdminGames: React.FC = () => {
     const [games, setGames] = useState<Game[]>([]);
@@ -22,8 +22,8 @@ const AdminGames: React.FC = () => {
     const loadGames = async () => {
         try {
             setLoading(true);
-            const data = await gameService.getAllGames();
-            setGames(data);
+            const data = await gameService.getLibraryGamesPaginated(0, 50);
+            setGames(data.content);
             setError(null);
         } catch (err) {
             console.error("Error loading games:", err);
@@ -53,79 +53,90 @@ const AdminGames: React.FC = () => {
     };
 
     return (
-        <div className="admin-games-container">
-            <div className="admin-games-header">
-                <h1>Manage Games</h1>
-                {/* CORREGIDO: Solo un conjunto de botones */}
-                <div className="flex gap-3">
-                    <Link to="/admin/games/create">
-                        <Button className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
-                            <Plus size={20} /> Create Game
-                        </Button>
-                    </Link>
-                    <Link to="/admin/games/batch-import">
-                        <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
-                            <FileJson size={20} /> Batch Import
-                        </Button>
-                    </Link>
+        <div className="min-h-screen py-12 px-4 bg-background">
+            <div className="max-w-6xl mx-auto">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                    <h1 className="text-3xl font-bold text-foreground">Manage Games</h1>
+                    <div className="flex gap-3">
+                        <Link to="/admin/games/create">
+                            <Button className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
+                                <Plus size={20} /> Create Game
+                            </Button>
+                        </Link>
+                        <Link to="/admin/games/batch-import">
+                            <Button className="flex items-center gap-2 bg-transparent text-primary border border-primary hover:bg-primary/10">
+                                <FileJson size={20} /> Batch Import
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
+
+                {error && (
+                    <div className="mb-6 rounded-lg bg-destructive/10 border border-destructive/50 p-4 text-destructive">
+                        {error}
+                    </div>
+                )}
+
+                {loading ? (
+                    <div className="py-12 text-center text-muted-foreground">Loading games...</div>
+                ) : (
+                    <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-secondary/50 border-b border-border">
+                                    <th className="p-4 font-semibold text-foreground">ID</th>
+                                    <th className="p-4 font-semibold text-foreground">Name</th>
+                                    <th className="p-4 font-semibold text-foreground">Genre</th>
+                                    <th className="p-4 font-semibold text-foreground">Release Date</th>
+                                    <th className="p-4 font-semibold text-foreground text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border">
+                                {games.length > 0 ? (
+                                    games.map((game) => (
+                                        <tr key={game.id} className="hover:bg-muted/30 transition-colors">
+                                            <td className="p-4 text-foreground">{game.id}</td>
+                                            <td className="p-4 text-foreground font-medium">{game.title}</td>
+                                            <td className="p-4 text-muted-foreground">{game.genres?.join(", ") || "N/A"}</td>
+                                            <td className="p-4 text-muted-foreground">{game.releaseDate ? new Date(game.releaseDate).toLocaleDateString() : 'N/A'}</td>
+                                            <td className="p-4 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="sm"
+                                                        onClick={() => navigate(`/admin/games/edit/${game.id}`)}
+                                                    >
+                                                        Edit
+                                                    </Button>
+                                                    <Button
+                                                        variant="destructive"
+                                                        size="sm"
+                                                        onClick={() => handleDelete(game)}
+                                                    >
+                                                        Delete
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={5} className="p-8 text-center text-muted-foreground">No games available</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
+                <Modal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={confirmDelete}
+                    title="Confirm deletion"
+                    message={`Are you sure you want to delete the game "${gameToDelete?.title}"? This action cannot be undone.`}
+                />
             </div>
-
-            {error && <div className="error-message">{error}</div>}
-
-            {loading ? (
-                <div className="loading">Loading games...</div>
-            ) : (
-                <table className="games-table">
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Genre</th>
-                        <th>Release Date</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {games.length > 0 ? (
-                        games.map((game) => (
-                            <tr key={game.id}>
-                                <td>{game.id}</td>
-                                <td>{game.name}</td>
-                                <td>{game.genre}</td>
-                                <td>{game.releaseDate}</td>
-                                <td className="action-buttons">
-                                    <Button
-                                        className="edit-button"
-                                        onClick={() => navigate(`/admin/games/edit/${game.id}`)}
-                                    >
-                                        Edit
-                                    </Button>
-                                    <Button
-                                        className="delete-button"
-                                        onClick={() => handleDelete(game)}
-                                    >
-                                        Delete
-                                    </Button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan={5}>No games available</td>
-                        </tr>
-                    )}
-                    </tbody>
-                </table>
-            )}
-
-            <Modal
-                isOpen={isDeleteModalOpen}
-                onClose={() => setIsDeleteModalOpen(false)}
-                onConfirm={confirmDelete}
-                title="Confirm deletion"
-                message={`Are you sure you want to delete the game "${gameToDelete?.name}"? This action cannot be undone.`}
-            />
         </div>
     );
 };

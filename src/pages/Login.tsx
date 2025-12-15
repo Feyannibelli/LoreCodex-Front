@@ -1,69 +1,43 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import Button from '../components/Button';
 import { useAuth } from '../context/AuthContext';
-import '../css/Auth.css';
 
 const Login: React.FC = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
     const { login } = useAuth();
-    const navigate = useNavigate();
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-
-        try {
-            await login(username, password);
-            navigate('/profile');
-        } catch (err) {
-            setError('Incorrect username or password. Please try again.');
-        }
-    };
 
     return (
-        <div className="auth-container">
-            <div className="logo-container">
-                <div className="logo-circle">Logo</div>
-            </div>
+        <div className="min-h-screen bg-background flex items-center justify-center py-12 px-4">
+            <div className="w-full max-w-md">
+                <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+                    <div className="px-8 py-12 text-center">
+                        <div className="mb-8">
+                            <div className="mx-auto w-16 h-16 rounded-full bg-primary flex items-center justify-center mb-4 text-primary-foreground">
+                                <span className="text-2xl font-bold">LC</span>
+                            </div>
+                            <h1 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
+                            <p className="text-sm text-muted-foreground">Sign in to your LoreCodex account</p>
+                        </div>
 
-            {error && <div className="error-message">{error}</div>}
+                        <Button
+                            type="button"
+                            variant="default"
+                            className="w-full mb-6"
+                            onClick={() => login('/profile')}
+                        >
+                            Log In with Auth0
+                        </Button>
 
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <input
-                        type="text"
-                        id="username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="Email / User Name"
-                        required
-                    />
+                        <div className="space-y-3 text-sm">
+                            <p className="text-muted-foreground">
+                                No account? <Link to="/register" className="text-primary hover:text-primary/90 font-medium transition-colors">Sign up here</Link>
+                            </p>
+                            <p>
+                                <Link to="/forgot-password" className="text-primary hover:text-primary/90 font-medium transition-colors">Forgot Password?</Link>
+                            </p>
+                        </div>
+                    </div>
                 </div>
-
-                <div className="form-group">
-                    <input
-                        type="password"
-                        id="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Password"
-                        required
-                    />
-                </div>
-
-                <Button type="submit" className="auth-button">Log In</Button>
-            </form>
-
-            <div className="auth-links">
-                <p>
-                    No account? <Link to="/register">Register here</Link>
-                </p>
-                <p>
-                    <Link to="/forgot-password">Forgot Password?</Link>
-                </p>
             </div>
         </div>
     );

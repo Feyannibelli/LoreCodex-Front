@@ -11,6 +11,7 @@ export interface UserRatingResponse {
 export interface RatingSummaryDto {
     average: number;
     mine: number;
+    count?: number;
 }
 
 // El body que envías al back
@@ -55,6 +56,13 @@ const ratingService = {
     async getRatingSummary(gameId: number): Promise<RatingSummaryDto> {
         const res = await apiAuth.get<RatingSummaryDto>(`/rating/${gameId}/rating-summary`);
         return res.data;
+    },
+
+    /**
+     * Borra tu rating para un juego
+     */
+    async deleteRating(gameId: number): Promise<void> {
+        await apiAuth.delete(`/rating/delete/${gameId}`);
     },
 };
 

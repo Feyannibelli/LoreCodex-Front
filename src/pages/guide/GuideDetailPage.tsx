@@ -40,7 +40,7 @@ const GuideDetailPage: React.FC = () => {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F47E00]"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 </div>
             </div>
         );
@@ -50,10 +50,10 @@ const GuideDetailPage: React.FC = () => {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="text-center py-12">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    <h2 className="text-xl font-semibold text-foreground mb-2">
                         Guía no encontrada
                     </h2>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    <p className="text-muted-foreground mb-4">
                         La guía que buscas no existe o ha sido eliminada.
                     </p>
                     <Button onClick={() => navigate('/guides')}>
@@ -72,7 +72,7 @@ const GuideDetailPage: React.FC = () => {
             <div className="mb-6">
                 <button
                     onClick={() => navigate('/guides')}
-                    className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
+                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
                 >
                     <ArrowLeft size={20} />
                     Volver a Guías
@@ -84,7 +84,7 @@ const GuideDetailPage: React.FC = () => {
                         <img
                             src={guide.coverImageUrl}
                             alt={guide.title}
-                            className="w-full max-h-96 object-cover rounded-lg shadow-lg"
+                            className="w-full max-h-96 object-cover rounded-xl shadow-lg"
                             onError={(e) => {
                                 (e.target as HTMLImageElement).style.display = 'none';
                             }}
@@ -93,17 +93,17 @@ const GuideDetailPage: React.FC = () => {
                 )}
 
                 {/* Title and Metadata */}
-                <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                <h1 className="text-4xl font-bold text-foreground mb-4">
                     {guide.title}
                 </h1>
 
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
                     <div className="flex items-center gap-2">
                         Por{" "}
                         {authorUsername ? (
                             <Link
                                 to={`/profile/${guide.authorId}`}
-                                className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                                className="text-primary hover:underline font-medium"
                             >
                                 {authorUsername}
                             </Link>
@@ -125,7 +125,7 @@ const GuideDetailPage: React.FC = () => {
                     {!guide.published && (
                         <>
                             <span>·</span>
-                            <span className="inline-flex items-center gap-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded-full text-xs font-medium">
+                            <span className="inline-flex items-center gap-1 bg-yellow-500/10 text-yellow-600 px-2 py-1 rounded-full text-xs font-medium">
                                 <Lock size={12} />
                                 Borrador
                             </span>
@@ -139,7 +139,7 @@ const GuideDetailPage: React.FC = () => {
                         {guide.tags.map((tag, index) => (
                             <span
                                 key={index}
-                                className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium"
+                                className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium"
                             >
                                 #{tag}
                             </span>
@@ -150,19 +150,19 @@ const GuideDetailPage: React.FC = () => {
 
             {/* Content */}
             <article className="mb-8">
-                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
                     <UnifiedContentRenderer content={guide.content} />
                 </div>
             </article>
 
             {/* Action Buttons */}
             {isAuthenticated && (
-                <div className="flex flex-wrap items-center gap-3 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex flex-wrap items-center gap-3 mb-6 pb-6 border-b border-border">
                     <Button
                         onClick={() => guideService.like(guide.id).then(() =>
                             guideService.getById(guide.id).then(setGuide)
                         )}
-                        className="flex items-center gap-2 bg-pink-600 hover:bg-pink-700"
+                        className="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white border-none"
                     >
                         <Heart size={20} />
                         Like ({guide.likeCount || 0})
@@ -170,7 +170,8 @@ const GuideDetailPage: React.FC = () => {
 
                     <Button
                         onClick={handleShare}
-                        className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700"
+                        variant="secondary"
+                        className="flex items-center gap-2"
                     >
                         <Share2 size={20} />
                         Compartir
@@ -180,15 +181,15 @@ const GuideDetailPage: React.FC = () => {
 
             {/* Author Actions */}
             {canEdit && (
-                <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg mb-8">
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
+                <div className="p-6 bg-secondary/50 rounded-xl mb-8">
+                    <h3 className="font-semibold text-foreground mb-4">
                         Acciones del Autor
                     </h3>
                     <div className="flex flex-wrap gap-3">
                         {guide.published ? (
                             <Button
                                 onClick={() => guideService.unpublish(guide.id).then(setGuide)}
-                                className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600"
+                                className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white border-none"
                             >
                                 <Lock size={16} />
                                 Despublicar
@@ -196,7 +197,7 @@ const GuideDetailPage: React.FC = () => {
                         ) : (
                             <Button
                                 onClick={() => guideService.publish(guide.id).then(setGuide)}
-                                className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                                className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground border-none"
                             >
                                 <Upload size={16} />
                                 Publicar
@@ -205,7 +206,8 @@ const GuideDetailPage: React.FC = () => {
 
                         <Button
                             onClick={() => navigate(`/guides/edit/${guide.id}`)}
-                            className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600"
+                            variant="outline"
+                            className="flex items-center gap-2 border-primary text-primary hover:bg-primary/10"
                         >
                             <Edit size={16} />
                             Editar
@@ -217,7 +219,8 @@ const GuideDetailPage: React.FC = () => {
                                     guideService.delete(guide.id).then(() => navigate("/guides"));
                                 }
                             }}
-                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700"
+                            variant="destructive"
+                            className="flex items-center gap-2"
                         >
                             <Trash2 size={16} />
                             Eliminar

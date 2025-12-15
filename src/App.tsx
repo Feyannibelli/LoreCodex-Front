@@ -6,7 +6,7 @@ import Register from './pages/Register'
 import Header from './components/Header'
 import Profile from './pages/Profile'
 import AdminUsers from './pages/admin/AdminUsers.tsx'
-import Games from './pages/game/Games.tsx'
+
 import AdminGames from './pages/admin/AdminGames.tsx'
 import CreateGame from './pages/game/CreateGame.tsx'
 import EditGame from './pages/admin/EditGame.tsx'
@@ -16,11 +16,11 @@ import PrivateRoute from './components/PrivateRoute';
 import UserMenu from "./components/UserMenu";
 import GamesPage from './pages/game/GamesPage.tsx';
 import ListsPage from './pages/list/ListsPage.tsx';
-import NewsPage        from "./pages/news/NewsPage";
-import NewsDetailPage  from "./pages/news/NewsDetailPage";
-import CreateNewsPage  from "./pages/news/CreateNewsPage";
-import EditNewsPage    from "./pages/news/EditNewsPage";
-import AdminNewsList   from "./pages/admin/AdminNewsList";
+import NewsPage from "./pages/news/NewsPage";
+import NewsDetailPage from "./pages/news/NewsDetailPage";
+import CreateNewsPage from "./pages/news/CreateNewsPage";
+import EditNewsPage from "./pages/news/EditNewsPage";
+import AdminNewsList from "./pages/admin/AdminNewsList";
 import EditGuidePage from "./pages/guide/EditGuidePage.tsx";
 import MyDraftsPage from "./pages/guide/MyDraftsPage.tsx";
 import GuidePage from "./pages/guide/GuidePage.tsx";
@@ -46,13 +46,13 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 
 const App: React.FC = () => {
     return (
-        <div>
+        <div className="min-h-screen bg-bg">
             <Header />
             <UserMenu />
             <Routes>
                 <Route path="/" element={<Home />} />
 
-                {/* Rutas públicas solo para no logueados */}
+                {/* Public routes only for non-logged in users */}
                 <Route
                     path="/login"
                     element={
@@ -70,7 +70,7 @@ const App: React.FC = () => {
                     }
                 />
 
-                {/* perfil privado (mi perfil) */}
+                {/* Private profile (my profile) */}
                 <Route
                     path="/profile"
                     element={
@@ -80,16 +80,17 @@ const App: React.FC = () => {
                     }
                 />
 
-                {/* perfil público de otro usuario */}
+                {/* Public profile of another user */}
                 <Route
                     path="/profile/:userId"
                     element={<PublicProfile />}
                 />
 
 
-                {/* Ruta protegida solo para admins */}
-                <Route path="/games" element={<Games />} />
+                {/* Protected routes for admins only */}
+                {/* <Route path="/games" element={<Games />} /> Route collision removed */}
                 <Route path="/games/:id" element={<Game />} />
+                <Route path="/games/igdb/:igdbId" element={<Game />} />
                 <Route
                     path="/admin/users"
                     element={
@@ -131,7 +132,7 @@ const App: React.FC = () => {
                     }
                 />
 
-                {/* Rutas de Challenges */}
+                {/* Challenge Routes */}
                 <Route path="/challenges" element={<ChallengesPage />} />
                 <Route path="/challenges/:id" element={<ChallengeDetailPage />} />
                 <Route
@@ -143,14 +144,14 @@ const App: React.FC = () => {
                     }
                 />
 
-                {/* Guías */}
+                {/* Guides */}
                 <Route path="/guides" element={<GuidePage />} />
                 <Route path="/guides/:id" element={<GuideDetailPage />} />
                 <Route path="/guides/create" element={<PrivateRoute><CreateGuidePage /></PrivateRoute>} />
                 <Route path="/guides/edit/:id" element={<PrivateRoute><EditGuidePage /></PrivateRoute>} />
                 <Route path="/my-drafts" element={<PrivateRoute><MyDraftsPage /></PrivateRoute>} />
 
-                {/* Listas */}
+                {/* Lists */}
                 <Route path="/lists" element={<ListsPage />} />
                 <Route path="/lists/:id" element={<ListDetailPage />} />
                 <Route
@@ -162,7 +163,7 @@ const App: React.FC = () => {
                     }
                 />
                 <Route
-                    path="/my-lists"//para profile
+                    path="/my-lists" // for profile
                     element={
                         <PrivateRoute>
                             <MyListsPage />
@@ -178,20 +179,21 @@ const App: React.FC = () => {
                     }
                 />
 
-                {/* Juegos y listas - públicos de navegación */}
+                {/* Games and Lists - Public Navigation */}
                 <Route path="/games" element={<GamesPage />} />
 
-                {/* Si no existe ruta, redirige a home */}
+                {/* If route doesn't exist, redirect to home */}
                 <Route path="*" element={<Navigate to="/" />} />
 
-                {/* ---------- NEWS (público) ---------- */}
+                {/* ---------- NEWS (Public) ---------- */}
                 <Route path="/news" element={<NewsPage />} />
+                <Route path="/news/create" element={<AdminRoute><CreateNewsPage /></AdminRoute>} />
                 <Route path="/news/:id" element={<NewsDetailPage />} />
 
                 {/* ADMIN News */}
-                <Route path="/admin/news"           element={<AdminRoute><AdminNewsList /></AdminRoute>} />
-                <Route path="/admin/news/create"    element={<AdminRoute><CreateNewsPage /></AdminRoute>} />
-                <Route path="/admin/news/edit/:id"  element={<AdminRoute><EditNewsPage /></AdminRoute>} />
+                <Route path="/admin/news" element={<AdminRoute><AdminNewsList /></AdminRoute>} />
+                <Route path="/admin/news/create" element={<AdminRoute><CreateNewsPage /></AdminRoute>} />
+                <Route path="/admin/news/edit/:id" element={<AdminRoute><EditNewsPage /></AdminRoute>} />
             </Routes>
         </div>
     );

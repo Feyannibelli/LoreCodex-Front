@@ -38,14 +38,14 @@ const NewsForm: React.FC<Props> = ({ initial, onSubmit, submitLabel }) => {
         <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
             {/* Título */}
             <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label htmlFor="title" className="block text-sm font-medium text-foreground mb-2">
                     Título *
                 </label>
                 <input
                     id="title"
                     name="title"
                     placeholder="Ingresa el título de la noticia"
-                    className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:bg-gray-700 dark:text-white"
+                    className="w-full border border-input p-3 rounded-lg focus:ring-2 focus:ring-ring focus:border-input transition-colors bg-secondary/50 text-foreground placeholder:text-muted-foreground"
                     value={form.title}
                     onChange={handleChange}
                     required
@@ -53,7 +53,7 @@ const NewsForm: React.FC<Props> = ({ initial, onSubmit, submitLabel }) => {
             </div>
 
             {/* Contenido con editor unificado (Markdown + Menciones) */}
-            <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="bg-card rounded-lg p-6 shadow-sm border border-border">
                 <UnifiedContentEditor
                     label="Contenido *"
                     value={form.content}
@@ -72,29 +72,29 @@ Puedes mencionar:
             </div>
 
             {/* Imagen de portada */}
-            <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                <label htmlFor="coverImage" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="bg-card rounded-lg p-6 shadow-sm border border-border">
+                <label htmlFor="coverImage" className="block text-sm font-medium text-foreground mb-2">
                     Imagen de portada
                 </label>
                 <input
                     id="coverImage"
                     name="coverImage"
                     placeholder="URL de la imagen de portada"
-                    className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:bg-gray-700 dark:text-white"
+                    className="w-full border border-input p-3 rounded-lg focus:ring-2 focus:ring-ring focus:border-input transition-colors bg-secondary/50 text-foreground placeholder:text-muted-foreground"
                     value={form.coverImage ?? ""}
                     onChange={handleChange}
                 />
                 {form.coverImage && (
                     <div className="mt-3">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Vista previa:</p>
+                        <p className="text-xs text-muted-foreground mb-2">Vista previa:</p>
                         <img
                             src={form.coverImage}
                             alt="Vista previa"
-                            className="max-w-xs h-auto rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm"
+                            className="max-w-xs h-auto rounded-lg border border-border shadow-sm"
                             onError={(e) => {
                                 e.currentTarget.style.display = 'none';
                                 const errorDiv = document.createElement('div');
-                                errorDiv.className = 'text-red-500 dark:text-red-400 text-sm mt-2';
+                                errorDiv.className = 'text-destructive text-sm mt-2';
                                 errorDiv.textContent = '❌ Error al cargar la imagen';
                                 e.currentTarget.parentElement?.appendChild(errorDiv);
                             }}
@@ -104,10 +104,10 @@ Puedes mencionar:
             </div>
 
             {/* Tags */}
-            <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                <label htmlFor="tags" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="bg-card rounded-lg p-6 shadow-sm border border-border">
+                <label htmlFor="tags" className="block text-sm font-medium text-foreground mb-2">
                     Etiquetas
-                    <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                    <span className="text-xs text-muted-foreground ml-2">
                         (Separadas por comas)
                     </span>
                 </label>
@@ -115,7 +115,7 @@ Puedes mencionar:
                     id="tags"
                     name="tags"
                     placeholder="tecnología, noticias, actualidad"
-                    className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:bg-gray-700 dark:text-white"
+                    className="w-full border border-input p-3 rounded-lg focus:ring-2 focus:ring-ring focus:border-input transition-colors bg-secondary/50 text-foreground placeholder:text-muted-foreground"
                     value={form.tags?.join(", ") ?? ""}
                     onChange={handleTags}
                 />
@@ -124,7 +124,7 @@ Puedes mencionar:
                         {form.tags.map(tag => (
                             <span
                                 key={tag}
-                                className="inline-flex items-center text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 px-3 py-1 rounded-full font-medium"
+                                className="inline-flex items-center text-xs bg-primary/10 text-primary px-3 py-1 rounded-full font-medium"
                             >
                                 #{tag}
                             </span>
@@ -137,7 +137,7 @@ Puedes mencionar:
             <div className="flex justify-end pt-4">
                 <button
                     type="submit"
-                    className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all font-medium shadow-sm"
+                    className="bg-primary text-primary-foreground px-8 py-3 rounded-lg hover:bg-primary/90 focus:ring-4 focus:ring-ring transition-all font-medium shadow-sm"
                 >
                     {submitLabel}
                 </button>

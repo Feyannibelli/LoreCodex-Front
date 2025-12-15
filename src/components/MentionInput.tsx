@@ -36,14 +36,14 @@ const MENTION_TRIGGERS = {
 } as const;
 
 export const MentionInput: React.FC<MentionInputProps> = ({
-                                                              value,
-                                                              onChange,
-                                                              placeholder = "Escribe tu mensaje... Usa /games/, /guides/, /challenges/, /lists/, /news/ para mencionar",
-                                                              className = "",
-                                                              onSubmit,
-                                                              multiline = false,
-                                                              rows = 3
-                                                          }) => {
+    value,
+    onChange,
+    placeholder = "Escribe tu mensaje... Usa /games/, /guides/, /challenges/, /lists/, /news/ para mencionar",
+    className = "",
+    onSubmit,
+    multiline = false,
+    rows = 3
+}) => {
     const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
     const suggestionsRef = useRef<HTMLDivElement>(null);
 
@@ -230,32 +230,32 @@ export const MentionInput: React.FC<MentionInputProps> = ({
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
-                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${className}`}
+                data-unified-editor="true"
+                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent ${className}`}
                 rows={multiline ? rows : undefined}
             />
 
             {mentionState.isOpen && (
                 <div
                     ref={suggestionsRef}
-                    className="fixed z-50 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto min-w-64"
+                    className="fixed z-50 bg-card border border-white/10 rounded-lg shadow-xl max-h-48 overflow-y-auto min-w-64 backdrop-blur-sm"
                     style={{
                         top: mentionState.position.top,
                         left: mentionState.position.left
                     }}
                 >
                     {loading ? (
-                        <div className="px-3 py-2 text-gray-500 text-sm">
-                            Buscando...
+                        <div className="px-3 py-2 text-muted-foreground text-sm">
+                            Searching...
                         </div>
                     ) : suggestions.length > 0 ? (
                         suggestions.map((suggestion, index) => (
                             <div
                                 key={`${suggestion.type}-${suggestion.id}`}
-                                className={`px-3 py-2 cursor-pointer flex items-center space-x-2 ${
-                                    index === mentionState.selectedIndex
-                                        ? 'bg-blue-100 text-blue-800'
-                                        : 'hover:bg-gray-100'
-                                }`}
+                                className={`px-3 py-2 cursor-pointer flex items-center space-x-2 transition-colors ${index === mentionState.selectedIndex
+                                    ? 'bg-primary/10 text-primary'
+                                    : 'hover:bg-white/5 text-foreground'
+                                    }`}
                                 onClick={() => selectSuggestion(suggestion)}
                             >
                                 {suggestion.thumbnailUrl && (
@@ -269,15 +269,15 @@ export const MentionInput: React.FC<MentionInputProps> = ({
                                     <div className="font-medium text-sm truncate">
                                         {suggestion.name}
                                     </div>
-                                    <div className="text-xs text-gray-500 capitalize">
+                                    <div className="text-xs text-muted-foreground capitalize">
                                         {suggestion.type.slice(0, -1)} {/* Remove 's' from plural */}
                                     </div>
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <div className="px-3 py-2 text-gray-500 text-sm">
-                            No se encontraron resultados para "{mentionState.query}"
+                        <div className="px-3 py-2 text-muted-foreground text-sm">
+                            No results found for "{mentionState.query}"
                         </div>
                     )}
                 </div>
