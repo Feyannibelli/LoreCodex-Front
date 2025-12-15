@@ -3,7 +3,7 @@ import {Link, useNavigate} from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import NotificationsBell from "../components/NotificationsBell.tsx";
 import { ChevronDown } from 'lucide-react';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu.tsx";
 
 const Header: React.FC = () => {
     const { isAuthenticated, user, isAdmin, logout } = useAuth();
@@ -53,7 +53,7 @@ const Header: React.FC = () => {
                         {/* User menu */}
                         <DropdownMenu>
                             <div className="flex items-center gap-2">
-                                {/* círculo que lleva al profile */}
+                                {/* círculo que lleva al MI perfil público */}
                                 <Link to="/profile" className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-300 text-black font-semibold overflow-hidden">
                                     {user?.profilePicture ? (
                                         <img
@@ -66,7 +66,7 @@ const Header: React.FC = () => {
                                     )}
                                 </Link>
 
-                                {/* flechita q abre el dropdown */}
+                                {/* flechita que abre el dropdown */}
                                 <DropdownMenuTrigger className="flex items-center justify-center">
                                     <ChevronDown className="h-4 w-4 text-[#0C0C0C] dark:text-white cursor-pointer" />
                                 </DropdownMenuTrigger>
@@ -76,7 +76,9 @@ const Header: React.FC = () => {
                                 <DropdownMenuItem asChild>
                                     <Link to="/profile">Profile</Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>Settings</DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                    <Link to="/settings">Settings</Link>
+                                </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={() => {
                                         logout();

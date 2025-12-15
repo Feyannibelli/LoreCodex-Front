@@ -70,9 +70,19 @@ const App: React.FC = () => {
                     }
                 />
 
-                {/* perfil privado (mi perfil) */}
+                {/* MI perfil público (donde veo mis seguidores, listas, etc) */}
                 <Route
                     path="/profile"
+                    element={
+                        <PrivateRoute>
+                            <PublicProfile />
+                        </PrivateRoute>
+                    }
+                />
+
+                {/* Settings - solo notificaciones por email */}
+                <Route
+                    path="/settings"
                     element={
                         <PrivateRoute>
                             <Profile />
@@ -162,7 +172,7 @@ const App: React.FC = () => {
                     }
                 />
                 <Route
-                    path="/my-lists"//para profile
+                    path="/my-lists"
                     element={
                         <PrivateRoute>
                             <MyListsPage />
