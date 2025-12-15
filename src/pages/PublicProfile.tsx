@@ -22,8 +22,11 @@ interface PublicProfileData {
 }
 
 const PublicProfile: React.FC = () => {
-    const { userId } = useParams<{ userId: string }>();
+    // Si hay userId en la URL, es perfil de otro usuario
+    // Si no hay userId, es MI perfil (usando el user del contexto)
+    const { userId: urlUserId } = useParams<{ userId: string }>();
     const { user: me, isAuthenticated } = useAuth();
+
     const [lists, setLists] = useState<UserListResponse[]>([]);
     const [profile, setProfile] = useState<PublicProfileData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -31,38 +34,42 @@ const PublicProfile: React.FC = () => {
     const [followingCount, setFollowingCount] = useState(0)
     const [isFollowing, setIsFollowing] = useState(false)
 
+    // Determinar qué userId usar
+    const targetUserId = urlUserId ? parseInt(urlUserId) : me?.id;
+    const isOwnProfile = !urlUserId || (me && targetUserId === me.id);
+
     useEffect(() => {
-        if (!userId) return
+        if (!targetUserId) return
         const load = async () => {
             setLoading(true)
-            // 1. Traer perfil (que idealmente ya lleva followersCount, followingCount)
-            const prof = await getUserProfileById(+userId)
+            // 1. Traer perfil
+            const prof = await getUserProfileById(targetUserId)
             setProfile(prof)
             setFollowersCount(prof.followersCount)
             setFollowingCount(prof.followingCount)
 
             // 2) listas del usuario
-            const uLists = await userListService.getForUser(+userId);
+            const uLists = await userListService.getForUser(targetUserId);
             setLists(uLists as UserListResponse[])
 
-            // 3. Consultar si te sigo
-            if (me) {
-                const follows = await followService.isFollowing(me.id, +userId)
+            // 3. Consultar si lo sigo (solo si no es mi propio perfil)
+            if (me && !isOwnProfile) {
+                const follows = await followService.isFollowing(me.id, targetUserId)
                 setIsFollowing(follows)
             }
             setLoading(false)
         }
         load()
-    }, [userId])
+    }, [targetUserId, me, isOwnProfile])
 
     const toggleFollow = async () => {
-        if (!me || !userId) return;
+        if (!me || !targetUserId || isOwnProfile) return;
         if (isFollowing) {
-            await followService.unfollowUser(me.id, +userId);
+            await followService.unfollowUser(me.id, targetUserId);
             setIsFollowing(false);
             setFollowersCount(c => c - 1);
         } else {
-            await followService.followUser(me.id, +userId);
+            await followService.followUser(me.id, targetUserId);
             setIsFollowing(true);
             setFollowersCount(c => c + 1);
         }
@@ -86,7 +93,8 @@ const PublicProfile: React.FC = () => {
                         Followers: {followersCount} · Following: {followingCount}
                     </p>
                 </div>
-                {isAuthenticated && userId && me?.id !== +userId && (
+                {/* Botón de seguir solo si NO es mi propio perfil */}
+                {isAuthenticated && !isOwnProfile && (
                     <button
                         onClick={toggleFollow}
                         className={`ml-auto px-4 py-1 rounded transition-colors ${isFollowing
@@ -108,7 +116,6 @@ const PublicProfile: React.FC = () => {
 
             {/* Secciones */}
 
-
             {/* --- Guías --- */}
             <section>
                 <h2 className="text-2xl font-semibold mb-2">Guides</h2>
@@ -127,7 +134,7 @@ const PublicProfile: React.FC = () => {
                 )}
             </section>
 
-            {/* --- Listas (nueva sección) --- */}
+            {/* --- Listas --- */}
             <section>
                 <h2 className="text-2xl font-semibold mb-2">Lists</h2>
                 {lists.length > 0 ? (
@@ -155,7 +162,7 @@ const PublicProfile: React.FC = () => {
                                     href={`/games/${r.gameId}`}
                                     className="text-indigo-600 hover:underline"
                                 >
-                                    {r.gameTitle}: “{r.content.substring(0, 50)}…”
+                                    {r.gameTitle}: "{r.content.substring(0, 50)}…"
                                 </a>
                             </li>
                         ))}

@@ -6,7 +6,6 @@ import Register from './pages/Register'
 import Header from './components/Header'
 import Profile from './pages/Profile'
 import AdminUsers from './pages/admin/AdminUsers.tsx'
-
 import AdminGames from './pages/admin/AdminGames.tsx'
 import CreateGame from './pages/game/CreateGame.tsx'
 import EditGame from './pages/admin/EditGame.tsx'
@@ -36,6 +35,7 @@ import PublicProfile from "./pages/PublicProfile.tsx";
 import GuideDetailPage from "./pages/guide/GuideDetailPage.tsx";
 import Game from "./pages/game/Game.tsx";
 import BatchImportGames from './pages/admin/BatchImportGames.tsx';
+import MyChallengesPage from './pages/challenge/MyChallengesPage.tsx';
 
 // Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -70,9 +70,19 @@ const App: React.FC = () => {
                     }
                 />
 
-                {/* Private profile (my profile) */}
+                {/* MI perfil público (donde veo mis seguidores, listas, etc) */}
                 <Route
                     path="/profile"
+                    element={
+                        <PrivateRoute>
+                            <PublicProfile />
+                        </PrivateRoute>
+                    }
+                />
+
+                {/* Settings - solo notificaciones por email */}
+                <Route
+                    path="/settings"
                     element={
                         <PrivateRoute>
                             <Profile />
@@ -90,7 +100,6 @@ const App: React.FC = () => {
                 {/* Protected routes for admins only */}
                 {/* <Route path="/games" element={<Games />} /> Route collision removed */}
                 <Route path="/games/:id" element={<Game />} />
-                <Route path="/games/igdb/:igdbId" element={<Game />} />
                 <Route
                     path="/admin/users"
                     element={
@@ -143,6 +152,12 @@ const App: React.FC = () => {
                         </PrivateRoute>
                     }
                 />
+                <Route path="/challenges/my" element={
+                    <PrivateRoute>
+                        <MyChallengesPage />
+                    </PrivateRoute>
+                }
+                />
 
                 {/* Guides */}
                 <Route path="/guides" element={<GuidePage />} />
@@ -163,7 +178,7 @@ const App: React.FC = () => {
                     }
                 />
                 <Route
-                    path="/my-lists" // for profile
+                    path="/my-lists"
                     element={
                         <PrivateRoute>
                             <MyListsPage />

@@ -20,11 +20,13 @@ const CreateChallengePage: React.FC = () => {
     const handleSubmit = async (data: ChallengeFormData) => {
         setIsSubmitting(true);
         try {
-            const challenge = await challengeService.createChallenge(data);
-            navigate(`/challenges/${challenge.id}`);
+            await challengeService.createChallenge(formData);
+            // Redirigir a la lista de challenges después de crear
+            alert('¡Challenge creado exitosamente!');
+            navigate('/challenges');
         } catch (error) {
             console.error('Error creating challenge:', error);
-            // Add toast here
+            alert('Error al crear el challenge. Por favor, intenta de nuevo.');
         } finally {
             setIsSubmitting(false);
         }

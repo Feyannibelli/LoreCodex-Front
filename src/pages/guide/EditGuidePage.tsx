@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import guideService from "../../services/guideService.ts";
-import { Guide, GuideForm as Form } from "../../interfaces/Guide";
+import {Guide, GuideForm as Form} from "../../interfaces/Guide";
 import GuideForm from "../../components/guide/GuideForm.tsx";
 
 

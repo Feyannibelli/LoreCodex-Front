@@ -25,7 +25,18 @@ export interface PagedResponse<T> {
 
 export interface GameDetailResponse {
     id: number;
-    igdbId?: number;
+    title: string;
+    description: string;
+    coverImage: string;
+    releaseDate: string;
+    rating: number;
+    likes: number;
+    ratingCount?: number; // NUEVO
+    genres: string[];
+    awards: string[];
+}
+
+interface BackendGameRequest {
     title: string;
     description: string;
     coverImage: string;
@@ -39,20 +50,41 @@ export interface GameDetailResponse {
     tags?: string[];
 }
 
-export interface GameSearchResponse extends GameDetailResponse { }
+const adaptBackendGameToFrontend = (backendGame: BackendGame): Game => {
+    // Convertir array de géneros a string separado por comas
+    const genreString = backendGame.genres?.length > 0
+        ? backendGame.genres.join(', ')
+        : '';
 
-const adaptBackendToFrontend = (backendGame: GameDetailResponse): Game => {
     return {
-        ...backendGame,
-        genres: backendGame.genres || [],
-        tags: backendGame.tags || [],
-        developersAndPublishers: backendGame.developersAndPublishers || [],
-        title: backendGame.title || "Untitled",
-        coverImage: backendGame.coverImage || "",
+        id: backendGame.id,
+        name: backendGame.title,
+        description: backendGame.description,
+        genre: genreString,
+        releaseDate: backendGame.releaseDate,
+        imageUrl: backendGame.coverImage,
+        averageRating: backendGame.rating || 0,
+        likes: backendGame.likes || 0,
+        ratingCount: backendGame.ratingCount || 0 // NUEVO
     };
 };
 
-const adaptFrontendGameToBackend = (frontendGame: GameFormData): any => {
+const adaptFrontendGameToBackend = (frontendGame: GameFormData): BackendGameRequest => {
+    // Procesar awards como array
+    let awardsArray: string[] = [];
+    if (frontendGame.awards) {
+        awardsArray = [frontendGame.awards];
+    }
+
+    // Procesar genres como array - dividir por comas si es necesario
+    let genresArray: string[] = [];
+    if (frontendGame.genre) {
+        // Si contiene comas, dividir; sino, usar como un solo género
+        genresArray = frontendGame.genre.includes(',')
+            ? frontendGame.genre.split(',').map(g => g.trim())
+            : [frontendGame.genre.trim()];
+    }
+
     return {
         title: frontendGame.name,
         description: frontendGame.description,
@@ -68,92 +100,54 @@ const adaptFrontendGameToBackend = (frontendGame: GameFormData): any => {
 };
 
 const gameService = {
-
-    // 1. GET /igdb/top
-    getDiscoveryGamesPaginated: async (page: number, pageSize: number, sort: string = 'rating,desc'): Promise<PagedResponse<Game>> => {
-        const params = { page, size: pageSize, sort };
-        const response = await api.get<PagedResponse<GameDetailResponse>>('/igdb/top', { params });
-        return {
-            ...response.data,
-            content: response.data.content.map(adaptBackendToFrontend)
-        };
+    // Obtener todos los juegos
+    getAllGames: async (): Promise<Game[]> => {
+        try {
+            const response = await api.get(`/games/allGames`);
+            return response.data.map(adaptBackendGameToFrontend);
+        } catch (error) {
+            console.error('Error fetching games:', error);
+            return [];
+        }
     },
 
-    // 2. GET /igdb/search
-    searchGamesPaginated: async (query: string, page: number, pageSize: number, sort: string = 'relevance,desc'): Promise<PagedResponse<Game>> => {
-        const params = { query, page, size: pageSize, sort };
-        const response = await api.get<PagedResponse<GameSearchResponse>>('/igdb/search', { params });
-        return {
-            ...response.data,
-            content: response.data.content.map(adaptBackendToFrontend)
-        };
-    },
-
-    // Search games by title in our database (for mentions, autocomplete, etc.)
-    searchGamesByTitle: async (title: string, page: number = 0, size: number = 10): Promise<Game[]> => {
-        const params = { title, page, size };
-        const response = await api.get<Game[]>('/games/search', { params });
-        return response.data;
-    },
-
-    // 3. GET /igdb/{igdbId}
-    getIGDBGameDetail: async (igdbId: number): Promise<Game> => {
-        const response = await api.get<GameDetailResponse>(`/igdb/${igdbId}`);
-        return adaptBackendToFrontend(response.data);
-    },
-
-    // 4. POST /igdb/import/{igdbId}
-    importIGDBGame: async (igdbId: number): Promise<Game> => {
-        const response = await apiAuth.post<GameDetailResponse>(`/igdb/import/${igdbId}`);
-        return adaptBackendToFrontend(response.data);
-    },
-
-    // GET /games/allGames - Primary endpoint for all game browsing
-    // Supports: page, size, sort, tag (optional), title (optional)
-    getLibraryGamesPaginated: async (page: number, pageSize: number, sort: string = 'rating,desc', tag?: string, title?: string): Promise<PagedResponse<Game>> => {
-        const params: any = { page, size: pageSize, sort };
-        if (tag) params.tag = tag;
-        if (title) params.title = title;
-
-        const response = await api.get<PagedResponse<GameDetailResponse>>('/games/allGames', { params });
-        return {
-            ...response.data,
-            content: response.data.content.map(adaptBackendToFrontend)
-        };
-    },
-
-    // 6. POST /games/{id}/like
-    likeGame: async (id: number): Promise<Game> => {
-        const response = await apiAuth.post<GameDetailResponse>(`/games/${id}/like`);
-        return adaptBackendToFrontend(response.data);
-    },
-
-    // 7. POST /games/{id}/rate
-    rateGame: async (id: number, rating: number): Promise<Game> => {
-        const response = await apiAuth.post<GameDetailResponse>(`/games/${id}/rate?rating=${rating}`);
-        return adaptBackendToFrontend(response.data);
-    },
-
-    // --- Legacy / Internal Endpoints (CRUD) ---
-
-    // Get Library Game by DB ID
+    // Obtener un juego por ID
     getGameById: async (id: number): Promise<Game> => {
-        const response = await api.get<GameDetailResponse>(`/games/${id}`);
-        return adaptBackendToFrontend(response.data);
+        try {
+            const response = await api.get(`/games/${id}`);
+            return adaptBackendGameToFrontend(response.data);
+        } catch (error) {
+            console.error(`Error fetching game with id ${id}:`, error);
+            throw error;
+        }
     },
 
+    // Buscar juegos por nombre
+    searchGamesByName: async (name: string): Promise<Game[]> => {
+        try {
+            const response = await apiAuth.get(`/games/search?title=${name}`);
+            return response.data.map(adaptBackendGameToFrontend);
+        } catch (error) {
+            console.error('Error searching games by name:', error);
+            return [];
+        }
+    },
+
+    // Crear un nuevo juego (solo admin)
     createGame: async (gameData: GameFormData): Promise<Game> => {
         const backendGame = adaptFrontendGameToBackend(gameData);
         const response = await apiAuth.post<GameDetailResponse>(`/games`, backendGame);
         return adaptBackendToFrontend(response.data);
     },
 
+    // Actualizar un juego existente (solo admin)
     updateGame: async (id: number, gameData: GameFormData): Promise<Game> => {
         const backendGame = adaptFrontendGameToBackend(gameData);
         const response = await apiAuth.put<GameDetailResponse>(`/games/${id}`, backendGame);
         return adaptBackendToFrontend(response.data);
     },
 
+    // Eliminar un juego (solo admin)
     deleteGame: async (id: number): Promise<void> => {
         await apiAuth.delete(`/games/${id}`);
     },
@@ -192,4 +186,3 @@ const gameService = {
 };
 
 export default gameService;
-

@@ -2,12 +2,13 @@ export interface Game {
     id: number;
     title: string;
     description: string;
-    genres: string[];
+    genres: string;
     releaseDate: string | null;
     coverImage: string;
-    awards?: string[];
+    awards?: string;
     averageRating: number | null;
     likes: number | null;
+    ratingCount?: number; // NUEVO: Cantidad de ratings que tiene el juego
     playerCount: string | null;
     tags: string[];
     igdbId?: number;

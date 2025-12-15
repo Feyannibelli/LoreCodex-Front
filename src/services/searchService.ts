@@ -1,14 +1,10 @@
 import { Game } from '../interfaces/Game';
 import { FiltersState } from '../components/GameFilters';
 
-// Service for filtering games with advanced options
 const searchService = {
-    // Filter games based on search term and filter options
     filterGames: (games: Game[], searchTerm: string, filters?: FiltersState): Game[] => {
-        // Start with all games
         let filteredGames = [...games];
 
-        // Apply text search if provided
         if (searchTerm && searchTerm.trim() !== '') {
             const term = searchTerm.toLowerCase().trim();
             filteredGames = filteredGames.filter(game =>
@@ -17,20 +13,23 @@ const searchService = {
             );
         }
 
-        // Apply filters if provided
         if (filters) {
-            // Filter by genres
             if (filters.genres.length > 0) {
-                filteredGames = filteredGames.filter(game =>
-                    filters.genres.some(filterGenre =>
-                        game.genres.some(gameGenre =>
-                            gameGenre.toLowerCase() === filterGenre.toLowerCase()
+                filteredGames = filteredGames.filter(game => {
+                    if (!game.genre || game.genre.trim() === '') {
+                        return false;
+                    }
+
+                    const gameGenres = game.genre.split(',').map(g => g.trim().toLowerCase());
+
+                    return filters.genres.some(selectedGenre =>
+                        gameGenres.some(gameGenre =>
+                            gameGenre === selectedGenre.toLowerCase()
                         )
-                    )
-                );
+                    );
+                });
             }
 
-            // Filter by release date - after
             if (filters.dateFilter.after) {
                 const afterDate = new Date(filters.dateFilter.after);
                 filteredGames = filteredGames.filter(game =>
@@ -38,7 +37,6 @@ const searchService = {
                 );
             }
 
-            // Filter by release date - before
             if (filters.dateFilter.before) {
                 const beforeDate = new Date(filters.dateFilter.before);
                 filteredGames = filteredGames.filter(game =>
@@ -46,43 +44,33 @@ const searchService = {
                 );
             }
 
-            // Filter by awards
-            if (filters.hasAwards) {
-                filteredGames = filteredGames.filter(game => (game.awards?.length ?? 0) > 0);
+            if (filters.minRating !== null && filters.minRating > 0) {
+                filteredGames = filteredGames.filter(game => {
+                    const rating = game.averageRating || 0;
+                    return rating >= filters.minRating!;
+                });
             }
 
-            // Filter by minimum rating
-            if (filters.minRating !== null) {
-                filteredGames = filteredGames.filter(game =>
-                    game.averageRating != null && game.averageRating >= filters.minRating!
-                );
-            }
-
-            // Apply sorting
             if (filters.sortBy) {
                 filteredGames.sort((a, b) => {
                     let comparison = 0;
 
                     switch (filters.sortBy) {
                         case 'popularity':
-                            // Sort by likes (popularity)
-                            comparison = (b.likes || 0) - (a.likes || 0);
+                            const aRatingCount = a.ratingCount || 0;
+                            const bRatingCount = b.ratingCount || 0;
+                            comparison = bRatingCount - aRatingCount;
                             break;
 
                         case 'releaseDate':
-                            // Sort by release date
-                            const dateA = a.releaseDate ? new Date(a.releaseDate).getTime() : 0;
-                            const dateB = b.releaseDate ? new Date(b.releaseDate).getTime() : 0;
-                            comparison = dateB - dateA;
+                            comparison = new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime();
                             break;
 
                         case 'name':
-                            // Sort by name alphabetically
-                            comparison = a.title.localeCompare(b.title);
+                            comparison = a.name.localeCompare(b.name);
                             break;
                     }
 
-                    // Apply sort direction
                     return filters.sortOrder === 'asc' ? -comparison : comparison;
                 });
             }
@@ -91,21 +79,23 @@ const searchService = {
         return filteredGames;
     },
 
-    // Get unique genres from game list for filter options
     getAvailableGenres: (games: Game[]): string[] => {
-        const genres = new Set<string>();
+        const genresSet = new Set<string>();
 
         games.forEach(game => {
-            if (game.genres && Array.isArray(game.genres)) {
-                game.genres.forEach(g => {
-                    if (g.trim() !== '') {
-                        genres.add(g.trim());
+            if (game.genre && game.genre.trim() !== '') {
+                const gameGenres = game.genre.split(',').map(g => g.trim());
+                gameGenres.forEach(genre => {
+                    if (genre) {
+                        genresSet.add(genre);
                     }
                 });
             }
         });
 
-        return Array.from(genres).sort();
+        return Array.from(genresSet).sort((a, b) =>
+            a.toLowerCase().localeCompare(b.toLowerCase())
+        );
     }
 };
 
