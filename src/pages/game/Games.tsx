@@ -6,9 +6,8 @@ import searchService from "../../services/searchService.ts";
 import GameFilters, { FiltersState } from "../../components/GameFilters.tsx";
 import InfiniteScrollTrigger from "../../components/InfiniteScrollTrigger.tsx";
 import { useInfiniteScroll } from "../../hook/useInfiniteScroll.ts";
-import PrimaryButton from "../../components/ui/PrimaryButton";
-import SecondaryButton from "../../components/ui/SecondaryButton";
-import SearchInput from "../../components/ui/SearchInput";
+import Button from "../../components/Button";
+import SearchBar from "../../components/ui/SearchBar";
 import PageHero from "../../components/ui/PageHero";
 
 const Games: React.FC = () => {
@@ -72,46 +71,45 @@ const Games: React.FC = () => {
     }, [location.search]);
 
     return (
-        <div className="bg-slate-50 min-h-screen py-12">
+        <div className="min-h-screen py-12 bg-bg">
             <div className="mx-auto max-w-6xl space-y-8 px-4">
                 <PageHero
                     title="Games"
-                    description="Explora y filtra tus títulos favoritos con la colección completa de LoreCodex."
+                    description="Explore and filter your favorite titles with LoreCodex's complete collection."
                 >
-                    <form onSubmit={handleSearch} className="space-y-3 md:space-y-0 md:flex md:gap-3">
-                        <SearchInput
-                            placeholder="Search game titles or descriptions"
+                    <div className="space-y-3 md:space-y-0 md:flex md:gap-3 md:items-center">
+                        <SearchBar
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={setSearchTerm}
+                            onSubmit={handleSearch}
+                            placeholder="Search game titles or descriptions..."
+                            className="flex-1"
                         />
-                        <PrimaryButton type="submit">
-                            Search
-                        </PrimaryButton>
-                        <SecondaryButton type="button" onClick={resetFilters}>
-                            Reset filters
-                        </SecondaryButton>
-                    </form>
+                        <Button variant="outline" type="button" onClick={resetFilters}>
+                            Clear filters
+                        </Button>
+                    </div>
                 </PageHero>
 
-                <div className="rounded-3xl border border-slate-200 bg-white px-8 py-10 shadow-sm space-y-6">
+                <div className="rounded-3xl border border bg-surface px-8 py-10 shadow-sm space-y-6">
                     <GameFilters
                         availableGenres={availableGenres}
                         onFilterChange={handleFilterChange}
                         onReset={resetFilters}
                     />
 
-                    <div className="text-sm text-slate-600">
+                    <div className="text-sm text-muted-foreground">
                         Showing {displayedGames.length} games {hasMore && '(loading more...)'}
                     </div>
 
                     {error && (
-                        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                        <div className="rounded-2xl border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                             {error}
                         </div>
                     )}
 
                     {loading && allGames.length === 0 ? (
-                        <div className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-6 text-center text-slate-500">
+                        <div className="rounded-2xl border border bg-surface px-4 py-6 text-center text-text-muted">
                             Loading games...
                         </div>
                     ) : displayedGames.length > 0 ? (
@@ -121,9 +119,9 @@ const Games: React.FC = () => {
                                     <Link
                                         to={`/games/${game.id}`}
                                         key={game.id}
-                                        className="group block overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition hover:border-indigo-200"
+                                        className="group block overflow-hidden rounded-2xl border border bg-surface shadow-sm transition hover:bg-[rgba(245,126,0,0.06)] hover:shadow-md"
                                     >
-                                        <div className="relative h-48 bg-slate-100">
+                                        <div className="relative h-48 bg-muted/30">
                                             {game.imageUrl ? (
                                                 <img
                                                     src={game.imageUrl}
@@ -131,26 +129,26 @@ const Games: React.FC = () => {
                                                     className="h-full w-full object-cover"
                                                 />
                                             ) : (
-                                                <div className="flex h-full items-center justify-center text-slate-400">
+                                                <div className="flex h-full items-center justify-center text-text-muted">
                                                     Game
                                                 </div>
                                             )}
                                         </div>
                                         <div className="space-y-2 p-5">
-                                            <h3 className="text-xl font-semibold text-slate-900 group-hover:text-indigo-600 transition">
+                                            <h3 className="text-xl font-semibold text-text group-hover:text-brand-500 transition">
                                                 {game.name}
                                             </h3>
-                                            <p className="text-sm uppercase tracking-wide text-indigo-600">
+                                            <p className="text-sm uppercase tracking-wide text-brand-500">
                                                 {game.genre || 'Genre TBD'}
                                             </p>
-                                            <div className="flex items-center justify-between text-xs uppercase text-slate-500">
+                                            <div className="flex items-center justify-between text-xs uppercase text-text-muted">
                                                 <span>{new Date(game.releaseDate).getFullYear()}</span>
                                                 {game.averageRating !== undefined && (
                                                     <span>★ {game.averageRating}</span>
                                                 )}
                                             </div>
                                             {game.awards && (
-                                                <div className="flex items-center gap-1 text-xs font-semibold text-orange-600">
+                                                <div className="flex items-center gap-1 text-xs font-semibold text-accent">
                                                     <span>🏆</span>
                                                     <span>Awards listed</span>
                                                 </div>
@@ -169,9 +167,9 @@ const Games: React.FC = () => {
                     ) : (
                         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center text-slate-600 space-y-3">
                             <p>No games found with the current search criteria.</p>
-                            <SecondaryButton onClick={resetFilters} type="button">
+                            <Button variant="outline" onClick={resetFilters} type="button">
                                 Clear all filters
-                            </SecondaryButton>
+                            </Button>
                         </div>
                     )}
                 </div>

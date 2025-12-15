@@ -3,14 +3,14 @@ import { NavLink } from "react-router-dom";
 
 const UserMenu: React.FC = () => {
     return (
-        <nav className="bg-slate-50 border-b border-slate-200 px-4 py-3 flex gap-6 justify-center">
+        <nav className="bg-surface border-b border px-4 py-3 flex gap-6 justify-center">
             <NavLink
                 to="/guides"
                 className={({ isActive }) =>
                     `font-semibold transition-colors ${
                         isActive
-                            ? 'text-orange-600 border-b-2 border-orange-500 pb-1'
-                            : 'text-slate-700 hover:text-indigo-600'
+                            ? 'text-brand-500 border-b-2 border-brand-500 pb-1'
+                            : 'text-text hover:text-brand-500'
                     }`
                 }
             >
@@ -22,8 +22,8 @@ const UserMenu: React.FC = () => {
                 className={({ isActive }) =>
                     `font-semibold transition-colors ${
                         isActive
-                            ? 'text-orange-600 border-b-2 border-orange-500 pb-1'
-                            : 'text-slate-700 hover:text-indigo-600'
+                            ? 'text-brand-500 border-b-2 border-brand-500 pb-1'
+                            : 'text-text hover:text-brand-500'
                     }`
                 }
             >
@@ -35,8 +35,8 @@ const UserMenu: React.FC = () => {
                 className={({ isActive }) =>
                     `font-semibold transition-colors ${
                         isActive
-                            ? 'text-orange-600 border-b-2 border-orange-500 pb-1'
-                            : 'text-slate-700 hover:text-indigo-600'
+                            ? 'text-brand-500 border-b-2 border-brand-500 pb-1'
+                            : 'text-text hover:text-brand-500'
                     }`
                 }
             >
@@ -48,8 +48,8 @@ const UserMenu: React.FC = () => {
                 className={({ isActive }) =>
                     `font-semibold transition-colors ${
                         isActive
-                            ? 'text-orange-600 border-b-2 border-orange-500 pb-1'
-                            : 'text-slate-700 hover:text-indigo-600'
+                            ? 'text-brand-500 border-b-2 border-brand-500 pb-1'
+                            : 'text-text hover:text-brand-500'
                     }`
                 }
             >
@@ -62,8 +62,8 @@ const UserMenu: React.FC = () => {
                 className={({ isActive }) =>
                     `font-semibold transition-colors ${
                         isActive
-                            ? 'text-orange-600 border-b-2 border-orange-500 pb-1'
-                            : 'text-slate-700 hover:text-indigo-600'
+                            ? 'text-brand-500 border-b-2 border-brand-500 pb-1'
+                            : 'text-text hover:text-brand-500'
                     }`
                 }
             >

@@ -79,9 +79,11 @@ const ListDetailPage: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="container mx-auto px-4 py-8">
-                <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            <div className="min-h-screen bg-bg py-12">
+                <div className="mx-auto max-w-6xl px-4">
+                    <div className="flex justify-center items-center h-64">
+                        <div className="text-text-muted">Loading list...</div>
+                    </div>
                 </div>
             </div>
         );
@@ -89,13 +91,17 @@ const ListDetailPage: React.FC = () => {
 
     if (error || !list) {
         return (
-            <div className="container mx-auto px-4 py-8">
-                <div className="text-center">
-                    <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-                    <p className="text-gray-600 mb-4">{error || 'List not found'}</p>
-                    <Button onClick={() => navigate('/lists')} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
-                        Back to Lists
-                    </Button>
+            <div className="min-h-screen bg-bg py-12">
+                <div className="mx-auto max-w-6xl px-4">
+                    <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                        <div className="px-8 py-10 text-center">
+                            <h2 className="text-2xl font-bold text-destructive mb-4">Error</h2>
+                            <p className="text-text-muted mb-6">{error || 'List not found'}</p>
+                            <Button onClick={() => navigate('/lists')} variant="default">
+                                Back to Lists
+                            </Button>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -104,131 +110,142 @@ const ListDetailPage: React.FC = () => {
     const isOwner = user && user.id === list.userId;
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
-            {/* Header */}
-            <div className="bg-white dark:bg-[#313E3F] rounded-lg shadow-md p-6 mb-6">
-                <div className="flex justify-between items-start mb-4">
-                    <div className="flex-1">
-                        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">{list.title}</h1>
-                        <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
-                            <span>By{' '}
-                                <Link to={`/profile/${list.userId}`} className="text-indigo-600 hover:underline">
-                                {list.username}
-                            </Link>
-                            </span>
-                            <span>•</span>
-                            <span>{list.items.length} items</span>
-                            <span>•</span>
-                            <span>Created {new Date(list.createdAt).toLocaleDateString()}</span>
-                        </div>
-
-                        {/* Descripción */}
-                        {list.description && (
-                            <div className="border-t pt-4">
-                                <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">Descripción</h2>
-                                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                                    <UnifiedContentRenderer content={list.description} />
+        <div className="min-h-screen bg-bg py-12">
+            <div className="mx-auto max-w-6xl px-4 space-y-8">
+                {/* Header */}
+                <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                    <div className="px-8 py-10">
+                        <div className="flex justify-between items-start mb-6">
+                            <div className="flex-1">
+                                <div className="mb-4">
+                                    <p className="text-sm font-semibold uppercase tracking-wide text-brand-500 mb-2">Community List</p>
+                                    <h1 className="text-4xl font-bold text-text mb-4">{list.title}</h1>
+                                    <div className="flex items-center gap-4 text-sm text-text-muted">
+                                        <span>
+                                            By{' '}
+                                            <Link to={`/profile/${list.userId}`} className="text-brand-500 hover:text-brand-600 transition-colors">
+                                                {list.username}
+                                            </Link>
+                                        </span>
+                                        <span>•</span>
+                                        <span>{list.items.length} items</span>
+                                        <span>•</span>
+                                        <span>Created {new Date(list.createdAt).toLocaleDateString()}</span>
+                                    </div>
                                 </div>
+
+                                {list.description && (
+                                    <div className="border-t border pt-6">
+                                        <h2 className="text-lg font-semibold text-text mb-3">Description</h2>
+                                        <div className="rounded-2xl border border bg-surface-2 p-4">
+                                            <UnifiedContentRenderer content={list.description} />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {isOwner && (
+                                <div className="flex gap-2 ml-4">
+                                    <Link to={`/lists/edit/${list.id}`}>
+                                        <Button variant="outline">
+                                            Edit
+                                        </Button>
+                                    </Link>
+                                    <Button
+                                        onClick={handleDeleteList}
+                                        variant="destructive"
+                                    >
+                                        Delete
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Items List */}
+                <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                    <div className="px-8 py-10">
+                        <h2 className="text-2xl font-bold text-text mb-6">Items</h2>
+
+                        {list.items.length === 0 ? (
+                            <div className="text-center py-12 rounded-2xl border border bg-surface-2">
+                                <p className="text-text-muted">This list is empty.</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {list.items
+                                    .sort((a, b) => a.position - b.position)
+                                    .map((item, index) => (
+                                        <Link
+                                            key={item.id}
+                                            to={getItemRoute(item)}
+                                            className="flex items-center gap-4 p-4 rounded-2xl border border bg-surface-2 hover:bg-[rgba(245,126,0,0.06)] transition"
+                                        >
+                                            <div className="flex items-center justify-center w-10 h-10 bg-brand-100 text-brand-500 rounded-full font-semibold text-sm flex-shrink-0">
+                                                {index + 1}
+                                            </div>
+
+                                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                <span className="text-2xl flex-shrink-0">{getItemIcon(item.type)}</span>
+
+                                                {item.thumbnailUrl && (
+                                                    <img
+                                                        src={item.thumbnailUrl}
+                                                        alt={item.title}
+                                                        className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                                                    />
+                                                )}
+
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="font-semibold text-text truncate">{item.title}</h3>
+                                                    <p className="text-sm text-text-muted capitalize">{item.type.toLowerCase()}</p>
+                                                </div>
+                                            </div>
+
+                                            <span className="text-brand-500 font-medium flex-shrink-0">
+                                                View →
+                                            </span>
+                                        </Link>
+                                    ))}
                             </div>
                         )}
                     </div>
+                </div>
+
+                {/* Comments */}
+                <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                    <div className="px-8 py-10">
+                        <CommentSection
+                            entityType="list"
+                            entityId={list.id}
+                            currentUser={user ? {
+                                id: user.id,
+                                username: user.username,
+                                isAdmin: isAdmin
+                            } : null}
+                        />
+                    </div>
+                </div>
+
+                {/* Navigation */}
+                <div className="flex justify-between items-center">
+                    <Button
+                        onClick={() => navigate('/lists')}
+                        variant="outline"
+                    >
+                        ← Back to Lists
+                    </Button>
 
                     {isOwner && (
-                        <div className="flex gap-2 ml-4">
-                            <Link to={`/lists/edit/${list.id}`}>
-                                <Button className="!bg-transparent !text-indigo-600 !border !border-indigo-600 hover:!bg-indigo-50 px-4 py-2 rounded">
-                                    Edit
-                                </Button>
-                            </Link>
-                            <Button
-                                onClick={handleDeleteList}
-                                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-                            >
-                                Delete
-                            </Button>
-                        </div>
+                        <Link
+                            to="/my-lists"
+                            className="text-brand-500 hover:text-brand-600 font-medium transition-colors"
+                        >
+                            View My Lists →
+                        </Link>
                     )}
                 </div>
-            </div>
-
-            {/* Items List */}
-            <div className="bg-white dark:bg-[#313E3F] rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Items</h2>
-
-                {list.items.length === 0 ? (
-                    <div className="text-center py-8">
-                        <p className="text-gray-500 dark:text-gray-400">This list is empty.</p>
-                    </div>
-                ) : (
-                    <div className="space-y-3">
-                        {list.items
-                            .sort((a, b) => a.position - b.position)
-                            .map((item, index) => (
-                                <div
-                                    key={item.id}
-                                    className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                                >
-                                    <div className="flex items-center justify-center w-8 h-8 bg-orange-500/10 text-orange-600 rounded-full font-semibold text-sm">
-                                        {index + 1}
-                                    </div>
-
-                                    <div className="flex items-center gap-3 flex-1">
-                                        <span className="text-2xl">{getItemIcon(item.type)}</span>
-
-                                        {item.thumbnailUrl && (
-                                            <img
-                                                src={item.thumbnailUrl}
-                                                alt={item.title}
-                                                className="w-12 h-12 object-cover rounded"
-                                            />
-                                        )}
-
-                                        <div className="flex-1">
-                                            <h3 className="font-semibold text-gray-800 dark:text-white">{item.title}</h3>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{item.type.toLowerCase()}</p>
-                                        </div>
-                                    </div>
-
-                                    <Link
-                                        to={getItemRoute(item)}
-                                        className="text-indigo-600 hover:text-indigo-700 font-medium"
-                                    >
-                                        View →
-                                    </Link>
-                                </div>
-                            ))}
-                    </div>
-                )}
-            </div>
-
-            {/* ========== COMENTARIOS ========== */}
-            <CommentSection
-                entityType="list"
-                entityId={list.id}
-                currentUser={user ? {
-                    id: user.id,
-                    username: user.username,
-                    isAdmin: isAdmin
-                } : null}
-            />
-
-            {/* Navigation */}
-            <div className="mt-8 flex justify-between items-center">
-                <Button
-                    onClick={() => navigate('/lists')}
-                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
-                >
-                    ← Back to Lists
-                </Button>
-
-                {isOwner && (
-                    <Link
-                        to="/my-lists"
-                        className="text-indigo-600 hover:text-indigo-700 font-medium"
-                    >
-                        View My Lists →
-                    </Link>
-                )}
             </div>
         </div>
     );

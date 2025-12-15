@@ -22,7 +22,7 @@ const Header: React.FC = () => {
     };
 
     return (
-        <header className="grid grid-cols-3 items-center p-4 shadow-md sticky top-0 bg-white dark:bg-[#313E3F] z-50 transition-colors">
+        <header className="grid grid-cols-3 items-center p-4 shadow-lg sticky top-0 bg-surface border-b border z-50 transition-colors">
             {/* Left: Back */}
             <div className="justify-self-start">
                 {!isHome ? (
@@ -30,9 +30,9 @@ const Header: React.FC = () => {
                         type="button"
                         onClick={handleBack}
                         aria-label="Volver"
-                        className="h-9 w-9 inline-flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                        className="h-9 w-9 inline-flex items-center justify-center rounded-full hover:bg-surface-2 transition-colors"
                     >
-                        <ArrowLeft className="h-5 w-5 text-[#0C0C0C] dark:text-white" />
+                        <ArrowLeft className="h-5 w-5 text-text hover:text-brand-500 transition-colors" />
                     </button>
                 ) : (
                     <div className="h-9 w-9" />
@@ -40,7 +40,7 @@ const Header: React.FC = () => {
             </div>
 
             {/* Center: Logo */}
-            <div className="justify-self-center text-2xl font-bold text-orange-500">
+            <div className="justify-self-center text-2xl font-bold text-brand-500 hover:text-brand-600 transition-colors">
                 <Link to="/">LoreCodex</Link>
             </div>
 
@@ -51,12 +51,12 @@ const Header: React.FC = () => {
                         {/* dropdown del admin*/}
                         {isAdmin && (
                             <DropdownMenu>
-                                <DropdownMenuTrigger className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 cursor-pointer">
+                                <DropdownMenuTrigger className="px-3 py-1 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors cursor-pointer font-medium">
                                     Admin
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
                                     align="end"
-                                    className="w-32 shadow-lg rounded-md bg-white dark:bg-[#313E3F] animate-fade-in-scale"
+                                    className="w-32 shadow-lg rounded-lg bg-surface border border text-text animate-fade-in-scale"
                                 >
                                     <DropdownMenuItem asChild>
                                         <Link to="/admin/users">Users</Link>
@@ -81,7 +81,7 @@ const Header: React.FC = () => {
                         <DropdownMenu>
                             <div className="flex items-center gap-2">
                                 {/* círculo que lleva al profile */}
-                                <Link to="/profile" className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-300 text-black font-semibold overflow-hidden">
+                                <Link to="/profile" className="h-8 w-8 flex items-center justify-center rounded-full bg-brand-500 text-white font-semibold overflow-hidden hover:bg-brand-600 transition-colors">
                                     {user?.profilePicture ? (
                                         <img
                                             src={user.profilePicture}
@@ -95,11 +95,11 @@ const Header: React.FC = () => {
 
                                 {/* flechita q abre el dropdown */}
                                 <DropdownMenuTrigger className="flex items-center justify-center">
-                                    <ChevronDown className="h-4 w-4 text-[#0C0C0C] dark:text-white cursor-pointer" />
+                                    <ChevronDown className="h-4 w-4 text-text cursor-pointer hover:text-brand-500 transition-colors" />
                                 </DropdownMenuTrigger>
                             </div>
 
-                            <DropdownMenuContent align="end" className="w-56 text-lg shadow-lg rounded-md bg-white dark:bg-[#313E3F] animate-fade-in-scale">
+                            <DropdownMenuContent align="end" className="w-56 text-lg shadow-lg rounded-lg bg-surface border border text-text animate-fade-in-scale">
                                 <DropdownMenuItem asChild>
                                     <Link to="/profile">Profile</Link>
                                 </DropdownMenuItem>
@@ -116,11 +116,11 @@ const Header: React.FC = () => {
                     </>
                 ) : (
                     <>
-                        <Link to="/login" className="text-sm font-semibold text-[#0C0C0C] dark:text-white hover:underline">
+                        <Link to="/login" className="text-sm font-semibold text-text hover:text-brand-500 transition-colors">
                             Login
                         </Link>
-                        <span className="text-[#0C0C0C] dark:text-white">|</span>
-                        <Link to="/register" className="text-sm font-semibold text-[#0C0C0C] dark:text-white hover:underline">
+                        <span className="text-text-muted">|</span>
+                        <Link to="/register" className="text-sm font-semibold text-text hover:text-brand-500 transition-colors">
                             Register
                         </Link>
                     </>

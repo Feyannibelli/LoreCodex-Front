@@ -46,7 +46,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 
 const App: React.FC = () => {
     return (
-        <div>
+        <div className="min-h-screen bg-bg">
             <Header />
             <UserMenu />
             <Routes>

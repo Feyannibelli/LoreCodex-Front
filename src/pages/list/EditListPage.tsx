@@ -6,6 +6,7 @@ import Button from '../../components/Button';
 import gameService from '../../services/gameService';
 import guideService from '../../services/guideService';
 import challengeService from '../../services/challengeService';
+import UnifiedContentEditor from '../../components/UnifiedContentEditor';
 
 interface SearchableItem {
     id: number;
@@ -52,7 +53,6 @@ const EditListPage: React.FC = () => {
             setLoading(true);
             const listData = await listService.getListById(parseInt(id));
 
-            // Check if user owns this list
             if (!user || user.id !== listData.userId) {
                 navigate('/lists');
                 return;
@@ -62,7 +62,6 @@ const EditListPage: React.FC = () => {
             setTitle(listData.title);
             setDescription(listData.description);
 
-            // Convert existing items to ListItemRequest format
             const existingItems: ListItemRequest[] = listData.items.map(item => ({
                 type: item.type,
                 referenceId: item.referenceId,
@@ -70,7 +69,6 @@ const EditListPage: React.FC = () => {
             }));
             setSelectedItems(existingItems);
 
-            // Store display names for existing items
             const names: { [key: string]: string } = {};
             listData.items.forEach(item => {
                 const key = `${item.type}-${item.referenceId}`;
@@ -149,7 +147,6 @@ const EditListPage: React.FC = () => {
             };
             setSelectedItems([...selectedItems, newItem]);
 
-            // Store display name
             const key = `${item.type}-${item.id}`;
             setItemDisplayNames(prev => ({
                 ...prev,
@@ -206,7 +203,6 @@ const EditListPage: React.FC = () => {
             navigate(`/lists/${originalList.id}`);
         } catch (error) {
             console.error('Error updating list:', error);
-            // Handle error (e.g., show notification)
         } finally {
             setIsSubmitting(false);
         }
@@ -214,179 +210,198 @@ const EditListPage: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="container mx-auto px-4 py-8">
-                <div className="text-center">Loading list...</div>
+            <div className="min-h-screen bg-bg py-12">
+                <div className="mx-auto max-w-6xl px-4">
+                    <div className="text-center text-text-muted">Loading list...</div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-            <h1 className="text-3xl font-bold text-gray-800 mb-8">Edit List</h1>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Basic Info */}
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                    <h2 className="text-xl font-semibold mb-4">List Information</h2>
-
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Title *
-                        </label>
-                        <input
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
-                            placeholder="Enter list title..."
-                        />
-                    </div>
-
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Description
-                        </label>
-                        <textarea
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            rows={3}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
-                            placeholder="Describe your list..."
-                        />
+        <div className="min-h-screen bg-bg py-12">
+            <div className="mx-auto max-w-6xl px-4">
+                <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm mb-8">
+                    <div className="px-8 py-10">
+                        <div className="mb-6">
+                            <p className="text-sm font-semibold uppercase tracking-wide text-brand-500 mb-2">Edit</p>
+                            <h1 className="text-4xl font-bold text-text">Edit List</h1>
+                        </div>
                     </div>
                 </div>
 
-                {/* Add Items */}
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                    <h2 className="text-xl font-semibold mb-4">Add New Items</h2>
+                <form onSubmit={handleSubmit} className="space-y-8">
+                    {/* Basic Info */}
+                    <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                        <div className="px-8 py-10">
+                            <h2 className="text-2xl font-bold text-text mb-6">List Information</h2>
 
-                    <div className="flex gap-4 mb-4">
-                        <select
-                            value={searchType}
-                            onChange={(e) => setSearchType(e.target.value as ListItemType)}
-                            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-600"
-                        >
-                            <option value={ListItemType.GAME}>Games</option>
-                            <option value={ListItemType.GUIDE}>Guides</option>
-                            <option value={ListItemType.CHALLENGE}>Challenges</option>
-                        </select>
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-text mb-2">
+                                    Title *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    required
+                                    className="w-full px-4 py-3 rounded-lg border border bg-surface-2 text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all"
+                                    placeholder="Enter list title..."
+                                />
+                            </div>
 
-                        <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder={`Search ${searchType.toLowerCase()}s...`}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
-                        />
+                            <div>
+                                <UnifiedContentEditor
+                                    label="Description"
+                                    value={description}
+                                    onChange={setDescription}
+                                    rows={8}
+                                    helpText="Describe your list. You can use Markdown for text formatting."
+                                />
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Search Results */}
-                    {isSearching && <div className="text-center py-4">Searching...</div>}
+                    {/* Add New Items */}
+                    <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                        <div className="px-8 py-10">
+                            <h2 className="text-2xl font-bold text-text mb-6">Add New Items</h2>
 
-                    {searchResults.length > 0 && (
-                        <div className="mb-6">
-                            <h3 className="font-medium mb-2">Search Results:</h3>
-                            <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-md">
-                                {searchResults.map((item) => (
-                                    <div
-                                        key={`${item.type}-${item.id}`}
-                                        className="flex items-center justify-between p-3 border-b hover:bg-gray-50"
-                                    >
-                                        <div className="flex items-center">
-                                            {item.thumbnailUrl && (
-                                                <img
-                                                    src={item.thumbnailUrl}
-                                                    alt={item.title}
-                                                    className="w-10 h-10 object-cover rounded mr-3"
-                                                />
-                                            )}
-                                            <div>
-                                                <span className="font-medium">{item.title}</span>
-                                                <span className="text-sm text-gray-500 ml-2">({item.type})</span>
+                            <div className="flex gap-4 mb-6">
+                                <select
+                                    value={searchType}
+                                    onChange={(e) => setSearchType(e.target.value as ListItemType)}
+                                    className="px-4 py-3 rounded-lg border border bg-surface-2 text-text focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all"
+                                >
+                                    <option value={ListItemType.GAME}>Games</option>
+                                    <option value={ListItemType.GUIDE}>Guides</option>
+                                    <option value={ListItemType.CHALLENGE}>Challenges</option>
+                                </select>
+
+                                <input
+                                    type="text"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder={`Search ${searchType.toLowerCase()}s...`}
+                                    className="flex-1 px-4 py-3 rounded-lg border border bg-surface-2 text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all"
+                                />
+                            </div>
+
+                            {isSearching && (
+                                <div className="text-center py-4 text-text-muted">Searching...</div>
+                            )}
+
+                            {searchResults.length > 0 && (
+                                <div className="mb-6">
+                                    <h3 className="font-medium text-text mb-3">Search Results:</h3>
+                                    <div className="max-h-60 overflow-y-auto rounded-lg border border bg-surface-2">
+                                        {searchResults.map((item) => (
+                                            <div
+                                                key={`${item.type}-${item.id}`}
+                                                className="flex items-center justify-between p-3 border-b border last:border-b-0 hover:bg-[rgba(245,126,0,0.06)] transition"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    {item.thumbnailUrl && (
+                                                        <img
+                                                            src={item.thumbnailUrl}
+                                                            alt={item.title}
+                                                            className="w-12 h-12 object-cover rounded"
+                                                        />
+                                                    )}
+                                                    <div>
+                                                        <span className="font-medium text-text">{item.title}</span>
+                                                        <span className="text-sm text-text-muted ml-2">({item.type})</span>
+                                                    </div>
+                                                </div>
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => addItemToList(item)}
+                                                    variant="default"
+                                                    size="sm"
+                                                >
+                                                    Add
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Selected Items */}
+                    {selectedItems.length > 0 && (
+                        <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                            <div className="px-8 py-10">
+                                <h2 className="text-2xl font-bold text-text mb-6">List Items ({selectedItems.length})</h2>
+
+                                <div className="space-y-3">
+                                    {selectedItems.map((item, index) => (
+                                        <div
+                                            key={`${item.type}-${item.referenceId}-${index}`}
+                                            className="flex items-center justify-between p-4 rounded-lg border border bg-surface-2"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-sm font-medium text-text-muted w-8">#{index + 1}</span>
+                                                <span className="font-medium text-text">{getItemDisplayName(item)}</span>
+                                                <span className="text-sm text-text-muted">({item.type})</span>
+                                            </div>
+
+                                            <div className="flex items-center gap-2">
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => moveItem(index, 'up')}
+                                                    disabled={index === 0}
+                                                    variant="outline"
+                                                    size="sm"
+                                                >
+                                                    ↑
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => moveItem(index, 'down')}
+                                                    disabled={index === selectedItems.length - 1}
+                                                    variant="outline"
+                                                    size="sm"
+                                                >
+                                                    ↓
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => removeItemFromList(index)}
+                                                    variant="destructive"
+                                                    size="sm"
+                                                >
+                                                    Remove
+                                                </Button>
                                             </div>
                                         </div>
-                                        <Button
-                                            type="button"
-                                            onClick={() => addItemToList(item)}
-                                            className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm"
-                                        >
-                                            Add
-                                        </Button>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     )}
-                </div>
 
-                {/* Selected Items */}
-                {selectedItems.length > 0 && (
-                    <div className="bg-white p-6 rounded-lg shadow-md">
-                        <h2 className="text-xl font-semibold mb-4">List Items ({selectedItems.length})</h2>
+                    {/* Submit */}
+                    <div className="flex gap-4">
+                        <Button
+                            type="submit"
+                            disabled={!title.trim() || selectedItems.length === 0 || isSubmitting}
+                            variant="default"
+                        >
+                            {isSubmitting ? 'Updating...' : 'Update List'}
+                        </Button>
 
-                        <div className="space-y-2">
-                            {selectedItems.map((item, index) => (
-                                <div
-                                    key={`${item.type}-${item.referenceId}-${index}`}
-                                    className="flex items-center justify-between p-3 bg-gray-50 rounded-md"
-                                >
-                                    <div className="flex items-center">
-                                        <span className="text-sm text-gray-500 mr-3">#{index + 1}</span>
-                                        <span className="font-medium">{getItemDisplayName(item)}</span>
-                                        <span className="text-sm text-gray-500 ml-2">({item.type})</span>
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                        <Button
-                                            type="button"
-                                            onClick={() => moveItem(index, 'up')}
-                                            disabled={index === 0}
-                                            className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-sm disabled:opacity-50"
-                                        >
-                                            ↑
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            onClick={() => moveItem(index, 'down')}
-                                            disabled={index === selectedItems.length - 1}
-                                            className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-sm disabled:opacity-50"
-                                        >
-                                            ↓
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            onClick={() => removeItemFromList(index)}
-                                            className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm"
-                                        >
-                                            Remove
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        <Button
+                            type="button"
+                            onClick={() => navigate(originalList ? `/lists/${originalList.id}` : '/lists')}
+                            variant="outline"
+                        >
+                            Cancel
+                        </Button>
                     </div>
-                )}
-
-                {/* Submit */}
-                <div className="flex gap-4">
-                    <Button
-                        type="submit"
-                        disabled={!title.trim() || selectedItems.length === 0 || isSubmitting}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded disabled:opacity-50"
-                    >
-                        {isSubmitting ? 'Updating...' : 'Update List'}
-                    </Button>
-
-                    <Button
-                        type="button"
-                        onClick={() => navigate(originalList ? `/lists/${originalList.id}` : '/lists')}
-                        className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded"
-                    >
-                        Cancel
-                    </Button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     );
 };

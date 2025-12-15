@@ -38,18 +38,18 @@ const CreateGuideForm: React.FC = () => {
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                Crear Nueva Guía
+                Create New Guide
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Título */}
                 <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Título *
+                        Title *
                     </label>
                     <input
                         type="text"
-                        placeholder="Título de tu guía"
+                        placeholder="Your guide title"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-3 focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
@@ -60,22 +60,22 @@ const CreateGuideForm: React.FC = () => {
                 {/* Contenido - UNIFICADO */}
                 <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
                     <UnifiedContentEditor
-                        label="Contenido *"
+                        label="Content *"
                         value={content}
                         onChange={setContent}
                         rows={15}
-                        placeholder="Escribe tu guía usando Markdown y menciones...
+                        placeholder="Write your guide using Markdown and mentions...
 
-# Título Principal
-## Subtítulo
+# Main Title
+## Subtitle
 
-**Texto en negrita** y *texto en cursiva*
+**Bold text** and *italic text*
 
-Menciona contenido relacionado:
-• /games/ para juegos
-• /guides/ para otras guías
-• /challenges/ para desafíos"
-                        helpText="Usa Markdown para formato y menciones para referenciar contenido."
+Mention related content:
+• /games/ for games
+• /guides/ for other guides
+• /challenges/ for challenges"
+                        helpText="Use Markdown for formatting and mentions to reference content."
                     />
                 </div>
 

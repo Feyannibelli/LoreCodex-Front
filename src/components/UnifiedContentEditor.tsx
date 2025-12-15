@@ -21,7 +21,7 @@ interface UnifiedContentEditorProps {
 const UnifiedContentEditor: React.FC<UnifiedContentEditorProps> = ({
                                                                        value,
                                                                        onChange,
-                                                                       placeholder = "Escribe tu contenido... Usa Markdown para formato y /games/, /guides/, etc. para menciones",
+                                                                       placeholder = "Write your content... Use Markdown for formatting and /games/, /guides/, etc. for mentions",
                                                                        rows = 10,
                                                                        label,
                                                                        helpText
@@ -48,7 +48,7 @@ const UnifiedContentEditor: React.FC<UnifiedContentEditorProps> = ({
                             : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                 >
-                    ✏️ Editar
+                    ✏️ Edit
                 </button>
                 <button
                     type="button"
@@ -59,7 +59,7 @@ const UnifiedContentEditor: React.FC<UnifiedContentEditorProps> = ({
                             : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                 >
-                    👁️ Vista Previa
+                    👁️ Preview
                 </button>
             </div>
 
@@ -122,7 +122,7 @@ const UnifiedContentEditor: React.FC<UnifiedContentEditorProps> = ({
                             }
                         }}
                         className="px-2 py-1 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
-                        title="Título"
+                        title="Title"
                     >
                         H
                     </button>
@@ -137,7 +137,7 @@ const UnifiedContentEditor: React.FC<UnifiedContentEditorProps> = ({
                             }
                         }}
                         className="px-2 py-1 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
-                        title="Lista"
+                        title="List"
                     >
                         •
                     </button>
@@ -148,13 +148,13 @@ const UnifiedContentEditor: React.FC<UnifiedContentEditorProps> = ({
                             if (textarea) {
                                 const start = textarea.selectionStart;
                                 const end = textarea.selectionEnd;
-                                const selected = value.substring(start, end) || 'código';
+                                const selected = value.substring(start, end) || 'code';
                                 const newValue = value.substring(0, start) + `\`${selected}\`` + value.substring(end);
                                 onChange(newValue);
                             }
                         }}
                         className="px-2 py-1 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 font-mono"
-                        title="Código"
+                        title="Code"
                     >
                         &lt;/&gt;
                     </button>
@@ -168,7 +168,7 @@ const UnifiedContentEditor: React.FC<UnifiedContentEditorProps> = ({
                         <UnifiedContentRenderer content={value} />
                     ) : (
                         <p className="text-gray-500 dark:text-gray-400 italic text-center py-8">
-                            Escribe algo en el editor para ver la vista previa...
+                            Write something in the editor to see the preview...
                         </p>
                     )}
                 </div>
@@ -194,11 +194,11 @@ const UnifiedContentEditor: React.FC<UnifiedContentEditorProps> = ({
             {!showPreview && (
                 <div className="bg-indigo-600/10 border border-indigo-600/20 rounded-lg p-3">
                     <p className="text-xs text-indigo-700 dark:text-indigo-300">
-                        <strong>💡 Tip:</strong> Usa <strong>**negrita**</strong>, <em>*cursiva*</em>,
-                        <code className="bg-indigo-600/10 px-1 rounded">`código`</code>,
-                        <strong>## Títulos</strong>, y menciones como <strong>/games/</strong>,
+                        <strong>💡 Tip:</strong> Use <strong>**bold**</strong>, <em>*italic*</em>,
+                        <code className="bg-indigo-600/10 px-1 rounded">`code`</code>,
+                        <strong>## Titles</strong>, and mentions like <strong>/games/</strong>,
                         <strong>/guides/</strong>, <strong>/challenges/</strong>, <strong>/lists/</strong>,
-                        <strong>/news/</strong> para referenciar contenido.
+                        <strong>/news/</strong> to reference content.
                     </p>
                 </div>
             )}

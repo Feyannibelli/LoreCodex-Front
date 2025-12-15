@@ -9,12 +9,16 @@ interface PageHeroProps {
 }
 
 const PageHero: React.FC<PageHeroProps> = ({ title, subtitle, description, actions, children }) => (
-    <div className="rounded-3xl border border-slate-200 bg-white shadow-sm" style={{ background: 'var(--page-gradient)' }}>
+    <div className="rounded-3xl border border bg-surface shadow-sm">
         <div className="px-8 py-10 space-y-6">
             <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-widest text-indigo-600">{subtitle ?? 'LoreCodex'}</p>
-                <h1 className="text-4xl font-bold text-slate-900">{title}</h1>
-                {description && <p className="text-base text-slate-600">{description}</p>}
+                {subtitle && (
+                    <p className="text-sm font-semibold uppercase tracking-wide text-brand-500">
+                        {subtitle}
+                    </p>
+                )}
+                <h1 className="text-4xl font-bold text-text mt-1">{title}</h1>
+                {description && <p className="text-sm text-text-muted mt-1">{description}</p>}
             </div>
             {children}
             {actions && (

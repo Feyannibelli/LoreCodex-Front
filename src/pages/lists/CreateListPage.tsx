@@ -111,7 +111,7 @@ const CreateListPage: React.FC = () => {
                         Inicia sesión requerida
                     </h2>
                     <p className="text-yellow-700">
-                        Necesitas iniciar sesión para crear una lista.
+                        You need to log in to create a list.
                     </p>
                 </div>
             </div>
@@ -123,10 +123,10 @@ const CreateListPage: React.FC = () => {
             {/* Header */}
             <div className="text-center">
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                    Crear Nueva Lista
+                    Create New List
                 </h1>
                 <p className="text-gray-600">
-                    Crea y comparte tu lista de juegos favoritos
+                    Create and share your favorite games list
                 </p>
             </div>
 
@@ -135,34 +135,34 @@ const CreateListPage: React.FC = () => {
                 {/* Título */}
                 <div>
                     <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-                        Título de la lista *
+                        List Title *
                     </label>
                     <input
                         id="title"
                         type="text"
-                        placeholder="Ej: Mis juegos favoritos de 2024"
+                        placeholder="E.g.: My favorite games of 2024"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
                         maxLength={100}
                     />
                     <p className="text-sm text-gray-500 mt-1">
-                        {title.length}/100 caracteres
+                        {title.length}/100 characters
                     </p>
                 </div>
 
                 {/* Descripción con Markdown */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Descripción
+                        Description
                     </label>
                     <p className="text-sm text-gray-500 mb-3">
-                        Describe tu lista. Puedes usar Markdown para dar formato al texto.
+                        Describe your list. You can use Markdown to format the text.
                     </p>
                     <MarkdownEditor
                         value={description}
                         onChange={setDescription}
-                        placeholder="Describe tu lista... Puedes usar **negrita**, *cursiva*, enlaces [texto](URL), etc."
+                        placeholder="Describe your list... You can use **bold**, *italic*, links [text](URL), etc."
                         rows={8}
                     />
                 </div>
@@ -170,13 +170,13 @@ const CreateListPage: React.FC = () => {
                 {/* Agregar juegos */}
                 <div>
                     <label htmlFor="game-search" className="block text-sm font-medium text-gray-700 mb-2">
-                        Agregar juegos *
+                        Add Games *
                     </label>
                     <div className="relative">
                         <input
                             id="game-search"
                             type="text"
-                            placeholder="Buscar juegos para agregar..."
+                            placeholder="Search games to add..."
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
@@ -284,10 +284,10 @@ const CreateListPage: React.FC = () => {
             <div className="bg-indigo-600/10 border border-indigo-600/20 rounded-lg p-4">
                 <h3 className="font-medium text-indigo-700 dark:text-indigo-300 mb-2">💡 Consejos para crear una buena lista</h3>
                 <ul className="text-sm text-indigo-700 dark:text-indigo-300 space-y-1">
-                    <li>• Usa un título descriptivo que explique el tema de tu lista</li>
-                    <li>• En la descripción, explica los criterios de selección o el contexto</li>
-                    <li>• Puedes usar Markdown para formatear la descripción (negrita, cursiva, enlaces, etc.)</li>
-                    <li>• Ordena los juegos de manera lógica (por preferencia, cronológicamente, etc.)</li>
+                    <li>• Use a descriptive title that explains the theme of your list</li>
+                    <li>• In the description, explain the selection criteria or context</li>
+                    <li>• You can use Markdown to format the description (bold, italic, links, etc.)</li>
+                    <li>• Order games logically (by preference, chronologically, etc.)</li>
                 </ul>
             </div>
         </div>

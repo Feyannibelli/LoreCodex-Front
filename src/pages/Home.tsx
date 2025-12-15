@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "../css/Home.css";
-import { Search } from "lucide-react";
-
+import SearchBar from "../components/ui/SearchBar";
 import { Game } from "../interfaces/Game";
 import gameService from "../services/gameService";
 import newsService from "../services/newsService";
@@ -11,23 +9,19 @@ import { Guide } from "../interfaces/Guide.ts";
 import guideService from "../services/guideService.ts";
 
 const Home: React.FC = () => {
-    /* ---------- state ---------- */
     const [popularGuides, setPopularGuides] = useState<Guide[]>([]);
     const [recentlyAdded, setRecentlyAdded] = useState<Game[]>([]);
-    const [popularGames,  setPopularGames]  = useState<Game[]>([]);
-    const [latestNews,    setLatestNews]    = useState<News[]>([]);
+    const [popularGames, setPopularGames] = useState<Game[]>([]);
+    const [latestNews, setLatestNews] = useState<News[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error,   setError]   = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
 
     const navigate = useNavigate();
 
-    /* ---------- effects ---------- */
-    /* published guides */
     useEffect(() => {
         guideService.getPublishedGuides()
             .then((guides: Guide[]) => {
-                // Mostrar las 6 más recientes
                 const recent = guides
                     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                     .slice(0, 6);
@@ -36,23 +30,20 @@ const Home: React.FC = () => {
             .catch(err => console.error("Error fetching guides:", err));
     }, []);
 
-    /* games */
     useEffect(() => { loadGames(); }, []);
 
-    /* recent news */
     useEffect(() => {
         newsService.getRecent(5)
             .then(res => setLatestNews(res.data))
             .catch(err => console.error("Error loading news:", err));
     }, []);
 
-    /* ---------- helpers ---------- */
     const loadGames = async () => {
         try {
             setLoading(true);
             const allGames = await gameService.getAllGames();
 
-            const recent  = [...allGames]
+            const recent = [...allGames]
                 .sort((a, b) => +new Date(b.releaseDate) - +new Date(a.releaseDate))
                 .slice(0, 10);
 
@@ -78,148 +69,224 @@ const Home: React.FC = () => {
         }
     };
 
-    /* ---------- render ---------- */
     return (
-        <div className="home-container">
-            {/* Search bar */}
-            <div className="search-container">
-                <form className="search-bar" onSubmit={handleSearch}>
-                    <input
-                        type="text"
-                        className="search-input"
-                        placeholder="Search"
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                    />
-                    <button type="submit" className="search-button">
-                        <Search className="h-4 w-4"/>
-                    </button>
-                </form>
-            </div>
+        <div className="min-h-screen bg-bg py-12">
+            <div className="mx-auto max-w-6xl px-4">
+                {/* Hero Section with Search */}
+                <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm mb-12">
+                    <div className="relative px-8 py-10">
+                        <div className="text-center mb-8">
+                            <p className="text-sm font-semibold uppercase tracking-wide text-brand-500 mb-2">
+                                Welcome
+                            </p>
+                            <h1 className="text-4xl font-bold text-text mb-2">
+                                Discover Games, Guides & More
+                            </h1>
+                            <p className="text-sm text-text-muted">
+                                Explore the LoreCodex community
+                            </p>
+                        </div>
 
-            {error && <div className="error-message">{error}</div>}
-
-            <div className="content-grid">
-                {/* -------- Latest News -------- */}
-                <div className="content-section">
-                    <div className="section-header">
-                        <span className="section-title">Latest News</span>
-                        <Link to="/news" className="view-more">More +</Link>
-                    </div>
-
-                    <div className="news-list">
-                        {latestNews.length === 0 ? (
-                            <div className="p-2 text-gray-500">No news yet.</div>
-                        ) : (
-                            latestNews.map(item => (
-                                <div key={item.id} className="news-item">
-                                    <Link to={`/news/${item.id}`} className="item-card">
-                                        {item.coverImage && (
-                                            <div className="item-image">
-                                                <img
-                                                    src={item.coverImage}
-                                                    alt={item.title}
-                                                />
-                                            </div>
-                                        )}
-                                        <div className="item-title">{item.title}</div>
-                                        <div className="item-meta">
-                                            {new Date(item.createdAt).toLocaleDateString()}
-                                        </div>
-                                    </Link>
-                                </div>
-                            ))
-                        )}
+                        <div className="max-w-2xl mx-auto">
+                            <SearchBar
+                                value={searchTerm}
+                                onChange={setSearchTerm}
+                                onSubmit={handleSearch}
+                                placeholder="Search games, guides, news..."
+                                className="w-full"
+                            />
+                        </div>
                     </div>
                 </div>
 
-                {/* -------- Recently Added Games -------- */}
-                <div className="content-section">
-                    <div className="section-header">
-                        <span className="section-title">Recently Added</span>
-                        <Link to="/games" className="view-more">More +</Link>
+                {error && (
+                    <div className="rounded-2xl border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive mb-8">
+                        {error}
                     </div>
+                )}
 
-                    <div className="content-items">
-                        {loading ? (
-                            <div className="loading">Loading...</div>
-                        ) : recentlyAdded.length ? (
-                            recentlyAdded.map(game => (
-                                <Link to={`/games/${game.id}`} key={game.id} className="item-card">
-                                    <div className="item-image">
-                                        {game.imageUrl ? (
-                                            <img src={game.imageUrl} alt={game.name} />
-                                        ) : (
-                                            <span>Game</span>
-                                        )}
-                                    </div>
-                                    <div className="item-title">{game.name}</div>
-                                    <div className="item-meta">{new Date(game.releaseDate).getFullYear()}</div>
+                <div className="space-y-12">
+                    {/* Latest News Section */}
+                    <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                        <div className="px-8 py-10">
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <p className="text-sm font-semibold uppercase tracking-wide text-brand-500">Latest</p>
+                                    <h2 className="text-3xl font-bold text-text mt-1">Latest News</h2>
+                                </div>
+                                <Link to="/news" className="text-brand-500 hover:text-brand-600 font-medium transition-colors">
+                                    More +
                                 </Link>
-                            ))
-                        ) : (
-                            <div>No games found</div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* -------- Popular Games -------- */}
-            <div className="content-section">
-                <div className="section-header">
-                    <span className="section-title">Games</span>
-                    <Link to="/games" className="view-more">More +</Link>
-                </div>
-
-                <div className="content-items">
-                    {loading ? (
-                        <div className="loading">Loading...</div>
-                    ) : popularGames.length ? (
-                        popularGames.map(game => (
-                            <Link to={`/games/${game.id}`} key={game.id} className="item-card">
-                                <div className="item-image">
-                                    {game.imageUrl ? (
-                                        <img src={game.imageUrl} alt={game.name} />
-                                    ) : (
-                                        <span>Game</span>
-                                    )}
-                                </div>
-                                <div className="item-title">{game.name}</div>
-                                <div className="item-meta">{game.genre}</div>
-                            </Link>
-                        ))
-                    ) : (
-                        <div>No games found</div>
-                    )}
-                </div>
-            </div>
-
-            {/* -------- Popular Guides (SOLO PUBLICADAS) -------- */}
-            <div className="content-section">
-                <div className="section-header">
-                    <span className="section-title">Recently Published Guides</span>
-                    <Link to="/guides" className="view-more">More +</Link>
-                </div>
-                <div className="reviews-grid">
-                    {popularGuides.length === 0 ? (
-                        <div className="p-2 text-gray-500">No published guides yet.</div>
-                    ) : (
-                        popularGuides.map((guide) => (
-                            <div key={guide.id} className="review-card">
-                                <div className="review-header">
-                                    <Link to={`/guides/${guide.id}`} className="item-title">
-                                        {guide.title}
-                                    </Link>
-                                    <div className="rating text-xs text-gray-500">
-                                        {new Date(guide.createdAt).toLocaleDateString()}
-                                    </div>
-                                </div>
-                                <div className="review-content text-sm text-gray-600">
-                                    {guide.content.substring(0, 100)}...
-                                </div>
                             </div>
-                        ))
-                    )}
+
+                            {latestNews.length === 0 ? (
+                                <div className="text-center py-12 text-text-muted">
+                                    No news yet.
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {latestNews.map(item => (
+                                        <Link
+                                            key={item.id}
+                                            to={`/news/${item.id}`}
+                                            className="flex gap-4 p-4 rounded-2xl border border bg-surface-2 hover:bg-[rgba(245,126,0,0.06)] transition"
+                                        >
+                                            {item.coverImage && (
+                                                <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-surface-2">
+                                                    <img
+                                                        src={item.coverImage}
+                                                        alt={item.title}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                </div>
+                                            )}
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="text-lg font-semibold text-text mb-1 line-clamp-2">
+                                                    {item.title}
+                                                </h3>
+                                                <p className="text-sm text-text-muted">
+                                                    {new Date(item.createdAt).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Recently Added Games */}
+                    <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                        <div className="px-8 py-10">
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <p className="text-sm font-semibold uppercase tracking-wide text-brand-500">Recent</p>
+                                    <h2 className="text-3xl font-bold text-text mt-1">Recently Added</h2>
+                                </div>
+                                <Link to="/games" className="text-brand-500 hover:text-brand-600 font-medium transition-colors">
+                                    More +
+                                </Link>
+                            </div>
+
+                            {loading ? (
+                                <div className="text-center py-12 text-text-muted">Loading...</div>
+                            ) : recentlyAdded.length === 0 ? (
+                                <div className="text-center py-12 text-text-muted">No games found</div>
+                            ) : (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                    {recentlyAdded.map(game => (
+                                        <Link
+                                            key={game.id}
+                                            to={`/games/${game.id}`}
+                                            className="group flex flex-col rounded-2xl border border bg-surface-2 overflow-hidden hover:bg-[rgba(245,126,0,0.06)] transition"
+                                        >
+                                            <div className="aspect-[3/4] bg-surface-2 flex items-center justify-center overflow-hidden">
+                                                {game.imageUrl ? (
+                                                    <img src={game.imageUrl} alt={game.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                                ) : (
+                                                    <span className="text-text-muted">Game</span>
+                                                )}
+                                            </div>
+                                            <div className="p-3">
+                                                <h3 className="text-sm font-semibold text-text line-clamp-2 mb-1">
+                                                    {game.name}
+                                                </h3>
+                                                <p className="text-xs text-text-muted">
+                                                    {new Date(game.releaseDate).getFullYear()}
+                                                </p>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Popular Games */}
+                    <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                        <div className="px-8 py-10">
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <p className="text-sm font-semibold uppercase tracking-wide text-brand-500">Popular</p>
+                                    <h2 className="text-3xl font-bold text-text mt-1">Popular Games</h2>
+                                </div>
+                                <Link to="/games" className="text-brand-500 hover:text-brand-600 font-medium transition-colors">
+                                    More +
+                                </Link>
+                            </div>
+
+                            {loading ? (
+                                <div className="text-center py-12 text-text-muted">Loading...</div>
+                            ) : popularGames.length === 0 ? (
+                                <div className="text-center py-12 text-text-muted">No games found</div>
+                            ) : (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                    {popularGames.map(game => (
+                                        <Link
+                                            key={game.id}
+                                            to={`/games/${game.id}`}
+                                            className="group flex flex-col rounded-2xl border border bg-surface-2 overflow-hidden hover:bg-[rgba(245,126,0,0.06)] transition"
+                                        >
+                                            <div className="aspect-[3/4] bg-surface-2 flex items-center justify-center overflow-hidden">
+                                                {game.imageUrl ? (
+                                                    <img src={game.imageUrl} alt={game.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                                ) : (
+                                                    <span className="text-text-muted">Game</span>
+                                                )}
+                                            </div>
+                                            <div className="p-3">
+                                                <h3 className="text-sm font-semibold text-text line-clamp-2 mb-1">
+                                                    {game.name}
+                                                </h3>
+                                                <p className="text-xs text-text-muted">{game.genre}</p>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Popular Guides */}
+                    <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                        <div className="px-8 py-10">
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <p className="text-sm font-semibold uppercase tracking-wide text-brand-500">Guides</p>
+                                    <h2 className="text-3xl font-bold text-text mt-1">Recently Published Guides</h2>
+                                </div>
+                                <Link to="/guides" className="text-brand-500 hover:text-brand-600 font-medium transition-colors">
+                                    More +
+                                </Link>
+                            </div>
+
+                            {popularGuides.length === 0 ? (
+                                <div className="text-center py-12 text-text-muted">No published guides yet.</div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {popularGuides.map((guide) => (
+                                        <Link
+                                            key={guide.id}
+                                            to={`/guides/${guide.id}`}
+                                            className="flex flex-col rounded-2xl border border bg-surface-2 p-6 hover:bg-[rgba(245,126,0,0.06)] transition"
+                                        >
+                                            <h3 className="text-xl font-semibold text-text mb-2 line-clamp-2">
+                                                {guide.title}
+                                            </h3>
+                                            <p className="text-sm text-text-muted line-clamp-3 mb-4">
+                                                {guide.content.substring(0, 150)}...
+                                            </p>
+                                            <div className="mt-auto pt-4 border-t border">
+                                                <p className="text-xs text-text-muted">
+                                                    {new Date(guide.createdAt).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
