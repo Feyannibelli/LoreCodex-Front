@@ -130,17 +130,29 @@ const CreateListPage: React.FC = () => {
 
         setIsSubmitting(true);
         try {
+            // ✅ CORRECCIÓN: Estructura correcta con items normalizados
             const listData = {
-                title,
-                description,
-                items: selectedItems
+                title: title.trim(),
+                description: description.trim(),
+                items: selectedItems.map((item, index) => ({
+                    type: item.type,
+                    referenceId: item.referenceId,
+                    position: index + 1 // Asegurar posición secuencial desde 1
+                }))
             };
 
-            console.log('📤 Enviando lista:', listData); // DEBUG
+            console.log('📤 Enviando lista:', listData);
+            console.log('📦 Items a enviar:', listData.items);
 
             const createdList = await listService.createList(user.id, listData);
 
-            console.log('✅ Lista creada:', createdList); // DEBUG
+            console.log('✅ Lista creada:', createdList);
+            console.log('📋 Items en lista creada:', createdList.items);
+
+            // Verificar que los items se crearon
+            if (!createdList.items || createdList.items.length === 0) {
+                console.error('⚠️ La lista se creó pero sin items');
+            }
 
             navigate('/my-lists');
         } catch (error) {
