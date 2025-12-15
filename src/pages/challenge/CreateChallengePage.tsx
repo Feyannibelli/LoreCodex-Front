@@ -127,10 +127,13 @@ const CreateChallengePage: React.FC = () => {
 
         setLoading(true);
         try {
-            const challenge = await challengeService.createChallenge(formData);
-            navigate(`/challenges/${challenge.id}`);
+            await challengeService.createChallenge(formData);
+            // Redirigir a la lista de challenges después de crear
+            alert('¡Challenge creado exitosamente!');
+            navigate('/challenges');
         } catch (error) {
             console.error('Error creating challenge:', error);
+            alert('Error al crear el challenge. Por favor, intenta de nuevo.');
         } finally {
             setLoading(false);
         }
@@ -285,7 +288,7 @@ const CreateChallengePage: React.FC = () => {
                         <Button
                             type="button"
                             onClick={addItem}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
                         >
                             <Plus size={16} />
                             Agregar Tarea
@@ -324,19 +327,19 @@ const CreateChallengePage: React.FC = () => {
                     </p>
                 </div>
 
-                {/* Botones de acción */}
-                <div className="flex gap-4 justify-end">
+                {/* Botones de acción - CORREGIDOS */}
+                <div className="flex gap-4 justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
                     <Button
                         type="button"
                         onClick={() => navigate('/challenges')}
-                        className="bg-gray-500 hover:bg-gray-600"
+                        className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3"
                     >
                         Cancelar
                     </Button>
                     <Button
                         type="submit"
                         disabled={loading}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
                     >
                         {loading ? (
                             <>
@@ -344,7 +347,10 @@ const CreateChallengePage: React.FC = () => {
                                 Creando...
                             </>
                         ) : (
-                            'Crear Challenge'
+                            <>
+                                <Plus size={20} />
+                                Crear Challenge
+                            </>
                         )}
                     </Button>
                 </div>

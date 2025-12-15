@@ -5,7 +5,7 @@ import challengeService, { Challenge, ChallengeProgress } from '../../services/c
 import UnifiedContentRenderer from '../../components/UnifiedContentRenderer';
 import CommentSection from '../../components/comments/CommentSection';
 import Button from '../../components/Button';
-import { ArrowLeft, Play, Circle, Trophy, User, Clock, Crown } from 'lucide-react';
+import { ArrowLeft, Play, CheckCircle, Circle, Trophy, User, Clock, Crown, LogOut } from 'lucide-react';
 import PrettyCheckbox from "../../components/PrettyCheckbox.tsx";
 
 const ChallengeDetailPage: React.FC = () => {
@@ -66,16 +66,20 @@ const ChallengeDetailPage: React.FC = () => {
     };
 
     const handleToggleItem = async (itemId: number, isCompletedNow: boolean) => {
-        if (!challenge || !hasJoined) return;
+        if (!challenge || !hasJoined || !progress) return;
+
+        // Actualizar UI inmediatamente
+        const updatedCompletedItems = isCompletedNow
+            ? (progress.completedItems ?? []).filter(id => id !== itemId)
+            : [...(progress.completedItems ?? []), itemId];
 
         setProgress(prev =>
             prev
                 ? {
                     ...prev,
-                    completedItems: isCompletedNow
-                        ? (prev.completedItems ?? []).filter(id => id !== itemId)
-                        : [...(prev.completedItems ?? []), itemId],
-                    completed: isCompletedNow ? prev.completed - 1 : prev.completed + 1
+                    completedItems: updatedCompletedItems,
+                    completed: updatedCompletedItems.length,
+                    progress: (updatedCompletedItems.length / prev.total) * 100
                 }
                 : prev
         );
@@ -85,20 +89,32 @@ const ChallengeDetailPage: React.FC = () => {
                 ? await challengeService.uncompleteItem(challenge.id, itemId)
                 : await challengeService.completeItem(challenge.id, itemId);
 
-            setProgress(newProgress);
+            // Actualizar con los datos del servidor, asegurando que completedItems exista
+            setProgress({
+                ...newProgress,
+                completedItems: newProgress.completedItems ?? []
+            });
         } catch (err) {
             console.error('Error toggling item completion:', err);
             alert('No se pudo actualizar la tarea');
+            // Revertir el cambio en caso de error
+            setProgress(progress);
         }
     };
 
     const handleLeaveChallenge = async () => {
         if (!challenge) return;
+
+        if (!window.confirm('¿Estás seguro de que quieres salir de este challenge? Perderás todo tu progreso.')) {
+            return;
+        }
+
         setLeaving(true);
         try {
             await challengeService.leaveChallenge(challenge.id);
             setHasJoined(false);
             setProgress(null);
+            alert('Has salido del challenge exitosamente');
         } catch (error) {
             console.error('Error leaving challenge:', error);
             alert('Error al salir del challenge');
@@ -252,7 +268,7 @@ const ChallengeDetailPage: React.FC = () => {
                                     <p className="text-gray-600 dark:text-gray-400 mb-3">
                                         Inicia sesión para unirte a este challenge
                                     </p>
-                                    <Button onClick={() => navigate('/login')}>
+                                    <Button onClick={() => navigate('/login')} className="bg-blue-600 hover:bg-blue-700 text-white">
                                         Iniciar Sesión
                                     </Button>
                                 </div>
@@ -260,7 +276,7 @@ const ChallengeDetailPage: React.FC = () => {
                                 <Button
                                     onClick={handleJoinChallenge}
                                     disabled={joining}
-                                    className="w-full flex items-center justify-center gap-2"
+                                    className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
                                 >
                                     <Play size={20} />
                                     {joining ? 'Uniéndose...' : isOwner ? 'Participar en mi Challenge' : 'Unirse al Challenge'}
@@ -278,17 +294,18 @@ const ChallengeDetailPage: React.FC = () => {
                                         <Button
                                             onClick={handleLeaveChallenge}
                                             disabled={leaving}
-                                            className="flex-1 flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600"
+                                            className="flex-1 flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white"
                                         >
+                                            <LogOut size={20} />
                                             {leaving ? 'Saliendo...' : 'Salir del Challenge'}
                                         </Button>
-                                        {isOwner && (
+                                        {(isOwner || isAdmin) && (
                                             <Button
                                                 onClick={handleDeleteChallenge}
                                                 disabled={deleting}
-                                                className="flex-1 flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700"
+                                                className="flex-1 flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white"
                                             >
-                                                {deleting ? 'Eliminando...' : 'Eliminar Challenge'}
+                                                {deleting ? 'Eliminando...' : isAdmin && !isOwner ? 'Eliminar (Admin)' : 'Eliminar Challenge'}
                                             </Button>
                                         )}
                                     </div>
@@ -309,7 +326,7 @@ const ChallengeDetailPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Tasks/Checklist */}
+            {/* Tasks/Checklist - CORREGIDO */}
             <div>
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
                     Tareas ({challenge.items.length})
@@ -324,10 +341,15 @@ const ChallengeDetailPage: React.FC = () => {
                                 Array.isArray(progress?.completedItems) &&
                                 progress.completedItems.includes(item.id)
                             );
+
                             return (
                                 <div
                                     key={item.id}
-                                    className={`bg-white dark:bg-[#313E3F] rounded-lg p-4 shadow-sm border transition-all ${isCompleted ? 'border-emerald-300 bg-emerald-50 dark:bg-emerald-900/10 animate-pulse-once' : 'border-gray-200 dark:border-gray-700'}`}
+                                    className={`bg-white dark:bg-[#313E3F] rounded-lg p-4 shadow-sm border transition-all ${
+                                        isCompleted
+                                            ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
+                                            : 'border-gray-200 dark:border-gray-700'
+                                    }`}
                                 >
                                     <div className="flex items-start gap-3">
                                         {hasJoined ? (
@@ -341,18 +363,21 @@ const ChallengeDetailPage: React.FC = () => {
                                         )}
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-2">
-                                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                Tarea {item.order}
-                                            </span>
-                                                {isCompleted && (
-                                                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                                                    Completado
+                                                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                                    Tarea {item.order}
                                                 </span>
+                                                {isCompleted && (
+                                                    <span className="flex items-center gap-1 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                                        <CheckCircle size={12} />
+                                                        Completado
+                                                    </span>
                                                 )}
                                             </div>
                                             <UnifiedContentRenderer
                                                 content={item.description}
-                                                className={`prose dark:prose-invert max-w-none ${isCompleted ? 'text-green-700 dark:text-green-300' : ''}`}
+                                                className={`prose dark:prose-invert max-w-none ${
+                                                    isCompleted ? 'line-through text-gray-500' : ''
+                                                }`}
                                             />
                                         </div>
                                     </div>
@@ -362,7 +387,7 @@ const ChallengeDetailPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* ========== COMENTARIOS ========== */}
+            {/* Comentarios */}
             <CommentSection
                 entityType="challenge"
                 entityId={challenge.id}

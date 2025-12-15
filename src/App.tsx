@@ -36,6 +36,7 @@ import PublicProfile from "./pages/PublicProfile.tsx";
 import GuideDetailPage from "./pages/guide/GuideDetailPage.tsx";
 import Game from "./pages/game/Game.tsx";
 import BatchImportGames from './pages/admin/BatchImportGames.tsx';
+import MyChallengesPage from './pages/challenge/MyChallengesPage.tsx';
 
 // Component for admin protected routes
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -151,6 +152,12 @@ const App: React.FC = () => {
                             <CreateChallengePage />
                         </PrivateRoute>
                     }
+                />
+                <Route path="/challenges/my" element={
+                    <PrivateRoute>
+                        <MyChallengesPage />
+                    </PrivateRoute>
+                }
                 />
 
                 {/* Guías */}
