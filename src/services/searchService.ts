@@ -19,13 +19,31 @@ const searchService = {
 
         // Apply filters if provided
         if (filters) {
-            // Filter by genres
+            // Filter by genres - CORREGIDO
             if (filters.genres.length > 0) {
-                filteredGames = filteredGames.filter(game =>
-                    filters.genres.some(genre =>
-                        game.genre.toLowerCase() === genre.toLowerCase()
-                    )
-                );
+                console.log('Filtering by genres:', filters.genres); // DEBUG
+                filteredGames = filteredGames.filter(game => {
+                    // Si el juego no tiene géneros, no lo incluimos
+                    if (!game.genre || game.genre.trim() === '') {
+                        console.log(`Game ${game.name} excluded: no genres`); // DEBUG
+                        return false;
+                    }
+
+                    // Dividir los géneros del juego por comas y limpiar espacios
+                    const gameGenres = game.genre.split(',').map(g => g.trim().toLowerCase());
+                    console.log(`Game ${game.name} genres:`, gameGenres); // DEBUG
+
+                    // Verificar si alguno de los géneros seleccionados coincide
+                    const matches = filters.genres.some(selectedGenre =>
+                        gameGenres.some(gameGenre =>
+                            gameGenre === selectedGenre.toLowerCase()
+                        )
+                    );
+
+                    console.log(`Game ${game.name} matches genres: ${matches}`); // DEBUG
+                    return matches;
+                });
+                console.log(`After genre filter: ${filteredGames.length} games`); // DEBUG
             }
 
             // Filter by release date - after
@@ -44,21 +62,15 @@ const searchService = {
                 );
             }
 
-            // Filter by awards
-            if (filters.hasAwards) {
-                filteredGames = filteredGames.filter(game =>
-                    game.awards &&
-                    (typeof game.awards === 'string'
-                        ? game.awards.trim() !== ''
-                        : game.awards.length > 0)
-                );
-            }
-
-            // Filter by minimum rating
-            if (filters.minRating !== null) {
-                filteredGames = filteredGames.filter(game =>
-                    game.averageRating !== undefined && game.averageRating >= filters.minRating!
-                );
+            // Filter by minimum rating - CORREGIDO
+            if (filters.minRating !== null && filters.minRating > 0) {
+                console.log('Filtering by minimum rating:', filters.minRating); // DEBUG
+                filteredGames = filteredGames.filter(game => {
+                    const rating = game.averageRating || 0;
+                    const passes = rating >= filters.minRating!;
+                    console.log(`Game ${game.name}: rating ${rating}, min ${filters.minRating}, passes: ${passes}`); // DEBUG
+                    return passes;
+                });
             }
 
             // Apply sorting
@@ -68,8 +80,11 @@ const searchService = {
 
                     switch (filters.sortBy) {
                         case 'popularity':
-                            // Sort by likes (popularity)
-                            comparison = (b.likes || 0) - (a.likes || 0);
+                            // CORREGIDO: Sort by number of ratings (popularity)
+                            const aRatingCount = a.ratingCount || 0;
+                            const bRatingCount = b.ratingCount || 0;
+                            console.log(`Comparing popularity: ${a.name} (${aRatingCount}) vs ${b.name} (${bRatingCount})`); // DEBUG
+                            comparison = bRatingCount - aRatingCount;
                             break;
 
                         case 'releaseDate':
@@ -93,16 +108,26 @@ const searchService = {
     },
 
     // Get unique genres from game list for filter options
+    // MEJORADO: Extrae todos los géneros únicos de los juegos
     getAvailableGenres: (games: Game[]): string[] => {
-        const genres = new Set<string>();
+        const genresSet = new Set<string>();
 
         games.forEach(game => {
             if (game.genre && game.genre.trim() !== '') {
-                genres.add(game.genre.trim());
+                // Si el género contiene comas, dividirlo
+                const gameGenres = game.genre.split(',').map(g => g.trim());
+                gameGenres.forEach(genre => {
+                    if (genre) {
+                        genresSet.add(genre);
+                    }
+                });
             }
         });
 
-        return Array.from(genres).sort();
+        // Convertir a array y ordenar alfabéticamente
+        return Array.from(genresSet).sort((a, b) =>
+            a.toLowerCase().localeCompare(b.toLowerCase())
+        );
     }
 };
 

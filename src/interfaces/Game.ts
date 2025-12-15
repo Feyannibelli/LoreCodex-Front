@@ -9,6 +9,7 @@ export interface Game {
     awards?: string;
     averageRating?: number;
     likes?: number;
+    ratingCount?: number; // NUEVO: Cantidad de ratings que tiene el juego
 }
 
 export interface GameFormData {

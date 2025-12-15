@@ -37,10 +37,12 @@ const GameFilters: React.FC<GameFiltersProps> = ({
     const [showFilters, setShowFilters] = useState(false);
 
     const handleGenreChange = (genre: string) => {
+        console.log('Genre clicked:', genre); // DEBUG
         const newGenres = filters.genres.includes(genre)
             ? filters.genres.filter(g => g !== genre)
             : [...filters.genres, genre];
 
+        console.log('New genres:', newGenres); // DEBUG
         const newFilters = { ...filters, genres: newGenres };
         setFilters(newFilters);
         onFilterChange(newFilters);
@@ -54,7 +56,7 @@ const GameFilters: React.FC<GameFiltersProps> = ({
     };
 
     const handleRatingChange = (value: string) => {
-        const rating = value === '' ? null : parseInt(value, 10);
+        const rating = value === '' ? null : parseFloat(value);
         const newFilters = { ...filters, minRating: rating };
         setFilters(newFilters);
         onFilterChange(newFilters);
@@ -82,7 +84,7 @@ const GameFilters: React.FC<GameFiltersProps> = ({
     return (
         <div className="games-filters">
             <div className="filters-header">
-                <h2>Game Filters</h2>
+                <h2 className="font-bold text-2xl">Game Filters</h2>
                 <Button
                     onClick={() => setShowFilters(!showFilters)}
                     className={`bg-gray-700 hover:bg-gray-800 text-white ${showFilters ? 'active' : ''}`}
@@ -95,47 +97,73 @@ const GameFilters: React.FC<GameFiltersProps> = ({
                 <div className="filters-container">
                     {/* Genre Filter */}
                     <div className="filter-section">
-                        <h3>Genres</h3>
+                        <h3 className="font-semibold text-lg mb-2">Genres</h3>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button className="dropdown-button">
+                                <Button className="dropdown-button w-full">
                                     {filters.genres.length > 0
                                         ? `${filters.genres.length} selected`
                                         : 'Select Genres'}
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                {availableGenres.map(genre => (
-                                    <DropdownMenuCheckboxItem
-                                        key={genre}
-                                        checked={filters.genres.includes(genre)}
-                                        onCheckedChange={() => handleGenreChange(genre)}
-                                    >
-                                        {genre}
-                                    </DropdownMenuCheckboxItem>
-                                ))}
+                            <DropdownMenuContent className="max-h-80 overflow-y-auto">
+                                {availableGenres.length > 0 ? (
+                                    availableGenres.map(genre => (
+                                        <DropdownMenuCheckboxItem
+                                            key={genre}
+                                            checked={filters.genres.includes(genre)}
+                                            onCheckedChange={() => handleGenreChange(genre)}
+                                        >
+                                            {genre}
+                                        </DropdownMenuCheckboxItem>
+                                    ))
+                                ) : (
+                                    <div className="px-2 py-1 text-sm text-gray-500">
+                                        No genres available
+                                    </div>
+                                )}
                             </DropdownMenuContent>
                         </DropdownMenu>
+                        {filters.genres.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-2">
+                                {filters.genres.map(genre => (
+                                    <span
+                                        key={genre}
+                                        className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded"
+                                    >
+                                        {genre}
+                                        <button
+                                            onClick={() => handleGenreChange(genre)}
+                                            className="ml-1 text-blue-600 hover:text-blue-800"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Release Date Filters */}
                     <div className="filter-section">
-                        <h3>Release Date</h3>
+                        <h3 className="font-semibold text-lg mb-2">Release Date</h3>
                         <div className="date-filters">
                             <div className="date-filter">
-                                <label>After</label>
+                                <label className="text-sm font-medium">After</label>
                                 <input
                                     type="date"
                                     value={filters.dateFilter.after || ''}
                                     onChange={(e) => handleDateChange('after', e.target.value)}
+                                    className="w-full px-3 py-2 border rounded"
                                 />
                             </div>
                             <div className="date-filter">
-                                <label>Before</label>
+                                <label className="text-sm font-medium">Before</label>
                                 <input
                                     type="date"
                                     value={filters.dateFilter.before || ''}
                                     onChange={(e) => handleDateChange('before', e.target.value)}
+                                    className="w-full px-3 py-2 border rounded"
                                 />
                             </div>
                         </div>
@@ -143,39 +171,40 @@ const GameFilters: React.FC<GameFiltersProps> = ({
 
                     {/* Rating Filter */}
                     <div className="filter-section">
-                        <h3>Minimum Rating</h3>
+                        <h3 className="font-semibold text-lg mb-2">Minimum Rating</h3>
                         <select
                             value={filters.minRating === null ? '' : filters.minRating.toString()}
                             onChange={(e) => handleRatingChange(e.target.value)}
+                            className="w-full px-3 py-2 border rounded bg-white"
                         >
                             <option value="">Any Rating</option>
-                            <option value="1">1+ Stars</option>
-                            <option value="2">2+ Stars</option>
-                            <option value="3">3+ Stars</option>
-                            <option value="4">4+ Stars</option>
-                            <option value="5">5 Stars</option>
+                            <option value="1">1+ Stars (★)</option>
+                            <option value="2">2+ Stars (★★)</option>
+                            <option value="3">3+ Stars (★★★)</option>
+                            <option value="4">4+ Stars (★★★★)</option>
+                            <option value="4.5">4.5+ Stars (★★★★½)</option>
                         </select>
                     </div>
 
                     {/* Sort Options */}
                     <div className="filter-section">
-                        <h3>Sort By</h3>
+                        <h3 className="font-semibold text-lg mb-2">Sort By</h3>
                         <div className="sort-buttons">
                             <Button
                                 onClick={() => handleSortChange('popularity')}
-                                className={`sort-button ${filters.sortBy === 'popularity' ? 'active' : ''}`}
+                                className={`sort-button flex-1 ${filters.sortBy === 'popularity' ? 'active bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}
                             >
                                 Popularity {filters.sortBy === 'popularity' && (filters.sortOrder === 'desc' ? '↓' : '↑')}
                             </Button>
                             <Button
                                 onClick={() => handleSortChange('releaseDate')}
-                                className={`sort-button ${filters.sortBy === 'releaseDate' ? 'active' : ''}`}
+                                className={`sort-button flex-1 ${filters.sortBy === 'releaseDate' ? 'active bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}
                             >
                                 Release Date {filters.sortBy === 'releaseDate' && (filters.sortOrder === 'desc' ? '↓' : '↑')}
                             </Button>
                             <Button
                                 onClick={() => handleSortChange('name')}
-                                className={`sort-button ${filters.sortBy === 'name' ? 'active' : ''}`}
+                                className={`sort-button flex-1 ${filters.sortBy === 'name' ? 'active bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}
                             >
                                 Name {filters.sortBy === 'name' && (filters.sortOrder === 'desc' ? '↓' : '↑')}
                             </Button>
@@ -183,7 +212,7 @@ const GameFilters: React.FC<GameFiltersProps> = ({
                     </div>
 
                     <div className="filter-actions">
-                        <Button onClick={resetFilters} className="reset-button">
+                        <Button onClick={resetFilters} className="reset-button bg-red-500 hover:bg-red-600 text-white">
                             Reset Filters
                         </Button>
                     </div>

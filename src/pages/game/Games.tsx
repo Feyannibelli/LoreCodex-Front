@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Game } from "../../interfaces/Game.ts";
 import gameService from "../../services/gameService.ts";
@@ -20,12 +20,16 @@ const Games: React.FC = () => {
     // Función para cargar juegos paginados
     const fetchGames = useCallback(async (page: number, pageSize: number): Promise<Game[]> => {
         const games = await gameService.getAllGamesPaginated(page, pageSize);
+        console.log('Fetched games:', games); // DEBUG
 
-        // Extraer géneros únicos de la primera carga
-        if (page === 0) {
-            const genres = searchService.getAvailableGenres(games);
-            setAvailableGenres(genres);
-        }
+        // Verificar datos de cada juego
+        games.forEach(game => {
+            console.log(`Game: ${game.name}`, {
+                rating: game.averageRating,
+                ratingCount: game.ratingCount,
+                genre: game.genre
+            });
+        });
 
         return games;
     }, []);
@@ -42,9 +46,48 @@ const Games: React.FC = () => {
         pageSize: 12
     });
 
+    // Cargar géneros desde el backend
+    useEffect(() => {
+        const loadGenres = async () => {
+            try {
+                const genres = await gameService.getAllGenres();
+                console.log('Loaded genres from backend:', genres); // DEBUG
+                setAvailableGenres(genres);
+            } catch (error) {
+                console.error('Error loading genres:', error);
+                // Fallback: extraer de los juegos ya cargados
+                if (allGames.length > 0) {
+                    const extractedGenres = searchService.getAvailableGenres(allGames);
+                    console.log('Extracted genres from games:', extractedGenres); // DEBUG
+                    setAvailableGenres(extractedGenres);
+                }
+            }
+        };
+
+        loadGenres();
+    }, []);
+
+    // Actualizar géneros cuando se carguen más juegos
+    useEffect(() => {
+        if (allGames.length > 0 && availableGenres.length === 0) {
+            const extractedGenres = searchService.getAvailableGenres(allGames);
+            console.log('Extracted genres from loaded games:', extractedGenres); // DEBUG
+            setAvailableGenres(extractedGenres);
+        }
+    }, [allGames, availableGenres.length]);
+
     // Aplicar filtros localmente a los juegos cargados
     const displayedGames = React.useMemo(() => {
-        return searchService.filterGames(allGames, searchTerm, activeFilters || undefined);
+        console.log('Applying filters:', {
+            searchTerm,
+            activeFilters,
+            totalGames: allGames.length
+        }); // DEBUG
+
+        const filtered = searchService.filterGames(allGames, searchTerm, activeFilters || undefined);
+
+        console.log('Filtered games:', filtered.length); // DEBUG
+        return filtered;
     }, [allGames, searchTerm, activeFilters]);
 
     const handleSearch = async (e: React.FormEvent | null) => {
@@ -58,10 +101,12 @@ const Games: React.FC = () => {
     };
 
     const handleFilterChange = (filters: FiltersState) => {
+        console.log('Filter changed:', filters); // DEBUG
         setActiveFilters(filters);
     };
 
     const resetFilters = () => {
+        console.log('Resetting filters'); // DEBUG
         setActiveFilters(null);
         setSearchTerm("");
         refresh();
@@ -97,6 +142,52 @@ const Games: React.FC = () => {
                 </form>
             </div>
 
+            {/* Debug info - MEJORADO */}
+            <div style={{
+                background: '#1f2937',
+                color: '#fff',
+                padding: '15px',
+                marginBottom: '20px',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontFamily: 'monospace'
+            }}>
+                <div style={{ fontWeight: 'bold', marginBottom: '10px', fontSize: '16px' }}>🔍 Debug Info:</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <div>
+                        <div><strong>Total Games:</strong> {allGames.length}</div>
+                        <div><strong>Displayed Games:</strong> {displayedGames.length}</div>
+                        <div><strong>Available Genres:</strong> {availableGenres.length}</div>
+                    </div>
+                    <div>
+                        <div><strong>Selected Genres:</strong> {activeFilters?.genres.join(', ') || 'None'}</div>
+                        <div><strong>Min Rating:</strong> {activeFilters?.minRating || 'None'}</div>
+                        <div><strong>Sort By:</strong> {activeFilters?.sortBy || 'None'}</div>
+                    </div>
+                </div>
+                <details style={{ marginTop: '10px' }}>
+                    <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>Show All Genres</summary>
+                    <div style={{ marginTop: '5px', padding: '10px', background: '#374151', borderRadius: '4px' }}>
+                        {availableGenres.join(', ') || 'No genres loaded'}
+                    </div>
+                </details>
+                <details style={{ marginTop: '10px' }}>
+                    <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>Show Sample Games</summary>
+                    <div style={{ marginTop: '5px', maxHeight: '200px', overflow: 'auto' }}>
+                        {allGames.slice(0, 5).map(game => (
+                            <div key={game.id} style={{ padding: '5px', borderBottom: '1px solid #4b5563' }}>
+                                <div><strong>{game.name}</strong></div>
+                                <div style={{ fontSize: '11px' }}>
+                                    Rating: {game.averageRating || 0} |
+                                    Ratings: {game.ratingCount || 0} |
+                                    Genres: {game.genre || 'None'}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </details>
+            </div>
+
             {/* Filters */}
             <GameFilters
                 availableGenres={availableGenres}
@@ -130,13 +221,13 @@ const Games: React.FC = () => {
                                     <div className="game-genre">{game.genre}</div>
                                     <div className="game-meta">
                                         <span>{new Date(game.releaseDate).getFullYear()}</span>
-                                        {game.averageRating !== undefined && (
-                                            <span>★ {game.averageRating}</span>
+                                        {game.averageRating !== undefined && game.averageRating > 0 && (
+                                            <span>★ {game.averageRating.toFixed(1)}</span>
                                         )}
                                     </div>
-                                    {game.awards && (
-                                        <div className="game-awards">
-                                            <span>🏆</span>
+                                    {game.ratingCount !== undefined && game.ratingCount > 0 && (
+                                        <div className="game-popularity">
+                                            <span>{game.ratingCount} ratings</span>
                                         </div>
                                     )}
                                 </div>

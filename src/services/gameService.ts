@@ -10,8 +10,9 @@ interface BackendGame {
     description: string;
     coverImage: string;
     releaseDate: string;
-    averageRating: number;
+    rating: number;
     likes: number;
+    ratingCount?: number; // NUEVO
     genres: string[];
     awards: string[];
 }
@@ -26,16 +27,21 @@ interface BackendGameRequest {
 }
 
 const adaptBackendGameToFrontend = (backendGame: BackendGame): Game => {
+    // Convertir array de géneros a string separado por comas
+    const genreString = backendGame.genres?.length > 0
+        ? backendGame.genres.join(', ')
+        : '';
+
     return {
         id: backendGame.id,
         name: backendGame.title,
         description: backendGame.description,
-        genre: backendGame.genres?.length > 0 ? backendGame.genres[0] : '',
+        genre: genreString,
         releaseDate: backendGame.releaseDate,
         imageUrl: backendGame.coverImage,
-        //awards: backendGame.awards.join(', '),
-        averageRating: backendGame.averageRating,
-        likes: backendGame.likes
+        averageRating: backendGame.rating || 0,
+        likes: backendGame.likes || 0,
+        ratingCount: backendGame.ratingCount || 0 // NUEVO
     };
 };
 
@@ -46,10 +52,13 @@ const adaptFrontendGameToBackend = (frontendGame: GameFormData): BackendGameRequ
         awardsArray = [frontendGame.awards];
     }
 
-    // Procesar genres como array
+    // Procesar genres como array - dividir por comas si es necesario
     let genresArray: string[] = [];
     if (frontendGame.genre) {
-        genresArray = [frontendGame.genre];
+        // Si contiene comas, dividir; sino, usar como un solo género
+        genresArray = frontendGame.genre.includes(',')
+            ? frontendGame.genre.split(',').map(g => g.trim())
+            : [frontendGame.genre.trim()];
     }
 
     return {
@@ -67,10 +76,12 @@ const gameService = {
     getAllGames: async (): Promise<Game[]> => {
         try {
             const response = await api.get(`/games/allGames`);
-            return response.data.map(adaptBackendGameToFrontend);
+            console.log('Raw backend response:', response.data); // DEBUG
+            const adapted = response.data.map(adaptBackendGameToFrontend);
+            console.log('Adapted games:', adapted); // DEBUG
+            return adapted;
         } catch (error) {
             console.error('Error fetching games:', error);
-            // Don't fail the entire app for non-critical errors
             return [];
         }
     },
@@ -86,7 +97,7 @@ const gameService = {
         }
     },
 
-    // Buscar juegos por nombre (podriamos usarlo para lo de menciones?)
+    // Buscar juegos por nombre
     searchGamesByName: async (name: string): Promise<Game[]> => {
         try {
             const response = await apiAuth.get(`/games/search?title=${name}`);
@@ -156,7 +167,6 @@ const gameService = {
             return adaptBackendGameToFrontend(response.data);
         } catch (error) {
             console.error(`Error liking game with id ${id}:`, error);
-            // Check if it's an auth error (401/403)
             if (axios.isAxiosError(error) && error.response &&
                 (error.response.status === 401 || error.response.status === 403)) {
                 throw new Error("Authentication required to like this game");
@@ -172,7 +182,6 @@ const gameService = {
             return adaptBackendGameToFrontend(response.data);
         } catch (error) {
             console.error(`Error rating game with id ${id}:`, error);
-            // Check if it's an auth error (401/403)
             if (axios.isAxiosError(error) && error.response &&
                 (error.response.status === 401 || error.response.status === 403)) {
                 throw new Error("Authentication required to rate this game");
@@ -184,6 +193,26 @@ const gameService = {
     getAverageRating: async (gameId: number): Promise<number> => {
         const response = await api.get(`/rating/${gameId}/average-rating`);
         return response.data;
+    },
+
+    // NUEVO: Obtener todos los géneros únicos disponibles
+    getAllGenres: async (): Promise<string[]> => {
+        try {
+            const response = await api.get('/games/genres');
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching genres:', error);
+            // Fallback: extraer de todos los juegos
+            const games = await gameService.getAllGames();
+            const genresSet = new Set<string>();
+            games.forEach(game => {
+                if (game.genre) {
+                    const genres = game.genre.split(',').map(g => g.trim());
+                    genres.forEach(g => genresSet.add(g));
+                }
+            });
+            return Array.from(genresSet).sort();
+        }
     }
 };
 
