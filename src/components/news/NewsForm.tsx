@@ -5,7 +5,7 @@ import UnifiedContentEditor from '../UnifiedContentEditor';
 import ProEditorLayout from '../layout/ProEditorLayout';
 import ProInput from '../ui/ProInput';
 import Button from '../Button';
-import { Save, Image as ImageIcon, Hash, FileText, Newspaper } from 'lucide-react';
+import { Save, Image as ImageIcon, Hash, FileText, Newspaper, Calendar, AlignLeft } from 'lucide-react';
 
 interface NewsFormProps {
     initialData?: NewsFormData;
@@ -25,8 +25,10 @@ const NewsForm: React.FC<NewsFormProps> = ({
     isSubmitting = false
 }) => {
     const [title, setTitle] = useState(initialData?.title || '');
+    const [summary, setSummary] = useState(initialData?.summary || '');
     const [content, setContent] = useState(initialData?.content || '');
     const [coverImage, setCoverImage] = useState(initialData?.coverImage || '');
+    const [publishedAt, setPublishedAt] = useState(initialData?.publishedAt || '');
     const [tags, setTags] = useState(initialData?.tags?.join(', ') || '');
 
     // Status for Layout
@@ -35,13 +37,15 @@ const NewsForm: React.FC<NewsFormProps> = ({
     useEffect(() => {
         if (
             title !== (initialData?.title || '') ||
+            summary !== (initialData?.summary || '') ||
             content !== (initialData?.content || '') ||
             coverImage !== (initialData?.coverImage || '') ||
+            publishedAt !== (initialData?.publishedAt || '') ||
             tags !== (initialData?.tags?.join(', ') || '')
         ) {
             setStatus('unsaved');
         }
-    }, [title, content, coverImage, tags, initialData]);
+    }, [title, summary, content, coverImage, publishedAt, tags, initialData]);
 
     const handleSubmit = async () => {
         if (!title.trim() || !content.trim()) {
@@ -51,8 +55,10 @@ const NewsForm: React.FC<NewsFormProps> = ({
         setStatus('saving');
         await onSubmit({
             title,
+            summary: summary.trim() || undefined,
             content,
-            coverImage,
+            coverImage: coverImage.trim() || undefined,
+            publishedAt: publishedAt || undefined,
             tags: tags.split(',').map(t => t.trim()).filter(Boolean)
         });
         setStatus('saved');
@@ -96,6 +102,15 @@ const NewsForm: React.FC<NewsFormProps> = ({
                         />
 
                         <ProInput
+                            label="Summary"
+                            value={summary}
+                            onChange={(e) => setSummary(e.target.value)}
+                            placeholder="Brief summary for previews..."
+                            helperText="Optional short description"
+                            icon={AlignLeft}
+                        />
+
+                        <ProInput
                             label="Cover Image URL"
                             value={coverImage}
                             onChange={(e) => setCoverImage(e.target.value)}
@@ -108,6 +123,15 @@ const NewsForm: React.FC<NewsFormProps> = ({
                                 <img src={coverImage} alt="Cover Preview" className="w-full h-full object-cover" />
                             </div>
                         )}
+
+                        <ProInput
+                            label="Publish Date"
+                            type="datetime-local"
+                            value={publishedAt}
+                            onChange={(e) => setPublishedAt(e.target.value)}
+                            helperText="Optional: defaults to now"
+                            icon={Calendar}
+                        />
 
                         <ProInput
                             label="Tags"

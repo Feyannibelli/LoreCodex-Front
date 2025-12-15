@@ -67,7 +67,6 @@ const UnifiedContentEditor: React.FC<UnifiedContentEditorProps> = ({
             {!showPreview && (
                 <div className="flex flex-wrap gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-t-lg border border-gray-200 dark:border-gray-700">
                     <span className="text-xs text-gray-600 dark:text-gray-400 font-medium self-center mr-2">
-                        Formato rápido:
                     </span>
                     <button
                         type="button"

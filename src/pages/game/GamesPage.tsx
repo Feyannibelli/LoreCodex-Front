@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Button from "../../components/Button";
-import { Search, Gamepad2, Star, Users, Heart, Hash } from "lucide-react";
+import { Search, Gamepad2, Star, Users, Heart } from "lucide-react";
 import { cn } from "../../lib/utils.ts";
 import gameService, { PagedResponse } from "../../services/gameService.ts";
 import { Game } from "../../interfaces/Game.ts";
@@ -16,9 +16,6 @@ const GamesPage: React.FC = () => {
 
     const [searchTerm, setSearchTerm] = useState(initialSearch);
     const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
-    // Debounce search and tags
-    const [tagFilter, setTagFilter] = useState("");
-    const [debouncedTagFilter, setDebouncedTagFilter] = useState("");
     const [activeSort, setActiveSort] = useState("releaseDate,desc");
 
     // Sync URL search param with state (e.g. when navigating from Home)
@@ -32,10 +29,9 @@ const GamesPage: React.FC = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(searchTerm);
-            setDebouncedTagFilter(tagFilter);
         }, 500);
         return () => clearTimeout(timer);
-    }, [searchTerm, tagFilter]);
+    }, [searchTerm]);
 
     // Define the fetch function to pass to the hook
     const fetchGames = useCallback(async (page: number, pageSize: number): Promise<PagedResponse<Game>> => {
@@ -44,10 +40,9 @@ const GamesPage: React.FC = () => {
             page,
             size: pageSize,
             sort: activeSort,
-            search: debouncedSearch,
-            tag: debouncedTagFilter
+            search: debouncedSearch
         });
-    }, [debouncedSearch, debouncedTagFilter, activeSort]);
+    }, [debouncedSearch, activeSort]);
 
     const {
         games,
@@ -58,7 +53,6 @@ const GamesPage: React.FC = () => {
         error
     } = usePaginatedGames(fetchGames, {
         search: debouncedSearch,
-        tag: debouncedTagFilter,
         sort: activeSort
     });
 
@@ -82,7 +76,7 @@ const GamesPage: React.FC = () => {
                             Game Library
                         </h1>
                         <p className="text-lg text-muted-foreground">
-                            Explore our collection of games. Filter by tags, search by title, or browse by rating.
+                            Explore our collection of games.
                         </p>
                     </div>
                 </div>
@@ -103,17 +97,7 @@ const GamesPage: React.FC = () => {
                             />
                         </div>
 
-                        {/* Tag Filter Input */}
-                        <div className="relative flex-[0.7] group min-w-[200px]">
-                            <Hash className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors" />
-                            <input
-                                type="text"
-                                placeholder="Filter by tag..."
-                                value={tagFilter}
-                                onChange={(e) => setTagFilter(e.target.value)}
-                                className="h-10 w-full rounded-lg border border-white/5 bg-secondary/50 pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                            />
-                        </div>
+
 
                         {/* Sort Options */}
                         <div className="flex items-center gap-1.5 bg-secondary/20 p-1 rounded-lg border border-white/5 overflow-x-auto scrollbar-hide">
@@ -165,9 +149,9 @@ const GamesPage: React.FC = () => {
                                 </div>
                                 <h3 className="text-xl font-bold text-foreground mb-2">No games found</h3>
                                 <p className="text-muted-foreground max-w-sm mx-auto mb-8">
-                                    {debouncedSearch || debouncedTagFilter
-                                        ? "We couldn't find any games matching your criteria."
-                                        : "No games found. Try adjusting your filters."}
+                                    {debouncedSearch
+                                        ? "We couldn't find any games matching your search."
+                                        : "No games found."}
                                 </p>
                             </div>
                         ) : (

@@ -6,16 +6,16 @@ import { useAuth } from "../../context/AuthContext.tsx";
 import ReviewList from "../../components/ReviewList.tsx";
 // import "../../css/Game.css";
 import GameNotesSection from "../../components/GameNotesSection.tsx";
-import UserRatingDisplay from "../../components/UserRatingDisplay.tsx";
 import ratingService, { RatingSummaryDto } from "../../services/ratingService.ts";
-import { Calendar, Gamepad2, Heart, Share2, Star, Tag } from "lucide-react";
+import { Calendar, Heart, Star, Tag, ListPlus } from "lucide-react";
+import RatingPopover from "../../components/game/RatingPopover";
 
 const Game: React.FC = () => {
     const { id, igdbId } = useParams<{ id: string; igdbId: string }>();
     const [game, setGame] = useState<GameType | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<string>("about");
+    const [activeTab, setActiveTab] = useState<string>("reviews");
     const [summary, setSummary] = useState<RatingSummaryDto | null>(null);
 
     const { isAuthenticated, loading: authLoading } = useAuth();
@@ -87,22 +87,46 @@ const Game: React.FC = () => {
 
     // Update Rating Handler to use ensureGameImported
     const handleRate = async (newRating: number) => {
-        if (!isAuthenticated) return; // Auth handled in component usually
+        if (!isAuthenticated) return;
 
         const localId = await ensureGameImported();
         if (localId) {
-            // Update Summary manually or re-fetch?
             try {
+                // Save the rating
+                await ratingService.setRating(localId, newRating);
+
+                // Refresh summary
                 const res = await ratingService.getRatingSummary(localId);
-                setSummary({
-                    ...res,
-                    mine: newRating
-                });
-                // Re-load game to get updated average?
+                setSummary(res);
+
+                // Re-load game to get updated average
                 await loadGame();
             } catch (err) {
-                // optimistically update?
+                console.error('Error saving rating:', err);
+                // Optimistically update
                 setSummary(prev => prev ? { ...prev, mine: newRating } : { average: 0, mine: newRating });
+            }
+        }
+    };
+
+    // Clear Rating Handler
+    const handleClearRating = async () => {
+        if (!isAuthenticated) return;
+
+        const localId = await ensureGameImported();
+        if (localId) {
+            try {
+                // Delete the rating
+                await ratingService.deleteRating(localId);
+
+                // Refresh summary
+                const res = await ratingService.getRatingSummary(localId);
+                setSummary(res);
+
+                // Re-load game to get updated average
+                await loadGame();
+            } catch (err) {
+                console.error('Error clearing rating:', err);
             }
         }
     };
@@ -220,8 +244,8 @@ const Game: React.FC = () => {
                                 <span>Like</span>
                             </button>
                             <button className="flex-1 bg-white/5 hover:bg-white/10 text-foreground py-3 rounded-xl backdrop-blur-md border border-white/5 font-medium transition-all flex items-center justify-center gap-2">
-                                <Share2 className="h-5 w-5" />
-                                <span>Share</span>
+                                <ListPlus className="h-5 w-5" />
+                                <span>Add to List</span>
                             </button>
                         </div>
                     </div>
@@ -246,32 +270,34 @@ const Game: React.FC = () => {
                                 <Calendar className="h-4 w-4" />
                                 <span>{game.releaseDate ? new Date(game.releaseDate).getFullYear() : 'TBA'}</span>
                             </div>
-                            <div className="w-px h-4 bg-white/10"></div>
-                            <div className="flex items-center gap-2">
-                                <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
-                                <span className="text-foreground font-bold">{game.averageRating?.toFixed(1) || 'N/A'}</span>
-                                <span>Rating</span>
-                            </div>
-                            {game.playerCount && (
+                            {summary && summary.average > 0 && (
                                 <>
                                     <div className="w-px h-4 bg-white/10"></div>
                                     <div className="flex items-center gap-2">
-                                        <Gamepad2 className="h-4 w-4" />
-                                        <span>{game.playerCount} Players</span>
+                                        <Star className="h-4 w-4 text-primary fill-primary" />
+                                        <span className="text-foreground font-bold">{summary.average.toFixed(1)}</span>
+                                        <span>Rating</span>
                                     </div>
+                                </>
+                            )}
+                            {isAuthenticated && id && (
+                                <>
+                                    <div className="w-px h-4 bg-white/10"></div>
+                                    <RatingPopover
+                                        currentRating={summary?.mine || 0}
+                                        onSave={handleRate}
+                                        onClear={handleClearRating}
+                                    />
                                 </>
                             )}
                         </div>
 
-                        {/* Primary Interactive Rating */}
-                        <div className="bg-card/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 lg:p-8 max-w-xl">
-                            <h3 className="text-lg font-semibold text-foreground mb-4">Your Rating</h3>
-                            <UserRatingDisplay
-                                gameId={id ? parseInt(id) : (igdbId ? parseInt(igdbId) : 0)}
-                                isAuthenticated={isAuthenticated}
-                                initialRating={summary?.mine ?? null}
-                                onRated={handleRate}
-                            />
+                        {/* About Section - Moved here */}
+                        <div className="bg-card/50 backdrop-blur-md rounded-3xl border border-white/5 p-8 lg:p-10 max-w-3xl">
+                            <h3 className="text-2xl font-bold text-foreground mb-6">About {game.title}</h3>
+                            <div className="prose prose-invert prose-lg max-w-none text-muted-foreground leading-relaxed whitespace-pre-line">
+                                {game.description || "No description available."}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -302,7 +328,7 @@ const Game: React.FC = () => {
                                 <div>
                                     <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Release Date</h4>
                                     <p className="text-foreground text-sm font-medium">
-                                        {game.releaseDate ? new Date(game.releaseDate).toLocaleDateString(undefined, { dateStyle: 'long' }) : 'TBA'}
+                                        {game.releaseDate ? new Date(game.releaseDate).toLocaleDateString('en-US', { dateStyle: 'long' }) : 'TBA'}
                                     </p>
                                 </div>
                                 <div className="h-px bg-white/5"></div>
@@ -320,12 +346,11 @@ const Game: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Main Content: Tabs */}
-                    <div className="lg:col-span-8 animate-fade-in-up delay-300">
+                    {/* Main Content */}
+                    <div className="lg:col-span-8 animate-fade-in-up delay-300 space-y-8">
                         {/* Tab Navigation */}
-                        <div className="flex flex-wrap items-center gap-2 mb-8 bg-card/30 p-1.5 rounded-2xl border border-white/5 backdrop-blur-sm w-fit">
+                        <div className="flex flex-wrap items-center gap-2 bg-card/30 p-1.5 rounded-2xl border border-white/5 backdrop-blur-sm w-fit">
                             {[
-                                { id: "about", label: "About" },
                                 { id: "reviews", label: "Reviews" },
                                 { id: "guides", label: "Guides" },
                                 { id: "notes", label: "Notes" }
@@ -345,15 +370,6 @@ const Game: React.FC = () => {
 
                         {/* Tab Content */}
                         <div className="bg-card/50 backdrop-blur-md rounded-3xl border border-white/5 p-8 lg:p-10 min-h-[400px]">
-
-                            {activeTab === "about" && (
-                                <div className="animate-fade-in">
-                                    <h3 className="text-2xl font-bold text-foreground mb-6">About {game.title}</h3>
-                                    <div className="prose prose-invert prose-lg max-w-none text-muted-foreground leading-relaxed whitespace-pre-line">
-                                        {game.description || "No description available."}
-                                    </div>
-                                </div>
-                            )}
 
                             {activeTab === "reviews" && (
                                 <div className="animate-fade-in">

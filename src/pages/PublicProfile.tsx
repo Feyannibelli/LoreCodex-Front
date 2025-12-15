@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import {Link, useParams} from 'react-router-dom';
-import {Guide} from "../interfaces/Guide.ts";
-import {Review} from "../interfaces/Review";
-import {useAuth} from "../context/AuthContext.tsx";
-import {getUserProfileById} from "../services/UserService.ts";
+import { Link, useParams } from 'react-router-dom';
+import { Guide } from "../interfaces/Guide.ts";
+import { Review } from "../interfaces/Review";
+import { useAuth } from "../context/AuthContext.tsx";
+import { getUserProfileById } from "../services/UserService.ts";
 import userListService from "../services/userListService.ts";
 import followService from "../services/followService.ts";
-import {UserListResponse} from "../interfaces/UserListResponse.ts";
+import { UserListResponse } from "../interfaces/UserListResponse.ts";
 
 
 interface PublicProfileData {
@@ -68,8 +68,8 @@ const PublicProfile: React.FC = () => {
         }
     }
 
-    if (loading) return <div className="p-8 text-center">Cargando perfil…</div>;
-    if (!profile) return <div className="p-8 text-center text-red-600">Perfil no encontrado</div>;
+    if (loading) return <div className="p-8 text-center">Loading profile…</div>;
+    if (!profile) return <div className="p-8 text-center text-red-600">Profile not found</div>;
 
     return (
         <div className="max-w-4xl mx-auto p-8 space-y-8">
@@ -83,19 +83,18 @@ const PublicProfile: React.FC = () => {
                 <div className="ml-4">
                     <h1 className="text-3xl font-bold">{profile.username}</h1>
                     <p className="text-sm text-gray-600">
-                        Seguidores: {followersCount} · Siguiendo: {followingCount}
+                        Followers: {followersCount} · Following: {followingCount}
                     </p>
                 </div>
-                { isAuthenticated && userId && me?.id !== +userId && (
+                {isAuthenticated && userId && me?.id !== +userId && (
                     <button
                         onClick={toggleFollow}
-                        className={`ml-auto px-4 py-1 rounded transition-colors ${
-                            isFollowing
+                        className={`ml-auto px-4 py-1 rounded transition-colors ${isFollowing
                                 ? 'bg-slate-200 text-slate-800 hover:bg-slate-300'
                                 : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                        }`}
+                            }`}
                     >
-                        {isFollowing ? 'Siguiendo' : 'Seguir'}
+                        {isFollowing ? 'Following' : 'Follow'}
                     </button>
                 )}
             </div>
@@ -105,14 +104,14 @@ const PublicProfile: React.FC = () => {
                 <p className="text-gray-700">{profile.bio}</p>
             )}
 
-            <hr/>
+            <hr />
 
             {/* Secciones */}
 
 
             {/* --- Guías --- */}
             <section>
-                <h2 className="text-2xl font-semibold mb-2">Guías</h2>
+                <h2 className="text-2xl font-semibold mb-2">Guides</h2>
                 {profile.guides.length > 0 ? (
                     <ul className="space-y-1">
                         {profile.guides.map(g => (
@@ -124,13 +123,13 @@ const PublicProfile: React.FC = () => {
                         ))}
                     </ul>
                 ) : (
-                    <p className="text-gray-500">No ha creado guías.</p>
+                    <p className="text-gray-500">No guides created.</p>
                 )}
             </section>
 
             {/* --- Listas (nueva sección) --- */}
             <section>
-                <h2 className="text-2xl font-semibold mb-2">Listas</h2>
+                <h2 className="text-2xl font-semibold mb-2">Lists</h2>
                 {lists.length > 0 ? (
                     <ul className="space-y-1">
                         {lists.map(l => (
@@ -142,7 +141,7 @@ const PublicProfile: React.FC = () => {
                         ))}
                     </ul>
                 ) : (
-                    <p className="text-gray-500">No ha creado listas.</p>
+                    <p className="text-gray-500">No lists created.</p>
                 )}
             </section>
 
@@ -162,7 +161,7 @@ const PublicProfile: React.FC = () => {
                         ))}
                     </ul>
                 ) : (
-                    <p className="text-gray-500">No ha escrito reviews.</p>
+                    <p className="text-gray-500">No reviews written.</p>
                 )}
             </section>
         </div>

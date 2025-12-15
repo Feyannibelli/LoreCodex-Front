@@ -89,6 +89,13 @@ const gameService = {
         };
     },
 
+    // Search games by title in our database (for mentions, autocomplete, etc.)
+    searchGamesByTitle: async (title: string, page: number = 0, size: number = 10): Promise<Game[]> => {
+        const params = { title, page, size };
+        const response = await api.get<Game[]>('/games/search', { params });
+        return response.data;
+    },
+
     // 3. GET /igdb/{igdbId}
     getIGDBGameDetail: async (igdbId: number): Promise<Game> => {
         const response = await api.get<GameDetailResponse>(`/igdb/${igdbId}`);

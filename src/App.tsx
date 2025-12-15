@@ -187,6 +187,7 @@ const App: React.FC = () => {
 
                 {/* ---------- NEWS (Public) ---------- */}
                 <Route path="/news" element={<NewsPage />} />
+                <Route path="/news/create" element={<AdminRoute><CreateNewsPage /></AdminRoute>} />
                 <Route path="/news/:id" element={<NewsDetailPage />} />
 
                 {/* ADMIN News */}

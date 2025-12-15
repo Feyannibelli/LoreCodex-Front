@@ -12,6 +12,7 @@ export interface Game {
     tags: string[];
     igdbId?: number;
     developersAndPublishers: string[];
+    createdAt?: string;
 }
 
 export interface GameFormData {

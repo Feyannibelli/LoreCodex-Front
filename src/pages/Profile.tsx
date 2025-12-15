@@ -124,10 +124,6 @@ const Profile: React.FC = () => {
 
     return (
         <SettingsLayout
-            breadcrumbs={[
-                { label: 'Account', href: '/profile' },
-                { label: 'Profile' }
-            ]}
             title="Profile"
             description="Manage your account settings and preferences"
             actions={
@@ -163,8 +159,8 @@ const Profile: React.FC = () => {
                     {/* Avatar + Info */}
                     <div className="flex items-center gap-4">
                         {/* Avatar */}
-                        <div className="relative group cursor-pointer">
-                            <div className="h-20 w-20 rounded-2xl border-2 border-white/10 bg-secondary/50 flex items-center justify-center text-2xl font-bold text-foreground overflow-hidden transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-lg group-hover:shadow-primary/20">
+                        <div className="relative">
+                            <div className="h-20 w-20 rounded-2xl border-2 border-white/10 bg-secondary/50 flex items-center justify-center text-2xl font-bold text-foreground overflow-hidden">
                                 {profilePicture ? (
                                     <img
                                         src={profilePicture}
@@ -176,10 +172,6 @@ const Profile: React.FC = () => {
                                         {userInitial}
                                     </span>
                                 )}
-                            </div>
-                            {/* Hover overlay */}
-                            <div className="absolute inset-0 rounded-2xl bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <span className="text-xs font-medium text-primary">Edit</span>
                             </div>
                         </div>
 
@@ -214,27 +206,24 @@ const Profile: React.FC = () => {
                         <span className="font-medium text-foreground">{displayName}</span>
                     </div>
 
+                    {/* Email Row */}
+                    <div className="flex items-center justify-between py-3 border-b border-white/5">
+                        <span className="text-sm text-muted-foreground">Email</span>
+                        <span className="font-medium text-foreground">{displayEmail}</span>
+                    </div>
+
                     {/* Member Since Row */}
-                    {(backendUser as any)?.createdAt && (
-                        <div className="flex items-center justify-between py-3 border-b border-white/5">
+                    {backendUser?.createdAt && (
+                        <div className="flex items-center justify-between py-3">
                             <span className="text-sm text-muted-foreground">Member Since</span>
                             <span className="font-medium text-foreground">
-                                {new Date((backendUser as any).createdAt).toLocaleDateString('en-US', {
+                                {new Date(backendUser.createdAt).toLocaleDateString('en-US', {
                                     year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
+                                    month: 'long'
                                 })}
                             </span>
                         </div>
                     )}
-
-                    {/* Account Type Row (if applicable) */}
-                    <div className="flex items-center justify-between py-3">
-                        <span className="text-sm text-muted-foreground">Account Type</span>
-                        <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                            Standard
-                        </span>
-                    </div>
                 </div>
             </SettingsSectionCard>
 

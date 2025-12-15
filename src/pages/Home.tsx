@@ -41,25 +41,15 @@ const Home: React.FC = () => {
     const loadGames = async () => {
         try {
             setLoading(true);
-            // Use internal /games/allGames endpoint to fetch games
-            const response = await gameService.getLibraryGamesPaginated(0, 24, 'rating,desc');
-            const allGames = response.content;
 
-            // Logic to simulate "Recently Added" and "Popular" from the fetched batch
-            const recent = [...allGames]
-                .sort((a, b) => {
-                    const dateA = a.releaseDate ? new Date(a.releaseDate).getTime() : 0;
-                    const dateB = b.releaseDate ? new Date(b.releaseDate).getTime() : 0;
-                    return dateB - dateA;
-                })
-                .slice(0, 10);
+            // Fetch recently added games using createdAt,desc
+            const recentResponse = await gameService.getLibraryGamesPaginated(0, 10, 'createdAt,desc');
 
-            const popular = [...allGames]
-                .sort((a, b) => (b.likes || 0) - (a.likes || 0))
-                .slice(0, 8);
+            // Fetch popular games using rating,desc
+            const popularResponse = await gameService.getLibraryGamesPaginated(0, 8, 'rating,desc');
 
-            setRecentlyAdded(recent);
-            setPopularGames(popular);
+            setRecentlyAdded(recentResponse.content);
+            setPopularGames(popularResponse.content);
             setError(null);
         } catch (err) {
             console.error("Error loading games:", err);
@@ -241,7 +231,9 @@ const Home: React.FC = () => {
                                                 {game.title}
                                             </h3>
                                             <p className="text-xs text-muted-foreground">
-                                                {game.releaseDate ? new Date(game.releaseDate).getFullYear() : 'N/A'}
+                                                {game.createdAt
+                                                    ? `Added ${new Date(game.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                                                    : 'Recently added'}
                                             </p>
                                         </div>
 
