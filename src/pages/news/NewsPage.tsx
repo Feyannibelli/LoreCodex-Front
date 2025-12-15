@@ -39,7 +39,7 @@ const NewsPage: React.FC = () => {
     }, [news, searchTerm]);
 
     return (
-        <div className="min-h-screen bg-bg py-12">
+        <div className="min-h-screen bg-background py-12">
             <div className="mx-auto max-w-6xl px-4">
                 <PageHero
                     title="News"
@@ -55,7 +55,7 @@ const NewsPage: React.FC = () => {
                         )
                     }
                 >
-                    <div className="mt-6 rounded-2xl border border bg-surface-2 p-4 shadow-sm">
+                    <div className="mt-6 rounded-2xl border border-border bg-card p-4 shadow-sm">
                         <SearchBar
                             placeholder="Filter news by title or content"
                             value={searchTerm}
@@ -65,7 +65,7 @@ const NewsPage: React.FC = () => {
                     </div>
                 </PageHero>
 
-                <div className="mt-8 rounded-3xl border border bg-surface shadow-sm">
+                <div className="mt-8 rounded-3xl border border-border bg-card shadow-sm">
                     <div className="px-8 py-10 space-y-6">
                         {error && (
                             <div className="rounded-2xl border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -74,13 +74,13 @@ const NewsPage: React.FC = () => {
                         )}
 
                         {loading && news.length === 0 ? (
-                            <div className="rounded-2xl border border bg-surface-2 px-4 py-6 text-center text-text-muted">
+                            <div className="rounded-2xl border border-border bg-card px-4 py-6 text-center text-muted-foreground">
                                 Loading news...
                             </div>
                         ) : filteredNews.length === 0 ? (
-                            <div className="rounded-2xl border border bg-surface-2 px-4 py-10 text-center">
-                                <p className="text-lg font-semibold text-text mb-2">No news yet.</p>
-                                <p className="text-sm text-text-muted">Check back later for updates.</p>
+                            <div className="rounded-2xl border border-border bg-card px-4 py-10 text-center">
+                                <p className="text-lg font-semibold text-foreground mb-2">No news yet.</p>
+                                <p className="text-sm text-muted-foreground">Check back later for updates.</p>
                             </div>
                         ) : (
                             <>
@@ -88,19 +88,19 @@ const NewsPage: React.FC = () => {
                                     {filteredNews.map(item => (
                                         <article
                                             key={item.id}
-                                            className="rounded-2xl border border bg-surface-2 p-6 shadow-sm transition hover:bg-[rgba(245,126,0,0.06)]"
+                                            className="rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:bg-muted/50"
                                         >
                                             <header>
-                                                <h2 className="text-2xl font-semibold text-text mb-1">
-                                                    <Link to={`/news/${item.id}`} className="hover:text-brand-500 transition-colors">
+                                                <h2 className="text-2xl font-semibold text-foreground mb-1">
+                                                    <Link to={`/news/${item.id}`} className="hover:text-primary transition-colors">
                                                         {item.title}
                                                     </Link>
                                                 </h2>
-                                                <p className="text-sm text-text-muted">
+                                                <p className="text-sm text-muted-foreground">
                                                     {new Date(item.createdAt).toLocaleDateString()} • {item.likes} likes
                                                 </p>
                                             </header>
-                                            <p className="mt-3 text-sm text-text-muted line-clamp-3">
+                                            <p className="mt-3 text-sm text-muted-foreground line-clamp-3">
                                                 {item.content}
                                             </p>
                                             {item.tags?.length > 0 && (
@@ -108,7 +108,7 @@ const NewsPage: React.FC = () => {
                                                     {item.tags.map(tag => (
                                                         <span
                                                             key={tag}
-                                                            className="rounded-full border border bg-brand-100 px-3 py-1 text-xs font-semibold text-brand-500"
+                                                            className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
                                                         >
                                                             #{tag}
                                                         </span>

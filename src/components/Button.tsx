@@ -3,22 +3,23 @@ import { cn } from '../lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-300/50 focus:ring-offset-2 focus:ring-offset-bg disabled:opacity-50 disabled:pointer-events-none",
+  "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:pointer-events-none",
   {
     variants: {
       variant: {
-        default: "bg-brand-500 text-white hover:bg-brand-600 active:bg-brand-700",
-        accent: "bg-brand-500 text-white hover:bg-brand-600 active:bg-brand-700",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80 focus:ring-destructive",
-        outline: "border border-border bg-transparent hover:bg-surface-2 text-text hover:text-text focus:ring-brand-300/50",
-        secondary: "bg-surface-2 text-text hover:bg-surface-2/80 active:bg-surface-2/90",
-        ghost: "hover:bg-surface-2 text-text focus:ring-brand-300/50",
-        link: "text-brand-500 underline-offset-4 hover:underline hover:text-brand-600 focus:ring-brand-300/50",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+        // Legacy support mapping
+        accent: "bg-primary text-primary-foreground hover:bg-primary/90",
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-8 px-3 text-sm",
-        lg: "h-12 px-6 text-lg",
+        sm: "h-9 rounded-md px-3",
+        lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
       },
     },
@@ -31,7 +32,7 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 

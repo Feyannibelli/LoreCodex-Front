@@ -46,7 +46,7 @@ const ChallengesPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen py-12 bg-bg">
+        <div className="min-h-screen py-12 bg-background">
             <div className="mx-auto max-w-6xl space-y-8 px-4">
                 <PageHero
                     title="Challenges"
@@ -54,7 +54,7 @@ const ChallengesPage: React.FC = () => {
                     actions={
                         isAuthenticated ? (
                             <Link to="/challenges/create">
-                                <Button variant="accent" type="button">
+                                <Button variant="default" type="button">
                                     <Plus size={16} />
                                     <span className="ml-1">Create Challenge</span>
                                 </Button>
@@ -71,17 +71,17 @@ const ChallengesPage: React.FC = () => {
                     />
                 </PageHero>
 
-                <div className="rounded-3xl border border bg-surface px-8 py-10 shadow-sm space-y-6">
+                <div className="rounded-2xl border border-border bg-card px-8 py-10 shadow-sm space-y-6">
                     {error && (
-                        <div className="rounded-2xl border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                        <div className="rounded-xl border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                             {error}
                         </div>
                     )}
 
                     {filteredChallenges.length === 0 ? (
-                        <div className="text-center space-y-4 rounded-2xl border border bg-surface px-4 py-10 text-text-muted">
-                            <Trophy className="mx-auto h-12 w-12 text-text-muted" />
-                            <h3 className="text-lg font-semibold text-text">
+                        <div className="text-center space-y-4 rounded-xl border border-border bg-secondary/30 px-4 py-10 text-muted-foreground">
+                            <Trophy className="mx-auto h-12 w-12 text-muted-foreground" />
+                            <h3 className="text-lg font-semibold text-foreground">
                                 No challenges found
                             </h3>
                             <p className="text-sm">
@@ -96,10 +96,10 @@ const ChallengesPage: React.FC = () => {
                                 {filteredChallenges.map((challenge) => (
                                     <div
                                         key={challenge.id}
-                                        className="flex flex-col overflow-hidden rounded-2xl border border bg-surface shadow-sm transition hover:bg-[rgba(245,126,0,0.06)] hover:shadow-md"
+                                        className="flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition hover:bg-muted/50 hover:shadow-md"
                                     >
                                         {challenge.mediaUrl && (
-                                            <div className="aspect-video overflow-hidden bg-muted/30">
+                                            <div className="aspect-video overflow-hidden bg-muted">
                                                 {challenge.mediaType === 'image' ? (
                                                     <img
                                                         src={challenge.mediaUrl}
@@ -120,24 +120,24 @@ const ChallengesPage: React.FC = () => {
 
                                         <div className="flex flex-1 flex-col gap-4 p-6">
                                             <div>
-                                                <h3 className="text-2xl font-semibold text-text">
+                                                <h3 className="text-2xl font-semibold text-foreground">
                                                     {challenge.title}
                                                 </h3>
-                                                <p className="text-sm text-text-muted line-clamp-3 mt-2">
+                                                <p className="text-sm text-muted-foreground line-clamp-3 mt-2">
                                                     {challenge.description}
                                                 </p>
                                             </div>
-                                            <div className="flex flex-wrap items-center justify-between text-sm text-text-muted">
+                                            <div className="flex flex-wrap items-center justify-between text-sm text-muted-foreground">
                                                 <div className="flex items-center gap-2">
                                                     <Clock size={16} />
                                                     <span>{challenge.items.length} tasks</span>
                                                 </div>
-                                                <span className="text-xs uppercase tracking-wide text-text-muted">
+                                                <span className="text-xs uppercase tracking-wide text-muted-foreground">
                                                     by {challenge.creatorUsername}
                                                 </span>
                                             </div>
                                             <Link to={`/challenges/${challenge.id}`} className="mt-auto">
-                                                <Button type="button" className="w-full">
+                                                <Button type="button" variant="outline" className="w-full">
                                                     View Challenge
                                                 </Button>
                                             </Link>

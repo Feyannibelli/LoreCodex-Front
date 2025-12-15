@@ -8,96 +8,104 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+
   --color-destructive: var(--destructive);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --color-js-sidebar-accent: var(--sidebar-accent);
+  --color-js-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-js-sidebar-border: var(--sidebar-border);
+  --color-js-sidebar-ring: var(--sidebar-ring);
 }
 
 :root {
-  --radius: 0.625rem;
-  
-  /* Brand Colors - Orange */
-  --brand-500: #F57E00;
-  --brand-600: #E27000;
-  --brand-700: #CC6400;
-  --brand-300: #FFB86A;
-  --brand-100: #FFF4E5;
-  
-  /* Neutral Colors - Dark UI */
-  --bg: #0B1020;
-  --surface: #0F172A;
-  --surface-2: #111C33;
-  --border: rgba(255, 255, 255, 0.08);
-  --text: #E5E7EB;
-  --text-muted: #94A3B8;
-  --placeholder: #64748B;
-  
-  /* Semantic Colors */
-  --background: var(--bg);
-  --foreground: var(--text);
-  --muted: var(--surface);
-  --muted-foreground: var(--text-muted);
-  --card: var(--surface);
-  --card-foreground: var(--text);
-  --popover: var(--surface);
-  --popover-foreground: var(--text);
-  --primary: var(--brand-500);
-  --primary-foreground: #FFFFFF;
-  --secondary: var(--surface-2);
-  --secondary-foreground: var(--text);
-  --accent: var(--brand-500);
-  --accent-foreground: #FFFFFF;
-  --destructive: #EF4444;
-  --destructive-foreground: #FFFFFF;
-  --border-color: var(--border);
-  --input: var(--surface-2);
-  --ring: var(--brand-500);
-  --sidebar: var(--surface);
-  --sidebar-foreground: var(--text);
-  --sidebar-primary: var(--brand-500);
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: var(--surface-2);
-  --sidebar-accent-foreground: var(--text);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--brand-500);
+  /* Base Token System - Shadcn/ui convention with custom palette */
+
+  /* Backgrounds - Navy Theme #0B1020 */
+  --background: hsl(226 48% 8.5%);
+  /* #0B1020 */
+  --foreground: hsl(210 40% 98%);
+  /* #f8fafc Slate 50 */
+
+  /* Cards & Surfaces - Lighter Navy */
+  --card: hsl(224 40% 13%);
+  /* #131B2E */
+  --card-foreground: hsl(210 40% 98%);
+
+  --popover: hsl(224 40% 13%);
+  --popover-foreground: hsl(210 40% 98%);
+
+  /* Brand - Orange #F57E00 */
+  --primary: hsl(31 100% 48%);
+  --primary-foreground: hsl(0 0% 100%);
+
+  /* Secondary - Slate 800 */
+  --secondary: hsl(215 28% 17%);
+  /* #1e293b */
+  --secondary-foreground: hsl(210 40% 98%);
+
+  /* Muted (Text & BG) */
+  --muted: hsl(215 28% 17%);
+  --muted-foreground: hsl(215 20% 65%);
+  /* #94a3b8 Slate 400 */
+
+  /* Accent (Hover states) - Low Opacity Orange or Slate */
+  --accent: hsl(215 28% 22%);
+  /* Slightly lighter than secondary */
+  --accent-foreground: hsl(210 40% 98%);
+
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(0 0% 98%);
+
+  /* Borders & Inputs - Slate 700/800 */
+  --border: hsl(215 25% 22%);
+  /* #2b3544 - Between Slate 800 and 700 */
+  --input: hsl(215 25% 22%);
+  --ring: hsl(31 100% 48%);
+  /* Brand Focus Ring */
+
+  --radius: 0.75rem;
+
+  /* Charts */
+  --chart-1: hsl(31 100% 48%);
+  --chart-2: hsl(210 40% 50%);
+  /* Blueish to complement */
+  --chart-3: hsl(35 100% 60%);
+  --chart-4: hsl(25 100% 35%);
+  --chart-5: hsl(40 100% 70%);
+
+  /* Sidebar - Matches App Background */
+  --sidebar: hsl(226 48% 8.5%);
+  --sidebar-foreground: hsl(210 40% 98%);
+  --sidebar-primary: hsl(31 100% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(215 28% 17%);
+  --sidebar-accent-foreground: hsl(210 40% 98%);
+  --sidebar-border: hsl(215 25% 22%);
+  --sidebar-ring: hsl(31 100% 48%);
 }
 
 @layer base {
-  * {
-    border-color: var(--border-color);
-    outline-color: rgba(245, 126, 0, 0.5);
-  }
   body {
-    background-color: var(--background);
-    color: var(--foreground);
-    min-height: 100vh;
+    @apply bg-background text-foreground;
   }
 }

@@ -7,16 +7,16 @@ const Register: React.FC = () => {
     const { register } = useAuth();
 
     return (
-        <div className="min-h-screen bg-bg flex items-center justify-center py-12 px-4">
+        <div className="min-h-screen bg-background flex items-center justify-center py-12 px-4">
             <div className="w-full max-w-md">
-                <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
                     <div className="px-8 py-12 text-center">
                         <div className="mb-8">
-                            <div className="mx-auto w-16 h-16 rounded-full bg-brand-500 flex items-center justify-center mb-4">
-                                <span className="text-2xl font-bold text-white">LC</span>
+                            <div className="mx-auto w-16 h-16 rounded-full bg-primary flex items-center justify-center mb-4 text-primary-foreground">
+                                <span className="text-2xl font-bold">LC</span>
                             </div>
-                            <h1 className="text-3xl font-bold text-text mb-2">Create Account</h1>
-                            <p className="text-sm text-text-muted">Join the LoreCodex community</p>
+                            <h1 className="text-3xl font-bold text-foreground mb-2">Create Account</h1>
+                            <p className="text-sm text-muted-foreground">Join the LoreCodex community</p>
                         </div>
 
                         <Button
@@ -29,8 +29,8 @@ const Register: React.FC = () => {
                         </Button>
 
                         <div className="text-sm">
-                            <p className="text-text-muted">
-                                Already got an account? <Link to="/login" className="text-brand-500 hover:text-brand-600 font-medium transition-colors">Login here</Link>
+                            <p className="text-muted-foreground">
+                                Already got an account? <Link to="/login" className="text-primary hover:text-primary/90 font-medium transition-colors">Login here</Link>
                             </p>
                         </div>
                     </div>

@@ -79,10 +79,10 @@ const ListDetailPage: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-bg py-12">
+            <div className="min-h-screen bg-background py-12">
                 <div className="mx-auto max-w-6xl px-4">
                     <div className="flex justify-center items-center h-64">
-                        <div className="text-text-muted">Loading list...</div>
+                        <div className="text-muted-foreground">Loading list...</div>
                     </div>
                 </div>
             </div>
@@ -91,12 +91,12 @@ const ListDetailPage: React.FC = () => {
 
     if (error || !list) {
         return (
-            <div className="min-h-screen bg-bg py-12">
+            <div className="min-h-screen bg-background py-12">
                 <div className="mx-auto max-w-6xl px-4">
-                    <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                    <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
                         <div className="px-8 py-10 text-center">
                             <h2 className="text-2xl font-bold text-destructive mb-4">Error</h2>
-                            <p className="text-text-muted mb-6">{error || 'List not found'}</p>
+                            <p className="text-muted-foreground mb-6">{error || 'List not found'}</p>
                             <Button onClick={() => navigate('/lists')} variant="default">
                                 Back to Lists
                             </Button>
@@ -110,20 +110,20 @@ const ListDetailPage: React.FC = () => {
     const isOwner = user && user.id === list.userId;
 
     return (
-        <div className="min-h-screen bg-bg py-12">
+        <div className="min-h-screen bg-background py-12">
             <div className="mx-auto max-w-6xl px-4 space-y-8">
                 {/* Header */}
-                <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
                     <div className="px-8 py-10">
                         <div className="flex justify-between items-start mb-6">
                             <div className="flex-1">
                                 <div className="mb-4">
-                                    <p className="text-sm font-semibold uppercase tracking-wide text-brand-500 mb-2">Community List</p>
-                                    <h1 className="text-4xl font-bold text-text mb-4">{list.title}</h1>
-                                    <div className="flex items-center gap-4 text-sm text-text-muted">
+                                    <p className="text-sm font-semibold uppercase tracking-wide text-primary mb-2">Community List</p>
+                                    <h1 className="text-4xl font-bold text-foreground mb-4">{list.title}</h1>
+                                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
                                         <span>
                                             By{' '}
-                                            <Link to={`/profile/${list.userId}`} className="text-brand-500 hover:text-brand-600 transition-colors">
+                                            <Link to={`/profile/${list.userId}`} className="text-primary hover:text-primary/90 transition-colors">
                                                 {list.username}
                                             </Link>
                                         </span>
@@ -135,9 +135,9 @@ const ListDetailPage: React.FC = () => {
                                 </div>
 
                                 {list.description && (
-                                    <div className="border-t border pt-6">
-                                        <h2 className="text-lg font-semibold text-text mb-3">Description</h2>
-                                        <div className="rounded-2xl border border bg-surface-2 p-4">
+                                    <div className="border-t border-border pt-6">
+                                        <h2 className="text-lg font-semibold text-foreground mb-3">Description</h2>
+                                        <div className="rounded-xl border border-border bg-secondary/50 p-4">
                                             <UnifiedContentRenderer content={list.description} />
                                         </div>
                                     </div>
@@ -164,13 +164,13 @@ const ListDetailPage: React.FC = () => {
                 </div>
 
                 {/* Items List */}
-                <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
                     <div className="px-8 py-10">
-                        <h2 className="text-2xl font-bold text-text mb-6">Items</h2>
+                        <h2 className="text-2xl font-bold text-foreground mb-6">Items</h2>
 
                         {list.items.length === 0 ? (
-                            <div className="text-center py-12 rounded-2xl border border bg-surface-2">
-                                <p className="text-text-muted">This list is empty.</p>
+                            <div className="text-center py-12 rounded-xl border border-border bg-secondary/30">
+                                <p className="text-muted-foreground">This list is empty.</p>
                             </div>
                         ) : (
                             <div className="space-y-3">
@@ -180,9 +180,9 @@ const ListDetailPage: React.FC = () => {
                                         <Link
                                             key={item.id}
                                             to={getItemRoute(item)}
-                                            className="flex items-center gap-4 p-4 rounded-2xl border border bg-surface-2 hover:bg-[rgba(245,126,0,0.06)] transition"
+                                            className="flex items-center gap-4 p-4 rounded-xl border border-border bg-secondary/50 hover:bg-secondary transition"
                                         >
-                                            <div className="flex items-center justify-center w-10 h-10 bg-brand-100 text-brand-500 rounded-full font-semibold text-sm flex-shrink-0">
+                                            <div className="flex items-center justify-center w-10 h-10 bg-primary/10 text-primary rounded-full font-semibold text-sm flex-shrink-0">
                                                 {index + 1}
                                             </div>
 
@@ -198,12 +198,12 @@ const ListDetailPage: React.FC = () => {
                                                 )}
 
                                                 <div className="flex-1 min-w-0">
-                                                    <h3 className="font-semibold text-text truncate">{item.title}</h3>
-                                                    <p className="text-sm text-text-muted capitalize">{item.type.toLowerCase()}</p>
+                                                    <h3 className="font-semibold text-foreground truncate">{item.title}</h3>
+                                                    <p className="text-sm text-muted-foreground capitalize">{item.type.toLowerCase()}</p>
                                                 </div>
                                             </div>
 
-                                            <span className="text-brand-500 font-medium flex-shrink-0">
+                                            <span className="text-primary font-medium flex-shrink-0">
                                                 View →
                                             </span>
                                         </Link>
@@ -214,7 +214,7 @@ const ListDetailPage: React.FC = () => {
                 </div>
 
                 {/* Comments */}
-                <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
                     <div className="px-8 py-10">
                         <CommentSection
                             entityType="list"
@@ -240,7 +240,7 @@ const ListDetailPage: React.FC = () => {
                     {isOwner && (
                         <Link
                             to="/my-lists"
-                            className="text-brand-500 hover:text-brand-600 font-medium transition-colors"
+                            className="text-primary hover:text-primary/90 font-medium transition-colors"
                         >
                             View My Lists →
                         </Link>

@@ -3,7 +3,8 @@ import { Review } from '../interfaces/Review';
 import { useAuth } from '../context/AuthContext';
 import ReviewForm from './ReviewForm';
 import Modal from './Modal';
-import '../css/ReviewItem.css';
+import { Star, Pencil, Trash2 } from 'lucide-react';
+import Button from './Button';
 
 interface ReviewItemProps {
     review: Review;
@@ -14,10 +15,10 @@ interface ReviewItemProps {
 }
 
 const ReviewItem: React.FC<ReviewItemProps> = ({
-                                                   review,
-                                                   onEdit,
-                                                   onDelete
-                                               }) => {
+    review,
+    onEdit,
+    onDelete
+}) => {
     const { user, isAuthenticated, isAdmin } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -33,14 +34,6 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
         setIsEditing(false);
     };
 
-    /*const handleLike = () => {
-        onLike(review.id);
-    };
-
-    const handleDislike = () => {
-        onDislike(review.id);
-    };*/
-
     const confirmDelete = () => {
         onDelete(review.id);
         setShowDeleteModal(false);
@@ -48,7 +41,7 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
 
     if (isEditing) {
         return (
-            <div className="review-item">
+            <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
                 <ReviewForm
                     initialContent={review.content}
                     initialRating={review.rating}
@@ -61,55 +54,61 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
     }
 
     return (
-        <div className="review-item">
-            <div className="review-header">
-                <div className="user-info">
-                    <div className="user-circle">{review.username.charAt(0).toUpperCase()}</div>
-                    <span className="username">{review.username}</span>
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-md">
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground font-semibold ring-1 ring-white/10">
+                        {review.username.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="font-medium text-foreground">{review.username}</span>
                 </div>
-                <div className="review-rating">
+                <div className="flex items-center gap-1">
                     {Array.from({ length: 5 }).map((_, index) => (
-                        <span key={index} className={index < review.rating ? "star filled" : "star"}>
-                            ★
-                        </span>
+                        <Star
+                            key={index}
+                            className={`h-4 w-4 ${index < review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
+                        />
                     ))}
                 </div>
             </div>
 
-            <div className="review-content">
+            <div className="text-muted-foreground leading-relaxed mb-6 whitespace-pre-wrap">
                 {review.content}
             </div>
 
-            <div className="review-footer">
-                <div className="review-date">
+            <div className="flex items-center justify-between border-t border-white/5 pt-4">
+                <div className="text-xs text-muted-foreground font-medium">
                     {formattedDate}
                 </div>
 
-                <div className="review-actions">
+                <div className="flex items-center gap-2">
                     {isAuthenticated && (
                         <>
+                            {canEdit && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setIsEditing(true)}
+                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-primary"
+                                    title="Edit review"
+                                >
+                                    <Pencil className="h-4 w-4" />
+                                </Button>
+                            )}
 
-                        {canEdit && (
-                            <button
-                                className="edit-button"
-                                onClick={() => setIsEditing(true)}
-                                title="Edit review"
-                            >
-                                ✏️
-                            </button>
-                        )}
-
-                        {canDelete && (
-                            <button
-                                className="delete-button"
-                                onClick={() => setShowDeleteModal(true)}
-                                title="Delete review"
-                            >
-                                🗑️
-                            </button>
-                        )}
+                            {canDelete && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setShowDeleteModal(true)}
+                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                                    title="Delete review"
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            )}
                         </>
-                        )}
+                    )}
                 </div>
             </div>
 

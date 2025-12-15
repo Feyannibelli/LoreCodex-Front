@@ -12,9 +12,11 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          "rounded-lg border border bg-surface text-text shadow-sm",
-          hover && "transition-all duration-200 hover:shadow-md hover:bg-[rgba(245,126,0,0.06)]",
+          "rounded-xl border border-border bg-card text-card-foreground shadow-sm relative overflow-hidden",
+          hover && "transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary/20",
           clickable && "cursor-pointer",
+          // Inner highlight effect
+          "before:pointer-events-none before:absolute before:inset-0 before:rounded-xl before:ring-1 before:ring-inset before:ring-white/5",
           className
         )}
         {...props}
@@ -43,7 +45,7 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn("text-2xl font-semibold leading-none tracking-tight", className)}
+    className={cn("text-2xl font-semibold leading-none tracking-tight text-foreground", className)}
     {...props}
   />
 ));
@@ -55,7 +57,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-text-muted", className)}
+    className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
 ));

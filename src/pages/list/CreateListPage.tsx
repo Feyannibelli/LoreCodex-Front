@@ -67,7 +67,7 @@ const CreateListPage: React.FC = () => {
                     break;
                 }
 
-                case ListItemType.CHALLENGE:{
+                case ListItemType.CHALLENGE: {
                     const challenges = await challengeService.searchChallengesByTitle(searchTerm);
                     results = challenges.map(challenge => ({
                         id: challenge.id,
@@ -153,10 +153,10 @@ const CreateListPage: React.FC = () => {
 
     if (!user) {
         return (
-            <div className="min-h-screen bg-bg py-12">
+            <div className="min-h-screen bg-background py-12">
                 <div className="mx-auto max-w-6xl px-4">
                     <div className="text-center py-12">
-                        <p className="text-text-muted">You need to be logged in to create a list.</p>
+                        <p className="text-muted-foreground">You need to be logged in to create a list.</p>
                     </div>
                 </div>
             </div>
@@ -164,14 +164,14 @@ const CreateListPage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-bg py-12">
+        <div className="min-h-screen bg-background py-12">
             <div className="mx-auto max-w-6xl px-4">
-                <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm mb-8">
+                <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm mb-8">
                     <div className="px-8 py-10">
                         <div className="mb-6">
-                            <p className="text-sm font-semibold uppercase tracking-wide text-brand-500 mb-2">Create</p>
-                            <h1 className="text-4xl font-bold text-text">Create New List</h1>
-                            <p className="text-sm text-text-muted mt-1">
+                            <p className="text-sm font-semibold uppercase tracking-wide text-primary mb-2">Create</p>
+                            <h1 className="text-4xl font-bold text-foreground">Create New List</h1>
+                            <p className="text-sm text-muted-foreground mt-1">
                                 Create and share your list of favorite games
                             </p>
                         </div>
@@ -180,12 +180,12 @@ const CreateListPage: React.FC = () => {
 
                 <form onSubmit={handleSubmit} className="space-y-8">
                     {/* Basic Info */}
-                    <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                    <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
                         <div className="px-8 py-10">
-                            <h2 className="text-2xl font-bold text-text mb-6">List Information</h2>
+                            <h2 className="text-2xl font-bold text-foreground mb-6">List Information</h2>
 
                             <div className="mb-6">
-                                <label className="block text-sm font-medium text-text mb-2">
+                                <label className="block text-sm font-medium text-foreground mb-2">
                                     List Title *
                                 </label>
                                 <input
@@ -193,11 +193,11 @@ const CreateListPage: React.FC = () => {
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     required
-                                    className="w-full px-4 py-3 rounded-lg border border bg-surface-2 text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all"
+                                    className="w-full px-4 py-3 rounded-lg border border-input bg-secondary/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input transition-all"
                                     placeholder="Ex: My favorite games of 2024"
                                     maxLength={100}
                                 />
-                                <p className="text-xs text-text-muted mt-1">{title.length}/100 characters</p>
+                                <p className="text-xs text-muted-foreground mt-1">{title.length}/100 characters</p>
                             </div>
 
                             <div>
@@ -213,15 +213,15 @@ const CreateListPage: React.FC = () => {
                     </div>
 
                     {/* Add Items */}
-                    <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                    <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
                         <div className="px-8 py-10">
-                            <h2 className="text-2xl font-bold text-text mb-6">Add Games *</h2>
+                            <h2 className="text-2xl font-bold text-foreground mb-6">Add Games *</h2>
 
                             <div className="flex gap-4 mb-6">
                                 <select
                                     value={searchType}
                                     onChange={(e) => setSearchType(e.target.value as ListItemType)}
-                                    className="px-4 py-3 rounded-lg border border bg-surface-2 text-text focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all"
+                                    className="px-4 py-3 rounded-lg border border-input bg-secondary/50 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input transition-all"
                                 >
                                     <option value={ListItemType.GAME}>Games</option>
                                     <option value={ListItemType.GUIDE}>Guides</option>
@@ -233,23 +233,23 @@ const CreateListPage: React.FC = () => {
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder={`Search ${searchType.toLowerCase()}s...`}
-                                    className="flex-1 px-4 py-3 rounded-lg border border bg-surface-2 text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all"
+                                    className="flex-1 px-4 py-3 rounded-lg border border-input bg-secondary/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input transition-all"
                                 />
                             </div>
 
                             {/* Search Results */}
                             {isSearching && (
-                                <div className="text-center py-4 text-text-muted">Searching...</div>
+                                <div className="text-center py-4 text-muted-foreground">Searching...</div>
                             )}
 
                             {searchResults.length > 0 && (
                                 <div className="mb-6">
-                                    <h3 className="font-medium text-text mb-3">Search Results:</h3>
-                                    <div className="max-h-60 overflow-y-auto rounded-lg border border bg-surface-2">
+                                    <h3 className="font-medium text-foreground mb-3">Search Results:</h3>
+                                    <div className="max-h-60 overflow-y-auto rounded-lg border border-border bg-secondary/30">
                                         {searchResults.map((item) => (
                                             <div
                                                 key={`${item.type}-${item.id}`}
-                                                className="flex items-center justify-between p-3 border-b border last:border-b-0 hover:bg-[rgba(245,126,0,0.06)] transition"
+                                                className="flex items-center justify-between p-3 border-b border-border last:border-b-0 hover:bg-muted/50 transition"
                                             >
                                                 <div className="flex items-center gap-3">
                                                     {item.thumbnailUrl && (
@@ -260,8 +260,8 @@ const CreateListPage: React.FC = () => {
                                                         />
                                                     )}
                                                     <div>
-                                                        <span className="font-medium text-text">{item.title}</span>
-                                                        <span className="text-sm text-text-muted ml-2">({item.type})</span>
+                                                        <span className="font-medium text-foreground">{item.title}</span>
+                                                        <span className="text-sm text-muted-foreground ml-2">({item.type})</span>
                                                     </div>
                                                 </div>
                                                 <Button
@@ -282,20 +282,20 @@ const CreateListPage: React.FC = () => {
 
                     {/* Selected Items */}
                     {selectedItems.length > 0 && (
-                        <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
+                        <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
                             <div className="px-8 py-10">
-                                <h2 className="text-2xl font-bold text-text mb-6">Selected Items ({selectedItems.length})</h2>
+                                <h2 className="text-2xl font-bold text-foreground mb-6">Selected Items ({selectedItems.length})</h2>
 
                                 <div className="space-y-3">
                                     {selectedItems.map((item, index) => (
                                         <div
                                             key={`${item.type}-${item.referenceId}-${index}`}
-                                            className="flex items-center justify-between p-4 rounded-lg border border bg-surface-2"
+                                            className="flex items-center justify-between p-4 rounded-lg border border-border bg-secondary/30"
                                         >
                                             <div className="flex items-center gap-3">
-                                                <span className="text-sm font-medium text-text-muted w-8">#{index + 1}</span>
-                                                <span className="font-medium text-text">{getItemDisplayName(item)}</span>
-                                                <span className="text-sm text-text-muted">({item.type})</span>
+                                                <span className="text-sm font-medium text-muted-foreground w-8">#{index + 1}</span>
+                                                <span className="font-medium text-foreground">{getItemDisplayName(item)}</span>
+                                                <span className="text-sm text-muted-foreground">({item.type})</span>
                                             </div>
 
                                             <div className="flex items-center gap-2">

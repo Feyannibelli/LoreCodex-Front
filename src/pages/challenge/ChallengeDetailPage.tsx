@@ -125,7 +125,7 @@ const ChallengeDetailPage: React.FC = () => {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 </div>
             </div>
         );
@@ -135,7 +135,7 @@ const ChallengeDetailPage: React.FC = () => {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="text-center py-12">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    <h2 className="text-xl font-semibold text-foreground mb-2">
                         Challenge no encontrado
                     </h2>
                     <Button onClick={() => navigate('/challenges')}>
@@ -155,7 +155,7 @@ const ChallengeDetailPage: React.FC = () => {
             <div className="mb-6">
                 <button
                     onClick={() => navigate('/challenges')}
-                    className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
+                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
                 >
                     <ArrowLeft size={20} />
                     Volver a Challenges
@@ -165,7 +165,7 @@ const ChallengeDetailPage: React.FC = () => {
                     {/* Media */}
                     {challenge.mediaUrl && (
                         <div className="lg:w-1/2">
-                            <div className="aspect-video rounded-lg overflow-hidden shadow-lg">
+                            <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-muted">
                                 {challenge.mediaType === 'image' ? (
                                     <img
                                         src={challenge.mediaUrl}
@@ -186,28 +186,28 @@ const ChallengeDetailPage: React.FC = () => {
                     {/* Info */}
                     <div className={`${challenge.mediaUrl ? 'lg:w-1/2' : 'w-full'}`}>
                         <div className="flex items-start justify-between mb-4">
-                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                            <h1 className="text-3xl font-bold text-foreground">
                                 {challenge.title}
                             </h1>
                         </div>
 
                         {/* Challenge info */}
                         <div className="space-y-3 mb-6">
-                            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                                <User size={18}/>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                                <User size={18} />
                                 <span>Creado por{' '}
-                                    <strong className="cursor-pointer text-indigo-600 hover:underline" onClick={() => navigate(`/profile/${challenge?.creatorId}`)}>
+                                    <strong className="cursor-pointer text-primary hover:underline" onClick={() => navigate(`/profile/${challenge?.creatorId}`)}>
                                         {challenge.creatorUsername}
                                     </strong>
                                     {isOwner && (
                                         <span title="Eres el creador">
-                                            <Crown size={16} className="inline ml-1 text-yellow-500" />
+                                            <Crown size={16} className="inline ml-1 text-primary" />
                                         </span>
                                     )}
                                 </span>
                             </div>
-                            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                                <Clock size={18}/>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                                <Clock size={18} />
                                 <span>{challenge.items.length} tareas</span>
                             </div>
                         </div>
@@ -216,26 +216,26 @@ const ChallengeDetailPage: React.FC = () => {
                         {hasJoined && progress && (
                             <div className="mb-6">
                                 <div className="flex justify-between items-center mb-2">
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <span className="text-sm font-medium text-foreground">
                                         Progreso: {progress.completed}/{progress.total}
                                         {isOwner && (
-                                            <span className="ml-2 text-xs bg-orange-500/10 text-orange-600 px-2 py-1 rounded-full">
+                                            <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
                                                 Creador participando
                                             </span>
                                         )}
                                     </span>
-                                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                                    <span className="text-sm text-muted-foreground">
                                         {Math.round(progressPercentage)}%
                                     </span>
                                 </div>
-                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                                <div className="w-full bg-secondary rounded-full h-3">
                                     <div
-                                        className="bg-orange-500 h-3 rounded-full transition-all duration-300"
+                                        className="bg-primary h-3 rounded-full transition-all duration-300"
                                         style={{ width: `${progressPercentage}%` }}
                                     />
                                 </div>
                                 {progressPercentage === 100 && (
-                                    <div className="flex items-center gap-2 mt-2 text-green-600">
+                                    <div className="flex items-center gap-2 mt-2 text-primary">
                                         <Trophy size={20} />
                                         <span className="font-medium">
                                             ¡Challenge completado!
@@ -249,8 +249,8 @@ const ChallengeDetailPage: React.FC = () => {
                         {/* Actions */}
                         <div className="space-y-3">
                             {!isAuthenticated ? (
-                                <div className="text-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                                    <p className="text-gray-600 dark:text-gray-400 mb-3">
+                                <div className="text-center p-4 bg-secondary/50 rounded-xl">
+                                    <p className="text-muted-foreground mb-3">
                                         Inicia sesión para unirte a este challenge
                                     </p>
                                     <Button onClick={() => navigate('/login')}>
@@ -269,8 +269,8 @@ const ChallengeDetailPage: React.FC = () => {
                             ) : (
                                 <div className="space-y-2">
                                     {isOwner && (
-                                        <div className="text-center p-3 bg-orange-500/10 rounded-lg">
-                                            <p className="text-orange-600 text-sm">
+                                        <div className="text-center p-3 bg-primary/10 rounded-lg">
+                                            <p className="text-primary text-sm">
                                                 Estás participando en tu propio challenge
                                             </p>
                                         </div>
@@ -279,7 +279,8 @@ const ChallengeDetailPage: React.FC = () => {
                                         <Button
                                             onClick={handleLeaveChallenge}
                                             disabled={leaving}
-                                            className="flex-1 flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600"
+                                            variant="destructive"
+                                            className="flex-1 flex items-center justify-center gap-2"
                                         >
                                             {leaving ? 'Saliendo...' : 'Salir del Challenge'}
                                         </Button>
@@ -287,7 +288,8 @@ const ChallengeDetailPage: React.FC = () => {
                                             <Button
                                                 onClick={handleDeleteChallenge}
                                                 disabled={deleting}
-                                                className="flex-1 flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700"
+                                                variant="destructive"
+                                                className="flex-1 flex items-center justify-center gap-2"
                                             >
                                                 {deleting ? 'Eliminando...' : 'Eliminar Challenge'}
                                             </Button>
@@ -302,17 +304,17 @@ const ChallengeDetailPage: React.FC = () => {
 
             {/* Description - UNIFICADO */}
             <div className="mb-8">
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                <h2 className="text-2xl font-semibold text-foreground mb-4">
                     Descripción
                 </h2>
-                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
                     <UnifiedContentRenderer content={challenge.description} />
                 </div>
             </div>
 
             {/* Tasks/Checklist */}
             <div>
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                <h2 className="text-2xl font-semibold text-foreground mb-4">
                     Tareas ({challenge.items.length})
                 </h2>
                 <div className="space-y-3">
@@ -328,7 +330,7 @@ const ChallengeDetailPage: React.FC = () => {
                             return (
                                 <div
                                     key={item.id}
-                                    className={`bg-white dark:bg-[#313E3F] rounded-lg p-4 shadow-sm border transition-all ${isCompleted ? 'border-emerald-300 bg-emerald-50 dark:bg-emerald-900/10 animate-pulse-once' : 'border-gray-200 dark:border-gray-700'}`}
+                                    className={`bg-card rounded-xl p-4 shadow-sm border transition-all ${isCompleted ? 'border-primary/50 bg-primary/5 animate-pulse-once' : 'border-border'}`}
                                 >
                                     <div className="flex items-start gap-3">
                                         {hasJoined ? (
@@ -338,22 +340,22 @@ const ChallengeDetailPage: React.FC = () => {
                                                 onToggle={() => handleToggleItem(item.id!, isCompleted)}
                                             />
                                         ) : (
-                                            <Circle size={24} className="text-gray-400 mt-1 flex-shrink-0"/>
+                                            <Circle size={24} className="text-muted-foreground mt-1 flex-shrink-0" />
                                         )}
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-2">
-                                                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                                <span className="text-sm font-medium text-muted-foreground">
                                                     Tarea {item.order}
                                                 </span>
                                                 {isCompleted && (
-                                                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                                    <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
                                                         Completado
                                                     </span>
                                                 )}
                                             </div>
                                             <UnifiedContentRenderer
                                                 content={item.description}
-                                                className={`prose dark:prose-invert max-w-none ${isCompleted ? 'text-green-700 dark:text-green-300' : ''}`}
+                                                className={`prose dark:prose-invert max-w-none ${isCompleted ? 'text-primary' : ''}`}
                                             />
                                         </div>
                                     </div>
@@ -364,6 +366,6 @@ const ChallengeDetailPage: React.FC = () => {
             </div>
         </div>
     );
-}
+};
 
 export default ChallengeDetailPage;

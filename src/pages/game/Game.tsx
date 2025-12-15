@@ -4,11 +4,11 @@ import { Game as GameType } from "../../interfaces/Game.ts";
 import gameService from "../../services/gameService.ts";
 import { useAuth } from "../../context/AuthContext.tsx";
 import ReviewList from "../../components/ReviewList.tsx";
-import "../../css/Game.css";
+// import "../../css/Game.css";
 import GameNotesSection from "../../components/GameNotesSection.tsx";
 import GameRating from "../../components/GameRating.tsx";
 import UserRatingDisplay from "../../components/UserRatingDisplay.tsx";
-import ratingService, {RatingSummaryDto} from "../../services/ratingService.ts";
+import ratingService, { RatingSummaryDto } from "../../services/ratingService.ts";
 
 const Game: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -119,154 +119,158 @@ const Game: React.FC = () => {
 
 
     // Show loading indicator while checking auth and loading game
-    if (authLoading || loading) return <div className="loading-container">Loading game...</div>;
-    if (error) return <div className="error-message">{error}</div>;
-    if (!game) return <div className="not-found">Game not found</div>;
+    if (authLoading || loading) return (
+        <div className="min-h-screen pt-24 pb-12 flex justify-center items-start">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+    );
+    if (error) return (
+        <div className="min-h-screen pt-24 pb-12 flex justify-center items-start">
+            <div className="text-destructive font-medium">{error}</div>
+        </div>
+    );
+    if (!game) return (
+        <div className="min-h-screen pt-24 pb-12 flex justify-center items-start">
+            <div className="text-muted-foreground font-medium">Game not found</div>
+        </div>
+    );
 
     return (
-        <div className="game-detail-container">
-            <div className="game-detail-header">
-                <div className="game-detail-image">
-                    {game.imageUrl ? (
-                        <img src={game.imageUrl} alt={game.name}/>
-                    ) : (
-                        <div className="no-image">No image</div>
-                    )}
-                </div>
-                <div className="game-detail-info">
-                    <h1 className="game-detail-name">{game.name}</h1>
-
-                    {/* Componente reutilizable de rating */}
-                        <GameRating
-                            gameId={id ? parseInt(id, 10) : 0}
-                            isAuthenticated={isAuthenticated}
-                        />
-
-                    <div className="game-detail-description">
-                        <h2>Description</h2>
-                        <p>{game.description}</p>
-                    </div>
-
-                    <div className="game-detail-meta">
-                        <div className="meta-item">
-                            <strong>Genre:</strong> {game.genre}
-                        </div>
-                        <div className="meta-item">
-                            <strong>Release date:</strong> {new Date(game.releaseDate).toLocaleDateString()}
-                        </div>
-                        {game.awards && (
-                            <div className="meta-item">
-                                <strong>Awards:</strong> {game.awards}
-                            </div>
+        <div className="min-h-screen py-12 px-4 md:px-8 bg-background">
+            <div className="max-w-5xl mx-auto">
+                <div className="flex flex-col md:flex-row gap-8 mb-8">
+                    <div className="w-full md:w-[300px] h-[400px] flex-shrink-0 bg-muted rounded-xl overflow-hidden shadow-lg border border-border">
+                        {game.imageUrl ? (
+                            <img src={game.imageUrl} alt={game.name} className="w-full h-full object-cover" />
+                        ) : (
+                            <div className="flex h-full items-center justify-center text-muted-foreground">No image</div>
                         )}
                     </div>
-                </div>
+                    <div className="flex-grow flex flex-col">
+                        <h1 className="text-4xl font-bold mb-4 text-foreground leading-tight">{game.name}</h1>
 
-            </div>
-            <div className="user-rating-frame">
-                <UserRatingDisplay
-                    gameId={parseInt(id!)}
-                    isAuthenticated={isAuthenticated}
-                    initialRating={summary?.mine ?? null}
-                    onRated={async (newRating) => {
-                        // Actualiza el summary manteniendo el rating del usuario
-                        try {
-                            if (id) {
-                                const res = await ratingService.getRatingSummary(parseInt(id));
-                                setSummary({
-                                    ...res,
-                                    mine: newRating // Asegura que siempre mantenga el rating que acaba de dar
-                                });
-                                await loadGame();
-                            }
-                        } catch (err) {
-                            console.error("Error updating rating summary:", err);
-                            // En caso de error, al menos mantiene el rating localmente
-                            setSummary(prev => prev ? { ...prev, mine: newRating } : { average: 0, mine: newRating });
-                        }
-                    }}
-                />
-            </div>
-
-            <div className="game-detail-tabs">
-                <div className="tab-buttons">
-                    <button
-                        className={`tab-button ${activeTab === "reviews" ? "active" : ""}`}
-                        onClick={() => setActiveTab("reviews")}
-                    >
-                        Reviews
-                    </button>
-                    <button
-                        className={`tab-button ${activeTab === "guides" ? "active" : ""}`}
-                        onClick={() => setActiveTab("guides")}
-                    >
-                        Guides
-                    </button>
-                    <button
-                        className={`tab-button ${activeTab === "news" ? "active" : ""}`}
-                        onClick={() => setActiveTab("news")}
-                    >
-                        News
-                    </button>
-                    <button
-                        className={`tab-button ${activeTab === "challenges" ? "active" : ""}`}
-                        onClick={() => setActiveTab("challenges")}
-                    >
-                        Challenges
-                    </button>
-                    <button
-                        className={`tab-button ${activeTab === "more" ? "active" : ""}`}
-                        onClick={() => setActiveTab("more")}
-                    >
-                        More Info
-                    </button>
-                    <button
-                        className={`tab-button ${activeTab === "notes" ? "active" : ""}`}
-                        onClick={() => setActiveTab("notes")}
-                    >
-                        Notes
-                    </button>
-                </div>
-
-                <div className="tab-content">
-                    {activeTab === "reviews" && (
-                        <div className="reviews-tab-content">
-                            {id && <ReviewList gameId={parseInt(id)}/>}
+                        {/* Componente reutilizable de rating */}
+                        <div className="mb-6">
+                            <GameRating
+                                gameId={id ? parseInt(id, 10) : 0}
+                                isAuthenticated={isAuthenticated}
+                            />
                         </div>
-                    )}
 
-                    {activeTab === "notes" && id && (
-                        <GameNotesSection gameId={parseInt(id)}/>
-                    )}
+                        <div className="bg-card rounded-xl border border-border p-6 mb-6">
+                            <h2 className="text-xl font-semibold mb-4 text-foreground">Description</h2>
+                            <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{game.description}</p>
+                        </div>
 
-                    {activeTab === "guides" && (
-                        <div>
-                            <p>No guides available for this game.</p>
-                            {isAuthenticated && (
-                                <button className="add-content-button">Create a guide</button>
+                        <div className="bg-secondary/30 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                            <div className="flex flex-col">
+                                <strong className="text-foreground">Genre:</strong>
+                                <span className="text-muted-foreground">{game.genre}</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <strong className="text-foreground">Release date:</strong>
+                                <span className="text-muted-foreground">{new Date(game.releaseDate).toLocaleDateString()}</span>
+                            </div>
+                            {game.awards && (
+                                <div className="flex flex-col sm:col-span-2">
+                                    <strong className="text-foreground">Awards:</strong>
+                                    <span className="text-muted-foreground">{game.awards}</span>
+                                </div>
                             )}
                         </div>
-                    )}
+                    </div>
 
-                    {activeTab === "news" && (
-                        <div>
-                            <p>No news available for this game.</p>
-                        </div>
-                    )}
+                </div>
+                <div className="bg-muted/10 rounded-xl p-4 mb-4 border border-border/50">
+                    <UserRatingDisplay
+                        gameId={parseInt(id!)}
+                        isAuthenticated={isAuthenticated}
+                        initialRating={summary?.mine ?? null}
+                        onRated={async (newRating) => {
+                            // Actualiza el summary manteniendo el rating del usuario
+                            try {
+                                if (id) {
+                                    const res = await ratingService.getRatingSummary(parseInt(id));
+                                    setSummary({
+                                        ...res,
+                                        mine: newRating // Asegura que siempre mantenga el rating que acaba de dar
+                                    });
+                                    await loadGame();
+                                }
+                            } catch (err) {
+                                console.error("Error updating rating summary:", err);
+                                // En caso de error, al menos mantiene el rating localmente
+                                setSummary(prev => prev ? { ...prev, mine: newRating } : { average: 0, mine: newRating });
+                            }
+                        }}
+                    />
+                </div>
 
-                    {activeTab === "challenges" && (
-                        <div>
-                            <p>No challenges available for this game.</p>
-                        </div>
-                    )}
+                <div className="mt-8 border-t border-border pt-6">
+                    <div className="flex flex-wrap gap-2 mb-6 border-b border-border">
+                        {[
+                            { id: "reviews", label: "Reviews" },
+                            { id: "guides", label: "Guides" },
+                            { id: "news", label: "News" },
+                            { id: "challenges", label: "Challenges" },
+                            { id: "more", label: "More Info" },
+                            { id: "notes", label: "Notes" }
+                        ].map((tab) => (
+                            <button
+                                key={tab.id}
+                                className={`px-6 py-3 text-sm font-medium rounded-t-lg transition-colors border-b-2 ${activeTab === tab.id
+                                    ? "border-primary text-primary bg-primary/5"
+                                    : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30"
+                                    }`}
+                                onClick={() => setActiveTab(tab.id)}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
 
-                    {activeTab === "more" && (
-                        <div>
-                            <p>No additional information available for this game.</p>
-                        </div>
-                    )}
+                    <div className="py-4">
+                        {activeTab === "reviews" && (
+                            <div className="animate-in fade-in duration-300">
+                                {id && <ReviewList gameId={parseInt(id)} />}
+                            </div>
+                        )}
+
+                        {activeTab === "notes" && id && (
+                            <div className="animate-in fade-in duration-300">
+                                <GameNotesSection gameId={parseInt(id)} />
+                            </div>
+                        )}
+
+                        {activeTab === "guides" && (
+                            <div className="animate-in fade-in duration-300 text-center py-12 bg-card rounded-xl border border-border">
+                                <p className="text-muted-foreground mb-4">No guides available for this game yet.</p>
+                                {isAuthenticated && (
+                                    <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md transition-colors text-sm font-medium">Create a guide</button>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === "news" && (
+                            <div className="animate-in fade-in duration-300 text-center py-12 bg-card rounded-xl border border-border">
+                                <p className="text-muted-foreground">No news available for this game.</p>
+                            </div>
+                        )}
+
+                        {activeTab === "challenges" && (
+                            <div className="animate-in fade-in duration-300 text-center py-12 bg-card rounded-xl border border-border">
+                                <p className="text-muted-foreground">No challenges available for this game.</p>
+                            </div>
+                        )}
+
+                        {activeTab === "more" && (
+                            <div className="animate-in fade-in duration-300 text-center py-12 bg-card rounded-xl border border-border">
+                                <p className="text-muted-foreground">No additional information available for this game.</p>
+                            </div>
+                        )}
 
 
+                    </div>
                 </div>
             </div>
         </div>

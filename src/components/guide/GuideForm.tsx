@@ -1,22 +1,25 @@
 import { useState } from "react";
 import { GuideForm as Form } from "../../interfaces/Guide";
 import UnifiedContentEditor from "../UnifiedContentEditor";
+import Input from "../ui/Input";
+import Button from "../Button";
+import { Save, Send } from "lucide-react";
 
 interface Props {
     initial?: Form;
-    submitLabel: string;                // texto del botón principal
-    onSubmit: (data: Form) => void;     // callback principal
-    onPublish?: (data: Form) => void;   // callback opcional "Publish"
+    submitLabel: string;
+    onSubmit: (data: Form) => void;
+    onPublish?: (data: Form) => void;
     publishLabel?: string;
 }
 
 const GuideForm: React.FC<Props> = ({
-                                        initial,
-                                        submitLabel,
-                                        onSubmit,
-                                        onPublish,
-                                        publishLabel = "Publicar Guía"
-                                    }) => {
+    initial,
+    submitLabel,
+    onSubmit,
+    onPublish,
+    publishLabel = "Publish Guide"
+}) => {
     const [form, setForm] = useState<Form>(
         initial ?? {
             title: "",
@@ -52,111 +55,109 @@ const GuideForm: React.FC<Props> = ({
         }));
 
     return (
-        <div className="space-y-6 max-w-4xl mx-auto">
+        <div className="space-y-8 max-w-4xl mx-auto">
             <form
                 onSubmit={e => {
                     e.preventDefault();
                     onSubmit(form);
                 }}
-                className="space-y-6"
+                className="space-y-8"
             >
                 {/* Title */}
-                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Título de la Guía *
-                    </label>
-                    <input
+                <div className="space-y-2">
+                    <Input
+                        label="Guide Title *"
                         name="title"
                         value={form.title}
                         onChange={handle}
-                        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                        placeholder="Ej: Guía completa para principiantes..."
+                        placeholder="Ex: Complete guide for beginners..."
                         required
+                        className="bg-secondary/30 border-white/5 focus:border-primary/50 text-lg py-6"
                     />
                 </div>
 
                 {/* Cover Image URL */}
-                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Imagen de Portada (URL) - Opcional
-                    </label>
-                    <input
+                <div className="space-y-4">
+                    <Input
+                        label="Cover Image URL (Optional)"
                         name="coverImageUrl"
                         value={form.coverImageUrl ?? ""}
                         onChange={handle}
-                        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                        placeholder="https://ejemplo.com/imagen.jpg"
+                        placeholder="https://example.com/image.jpg"
+                        className="bg-secondary/30 border-white/5"
                     />
+
                     {form.coverImageUrl && (
-                        <div className="mt-3">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Vista previa:</p>
-                            <img
-                                src={form.coverImageUrl}
-                                alt="Cover preview"
-                                className="max-w-xs h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = 'none';
-                                }}
-                            />
+                        <div className="mt-4 p-4 rounded-xl border border-white/5 bg-secondary/20 backdrop-blur-sm">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
+                                Preview
+                            </p>
+                            <div className="relative aspect-video max-w-sm rounded-lg overflow-hidden bg-background shadow-lg">
+                                <img
+                                    src={form.coverImageUrl}
+                                    alt="Cover preview"
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
+                                />
+                            </div>
                         </div>
                     )}
                 </div>
 
-                {/* Content - UNIFICADO */}
-                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                {/* Content - UNIFIED */}
+                <div className="space-y-2">
                     <UnifiedContentEditor
-                        label="Contenido de la Guía *"
+                        label="Guide Content *"
                         value={form.content}
                         onChange={handleContentChange}
-                        rows={18}
-                        placeholder="Escribe tu guía usando Markdown y menciones...
+                        rows={20}
+                        placeholder="Write your guide using Markdown...
 
-# Título Principal
-## Subtítulo
-### Sección
+# Main Title
+## Subtitle
+### Section
 
-**Texto en negrita** y *texto en cursiva*
+**Bold text** and *italic text*
 
-- Elemento de lista 1
-- Elemento de lista 2
+- List item 1
+- List item 2
 
-[Texto del enlace](https://ejemplo.com)
+[Link text](https://example.com)
 
-`fragmento de código`
+`code snippet`
 
-> Esto es una cita
+> This is a quote
 
-Puedes mencionar contenido:
-• /games/ para mencionar juegos
-• /guides/ para referenciar otras guías
-• /challenges/ para mencionar desafíos
-• /lists/ para referenciar listas
-• /news/ para mencionar noticias"
-                        helpText="Escribe tu guía completa. Usa Markdown para formato enriquecido y menciones para referenciar otros contenidos de la plataforma."
+You can mention content:
+• /games/ to mention games
+• /guides/ to reference other guides
+• /challenges/ to mention challenges
+• /lists/ to reference lists
+• /news/ to mention news"
+                        helpText="Write your full guide. Use Markdown for rich formatting and mentions to reference other platform content."
                     />
                 </div>
 
                 {/* Tags */}
-                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Etiquetas - Opcional
-                        <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
-                            (Separadas por comas)
-                        </span>
-                    </label>
-                    <input
+                <div className="space-y-3">
+                    <Input
+                        label="Tags (Optional)"
                         name="tags"
                         onChange={handleTags}
                         value={form.tags?.join(", ") ?? ""}
-                        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                        placeholder="tutorial, principiante, estrategia"
+                        helperText="Separate tags with commas"
+                        placeholder="tutorial, beginner, strategy"
+                        className="bg-secondary/30 border-white/5"
                     />
+
                     {form.tags && form.tags.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2 pt-1">
                             {form.tags.map((tag, index) => (
                                 <span
                                     key={index}
-                                    className="inline-flex items-center px-3 py-1 bg-orange-500/10 text-orange-600 rounded-full text-xs font-medium"
+                                    className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 shadow-sm"
                                 >
                                     #{tag}
                                 </span>
@@ -166,24 +167,30 @@ Puedes mencionar contenido:
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-white/5">
                     {/* Primary Save Button */}
-                    <button
+                    <Button
                         type="submit"
-                        className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-sm flex items-center justify-center gap-2"
+                        variant="secondary"
+                        size="lg"
+                        className="w-full sm:w-auto font-semibold gap-2"
                     >
-                        💾 {submitLabel}
-                    </button>
+                        <Save className="h-4 w-4" />
+                        {submitLabel}
+                    </Button>
 
                     {/* Publish Button (if available) */}
                     {onPublish && (
-                        <button
+                        <Button
                             type="button"
+                            variant="default"
+                            size="lg"
                             onClick={() => onPublish({ ...form, published: true, draft: false })}
-                            className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors font-medium shadow-sm flex items-center justify-center gap-2"
+                            className="w-full sm:w-auto font-bold shadow-lg shadow-primary/20 gap-2"
                         >
-                            🚀 {publishLabel}
-                        </button>
+                            <Send className="h-4 w-4" />
+                            {publishLabel}
+                        </Button>
                     )}
                 </div>
             </form>

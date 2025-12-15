@@ -27,16 +27,16 @@ const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   return (
-    <form 
+    <form
       onSubmit={handleSubmit}
       className={cn(
-        "flex items-center w-full max-w-2xl",
+        "flex w-full max-w-2xl relative shadow-lg shadow-black/20 rounded-full",
         className
       )}
     >
-      <div className="relative flex-1 group">
-        <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-          <Search className="h-5 w-5 text-text-muted group-focus-within:text-brand-500 transition-colors" />
+      <div className="relative flex-1 group z-10">
+        <div className="absolute inset-y-0 left-0 flex items-center pl-5 pointer-events-none">
+          <Search className="h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors duration-300" />
         </div>
         <input
           type="text"
@@ -45,28 +45,29 @@ const SearchBar: React.FC<SearchBarProps> = ({
           onKeyPress={onKeyPress}
           placeholder={placeholder}
           className={cn(
-            "w-full pl-12 pr-4 py-3",
-            "bg-surface-2 border border rounded-l-lg",
-            "text-text placeholder:text-placeholder",
-            "focus:outline-none focus:ring-2 focus:ring-brand-300/50 focus:border-transparent",
-            "transition-all duration-200",
-            "hover:border-brand-500/30"
+            "w-full pl-12 pr-4 py-4 h-14",
+            "bg-card/90 backdrop-blur-sm border border-white/5 rounded-l-full",
+            "text-foreground placeholder:text-muted-foreground/70",
+            "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 focus:bg-card",
+            "transition-all duration-300",
+            "text-base"
           )}
         />
       </div>
       <button
         type="submit"
         className={cn(
-          "px-6 py-3 rounded-r-lg",
-          "bg-brand-500 text-white",
-          "hover:bg-brand-600 active:bg-brand-700",
-          "focus:outline-none focus:ring-2 focus:ring-brand-300/50 focus:ring-offset-2 focus:ring-offset-bg",
-          "transition-all duration-200",
-          "font-medium",
-          "disabled:opacity-50 disabled:cursor-not-allowed"
+          "px-8 py-3 rounded-r-full h-14 z-20",
+          "bg-primary text-primary-foreground",
+          "hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20",
+          "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background",
+          "transition-all duration-300 transform active:scale-[0.98]",
+          "font-semibold tracking-wide",
+          "disabled:opacity-50 disabled:cursor-not-allowed",
+          "-ml-2"
         )}
       >
-        <Search className="h-5 w-5" />
+        Search
       </button>
     </form>
   );

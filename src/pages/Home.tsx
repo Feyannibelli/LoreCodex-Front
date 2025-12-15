@@ -70,225 +70,284 @@ const Home: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-bg py-12">
-            <div className="mx-auto max-w-6xl px-4">
-                {/* Hero Section with Search */}
-                <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm mb-12">
-                    <div className="relative px-8 py-10">
-                        <div className="text-center mb-8">
-                            <p className="text-sm font-semibold uppercase tracking-wide text-brand-500 mb-2">
-                                Welcome
-                            </p>
-                            <h1 className="text-4xl font-bold text-text mb-2">
-                                Discover Games, Guides & More
-                            </h1>
-                            <p className="text-sm text-text-muted">
-                                Explore the LoreCodex community
-                            </p>
+        <div className="min-h-screen bg-background relative selection:bg-primary/30">
+            {/* Dynamic Background with Noise & Gradients */}
+            <div className="fixed inset-0 z-0 pointer-events-none">
+                {/* Main Dark Radial Gradient */}
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-950/20 via-background to-background"></div>
+
+                {/* Subtle Orange Glow Top-Right */}
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] opacity-40 mix-blend-screen"></div>
+
+                {/* Subtle Glow Bottom-Left */}
+                <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-900/10 rounded-full blur-[120px] opacity-30"></div>
+
+                {/* Noise Texture (Optional, handled via SVG or CSS if available, simulating with opacity) */}
+                <div className="absolute inset-0 opacity-[0.015] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+            </div>
+
+            <main className="relative z-10">
+                {/* Hero Section - Editorial Style */}
+                <section className="relative pt-24 pb-20 overflow-hidden">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                        <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-8 backdrop-blur-sm animate-fade-in-up">
+                            <span className="flex h-2 w-2 rounded-full bg-primary mr-2"></span>
+                            Welcome to LoreCodex
                         </div>
 
-                        <div className="max-w-2xl mx-auto">
+                        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-foreground mb-6 leading-tight animate-fade-in-up delay-100">
+                            Discover <span className="text-primary">Games</span>,<br />
+                            Guides & More
+                        </h1>
+
+                        <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up delay-200">
+                            Your premium destination for gaming knowledge.
+                            Explore our curated collection of guides, news, and game databases.
+                        </p>
+
+                        <div className="flex justify-center animate-fade-in-up delay-300">
                             <SearchBar
                                 value={searchTerm}
                                 onChange={setSearchTerm}
                                 onSubmit={handleSearch}
-                                placeholder="Search games, guides, news..."
+                                placeholder="Search everything..."
                                 className="w-full"
                             />
                         </div>
                     </div>
-                </div>
 
-                {error && (
-                    <div className="rounded-2xl border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive mb-8">
-                        {error}
-                    </div>
-                )}
+                    {/* Decorative Grid/Lines */}
+                    <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0"></div>
+                </section>
 
-                <div className="space-y-12">
-                    {/* Latest News Section */}
-                    <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
-                        <div className="px-8 py-10">
-                            <div className="flex items-center justify-between mb-6">
-                                <div>
-                                    <p className="text-sm font-semibold uppercase tracking-wide text-brand-500">Latest</p>
-                                    <h2 className="text-3xl font-bold text-text mt-1">Latest News</h2>
-                                </div>
-                                <Link to="/news" className="text-brand-500 hover:text-brand-600 font-medium transition-colors">
-                                    More +
-                                </Link>
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-24 pb-24">
+                    {/* Error Message */}
+                    {error && (
+                        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-6 py-4 text-sm text-destructive font-medium shadow-sm max-w-3xl mx-auto">
+                            {error}
+                        </div>
+                    )}
+
+                    {/* Latest News - Editorial Block */}
+                    <section>
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <h2 className="text-3xl font-bold text-foreground tracking-tight">Latest News</h2>
+                                <p className="text-muted-foreground mt-1">Fresh from the editorial team.</p>
                             </div>
+                            <Link to="/news" className="group flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-primary/80">
+                                View all news
+                                <span className="block transition-transform group-hover:translate-x-1">→</span>
+                            </Link>
+                        </div>
 
-                            {latestNews.length === 0 ? (
-                                <div className="text-center py-12 text-text-muted">
-                                    No news yet.
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    {latestNews.map(item => (
-                                        <Link
-                                            key={item.id}
-                                            to={`/news/${item.id}`}
-                                            className="flex gap-4 p-4 rounded-2xl border border bg-surface-2 hover:bg-[rgba(245,126,0,0.06)] transition"
-                                        >
-                                            {item.coverImage && (
-                                                <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-surface-2">
-                                                    <img
-                                                        src={item.coverImage}
-                                                        alt={item.title}
-                                                        className="w-full h-full object-cover"
-                                                    />
+                        {latestNews.length === 0 ? (
+                            <div className="rounded-2xl border border-white/5 bg-card/50 p-12 text-center text-muted-foreground shadow-sm">
+                                <p>No news available at the moment.</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {latestNews.slice(0, 3).map((item, index) => (
+                                    <Link
+                                        key={item.id}
+                                        to={`/news/${item.id}`}
+                                        className={`group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-card shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-primary/5 ${index === 0 ? 'md:col-span-2 lg:col-span-2 aspect-[2/1]' : ''}`}
+                                    >
+                                        <div className={`relative w-full overflow-hidden bg-muted ${index === 0 ? 'h-full' : 'aspect-video'}`}>
+                                            {item.coverImage ? (
+                                                <img
+                                                    src={item.coverImage}
+                                                    alt={item.title}
+                                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                />
+                                            ) : (
+                                                <div className="flex h-full w-full items-center justify-center bg-secondary/30 text-muted-foreground">
+                                                    No Image
                                                 </div>
                                             )}
-                                            <div className="flex-1 min-w-0">
-                                                <h3 className="text-lg font-semibold text-text mb-1 line-clamp-2">
-                                                    {item.title}
-                                                </h3>
-                                                <p className="text-sm text-text-muted">
-                                                    {new Date(item.createdAt).toLocaleDateString()}
-                                                </p>
+                                            {/* Gradient overlay for text readability */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent"></div>
+                                        </div>
+
+                                        <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
+                                            <div className="mb-2 flex items-center gap-2">
+                                                <span className="inline-flex rounded-md bg-primary/20 px-2 py-1 text-xs font-medium text-primary backdrop-blur-md">
+                                                    News
+                                                </span>
+                                                <span className="text-xs text-gray-300/80">
+                                                    {new Date(item.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                                </span>
                                             </div>
-                                        </Link>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                                            <h3 className={`font-bold text-foreground leading-tight group-hover:text-primary transition-colors ${index === 0 ? 'text-2xl md:text-3xl' : 'text-xl'}`}>
+                                                {item.title}
+                                            </h3>
+                                        </div>
+                                        {/* Inner Highlight for depth */}
+                                        <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 pointer-events-none"></div>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
+                    </section>
 
                     {/* Recently Added Games */}
-                    <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
-                        <div className="px-8 py-10">
-                            <div className="flex items-center justify-between mb-6">
-                                <div>
-                                    <p className="text-sm font-semibold uppercase tracking-wide text-brand-500">Recent</p>
-                                    <h2 className="text-3xl font-bold text-text mt-1">Recently Added</h2>
-                                </div>
-                                <Link to="/games" className="text-brand-500 hover:text-brand-600 font-medium transition-colors">
-                                    More +
-                                </Link>
+                    <section>
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <h2 className="text-3xl font-bold text-foreground tracking-tight">New Arrivals</h2>
+                                <p className="text-muted-foreground mt-1">Review the latest titles added to our database.</p>
                             </div>
+                            <Link to="/games" className="group flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-primary/80">
+                                Browse catalog
+                                <span className="block transition-transform group-hover:translate-x-1">→</span>
+                            </Link>
+                        </div>
 
-                            {loading ? (
-                                <div className="text-center py-12 text-text-muted">Loading...</div>
-                            ) : recentlyAdded.length === 0 ? (
-                                <div className="text-center py-12 text-text-muted">No games found</div>
-                            ) : (
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                                    {recentlyAdded.map(game => (
-                                        <Link
-                                            key={game.id}
-                                            to={`/games/${game.id}`}
-                                            className="group flex flex-col rounded-2xl border border bg-surface-2 overflow-hidden hover:bg-[rgba(245,126,0,0.06)] transition"
-                                        >
-                                            <div className="aspect-[3/4] bg-surface-2 flex items-center justify-center overflow-hidden">
-                                                {game.imageUrl ? (
-                                                    <img src={game.imageUrl} alt={game.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                                                ) : (
-                                                    <span className="text-text-muted">Game</span>
+                        {loading ? (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                                {[...Array(5)].map((_, i) => (
+                                    <div key={i} className="aspect-[3/4] rounded-2xl bg-muted/20 animate-pulse"></div>
+                                ))}
+                            </div>
+                        ) : recentlyAdded.length === 0 ? (
+                            <div className="rounded-2xl border border-white/5 bg-card/50 p-12 text-center text-muted-foreground">No games found</div>
+                        ) : (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                                {recentlyAdded.map(game => (
+                                    <Link
+                                        key={game.id}
+                                        to={`/games/${game.id}`}
+                                        className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-card shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10"
+                                    >
+                                        <div className="aspect-[3/4] w-full overflow-hidden bg-muted relative">
+                                            {game.imageUrl ? (
+                                                <img src={game.imageUrl} alt={game.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                            ) : (
+                                                <div className="flex h-full items-center justify-center text-muted-foreground">Game</div>
+                                            )}
+                                            {/* Hover overlay */}
+                                            <div className="absolute inset-0 bg-primary/0 transition-colors duration-300 group-hover:bg-primary/10"></div>
+                                        </div>
+
+                                        <div className="p-4 bg-card group-hover:bg-card/80 transition-colors">
+                                            <h3 className="text-sm font-semibold text-foreground line-clamp-1 mb-1 group-hover:text-primary transition-colors">
+                                                {game.name}
+                                            </h3>
+                                            <p className="text-xs text-muted-foreground">
+                                                {new Date(game.releaseDate).getFullYear()}
+                                            </p>
+                                        </div>
+
+                                        {/* Inner border */}
+                                        <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none"></div>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
+                    </section>
+
+                    {/* Popular Games - Carousel-like or Grid */}
+                    <section>
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <h2 className="text-3xl font-bold text-foreground tracking-tight">Trending Now</h2>
+                                <p className="text-muted-foreground mt-1">Most popular games this week.</p>
+                            </div>
+                        </div>
+
+                        {loading ? (
+                            <div className="h-64 bg-muted/20 rounded-2xl animate-pulse"></div>
+                        ) : popularGames.length === 0 ? (
+                            <div className="rounded-2xl border border-white/5 bg-card/50 p-12 text-center text-muted-foreground">No games found</div>
+                        ) : (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                                {popularGames.map(game => (
+                                    <Link
+                                        key={game.id}
+                                        to={`/games/${game.id}`}
+                                        className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-card shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10"
+                                    >
+                                        <div className="aspect-[3/4] w-full overflow-hidden bg-muted relative">
+                                            {game.imageUrl ? (
+                                                <img src={game.imageUrl} alt={game.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                            ) : (
+                                                <div className="flex h-full items-center justify-center text-muted-foreground">Game</div>
+                                            )}
+                                        </div>
+                                        <div className="p-4 bg-card border-t border-white/5">
+                                            <h3 className="text-sm font-semibold text-foreground line-clamp-1 mb-1 group-hover:text-primary transition-colors">
+                                                {game.name}
+                                            </h3>
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-xs text-muted-foreground">{game.genre}</span>
+                                                {game.averageRating && (
+                                                    <span className="text-xs font-semibold text-amber-400">★ {game.averageRating}</span>
                                                 )}
                                             </div>
-                                            <div className="p-3">
-                                                <h3 className="text-sm font-semibold text-text line-clamp-2 mb-1">
-                                                    {game.name}
-                                                </h3>
-                                                <p className="text-xs text-text-muted">
-                                                    {new Date(game.releaseDate).getFullYear()}
-                                                </p>
-                                            </div>
-                                        </Link>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Popular Games */}
-                    <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
-                        <div className="px-8 py-10">
-                            <div className="flex items-center justify-between mb-6">
-                                <div>
-                                    <p className="text-sm font-semibold uppercase tracking-wide text-brand-500">Popular</p>
-                                    <h2 className="text-3xl font-bold text-text mt-1">Popular Games</h2>
-                                </div>
-                                <Link to="/games" className="text-brand-500 hover:text-brand-600 font-medium transition-colors">
-                                    More +
-                                </Link>
+                                        </div>
+                                        {/* Inner border */}
+                                        <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none"></div>
+                                    </Link>
+                                ))}
                             </div>
-
-                            {loading ? (
-                                <div className="text-center py-12 text-text-muted">Loading...</div>
-                            ) : popularGames.length === 0 ? (
-                                <div className="text-center py-12 text-text-muted">No games found</div>
-                            ) : (
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                                    {popularGames.map(game => (
-                                        <Link
-                                            key={game.id}
-                                            to={`/games/${game.id}`}
-                                            className="group flex flex-col rounded-2xl border border bg-surface-2 overflow-hidden hover:bg-[rgba(245,126,0,0.06)] transition"
-                                        >
-                                            <div className="aspect-[3/4] bg-surface-2 flex items-center justify-center overflow-hidden">
-                                                {game.imageUrl ? (
-                                                    <img src={game.imageUrl} alt={game.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                                                ) : (
-                                                    <span className="text-text-muted">Game</span>
-                                                )}
-                                            </div>
-                                            <div className="p-3">
-                                                <h3 className="text-sm font-semibold text-text line-clamp-2 mb-1">
-                                                    {game.name}
-                                                </h3>
-                                                <p className="text-xs text-text-muted">{game.genre}</p>
-                                            </div>
-                                        </Link>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                        )}
+                    </section>
 
                     {/* Popular Guides */}
-                    <div className="relative overflow-hidden rounded-3xl border border bg-surface shadow-sm">
-                        <div className="px-8 py-10">
-                            <div className="flex items-center justify-between mb-6">
-                                <div>
-                                    <p className="text-sm font-semibold uppercase tracking-wide text-brand-500">Guides</p>
-                                    <h2 className="text-3xl font-bold text-text mt-1">Recently Published Guides</h2>
-                                </div>
-                                <Link to="/guides" className="text-brand-500 hover:text-brand-600 font-medium transition-colors">
-                                    More +
-                                </Link>
+                    <section>
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <h2 className="text-3xl font-bold text-foreground tracking-tight">Community Guides</h2>
+                                <p className="text-muted-foreground mt-1">Master your games with top-rated guides.</p>
                             </div>
-
-                            {popularGuides.length === 0 ? (
-                                <div className="text-center py-12 text-text-muted">No published guides yet.</div>
-                            ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {popularGuides.map((guide) => (
-                                        <Link
-                                            key={guide.id}
-                                            to={`/guides/${guide.id}`}
-                                            className="flex flex-col rounded-2xl border border bg-surface-2 p-6 hover:bg-[rgba(245,126,0,0.06)] transition"
-                                        >
-                                            <h3 className="text-xl font-semibold text-text mb-2 line-clamp-2">
-                                                {guide.title}
-                                            </h3>
-                                            <p className="text-sm text-text-muted line-clamp-3 mb-4">
-                                                {guide.content.substring(0, 150)}...
-                                            </p>
-                                            <div className="mt-auto pt-4 border-t border">
-                                                <p className="text-xs text-text-muted">
-                                                    {new Date(guide.createdAt).toLocaleDateString()}
-                                                </p>
-                                            </div>
-                                        </Link>
-                                    ))}
-                                </div>
-                            )}
+                            <Link to="/guides" className="group flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-primary/80">
+                                View all guides
+                                <span className="block transition-transform group-hover:translate-x-1">→</span>
+                            </Link>
                         </div>
-                    </div>
+
+                        {popularGuides.length === 0 ? (
+                            <div className="rounded-2xl border border-white/5 bg-card/50 p-12 text-center text-muted-foreground">No published guides yet.</div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                {popularGuides.map((guide) => (
+                                    <Link
+                                        key={guide.id}
+                                        to={`/guides/${guide.id}`}
+                                        className="group relative flex flex-col rounded-2xl border border-white/5 bg-card p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
+                                    >
+                                        <div className="mb-4">
+                                            <span className="inline-flex rounded-full bg-secondary/80 px-2.5 py-0.5 text-xs font-medium text-muted-foreground border border-white/5">
+                                                Guide
+                                            </span>
+                                        </div>
+                                        <h3 className="text-xl font-bold text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors">
+                                            {guide.title}
+                                        </h3>
+                                        <p className="text-sm text-muted-foreground line-clamp-3 mb-6 flex-1">
+                                            {guide.content.substring(0, 150)}...
+                                        </p>
+
+                                        <div className="flex items-center justify-between pt-4 border-t border-white/5 mt-auto">
+                                            <div className="flex items-center gap-2">
+                                                <div className="h-6 w-6 rounded-full bg-secondary"></div>
+                                                <span className="text-xs text-muted-foreground">Author</span>
+                                            </div>
+                                            <span className="text-xs font-medium text-muted-foreground">
+                                                {new Date(guide.createdAt).toLocaleDateString()}
+                                            </span>
+                                        </div>
+
+                                        {/* Light gradient effect on hover */}
+                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none rounded-2xl"></div>
+                                        <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none"></div>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
+                    </section>
                 </div>
-            </div>
+            </main>
         </div>
     );
 };

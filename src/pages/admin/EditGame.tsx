@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import gameService from "../../services/gameService.ts";
 import Button from "../../components/Button.tsx";
-import "../../css/AdminGames.css";
+// import "../../css/AdminGames.css";
 import { GameFormData } from "../../interfaces/Game.ts";
 
 const EditGame: React.FC = () => {
@@ -84,98 +84,115 @@ const EditGame: React.FC = () => {
     if (loading) return <div className="loading-container">Loading game data...</div>;
 
     return (
-        <div className="admin-games-container">
-            <h1>Edit Game</h1>
+        <div className="min-h-screen py-12 px-4 bg-background">
+            <div className="max-w-3xl mx-auto">
+                <h1 className="text-3xl font-bold mb-8 text-foreground text-center">Edit Game</h1>
 
-            {error && <div className="error-message">{error}</div>}
+                {error && (
+                    <div className="mb-6 rounded-lg bg-destructive/10 border border-destructive/50 p-4 text-destructive">
+                        {error}
+                    </div>
+                )}
 
-            <form className="game-form" onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="name">Name</label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                    />
+                <div className="bg-card rounded-xl border border-border shadow-sm p-6 md:p-8">
+                    <form className="space-y-6" onSubmit={handleSubmit}>
+                        <div className="space-y-2">
+                            <label htmlFor="name" className="block text-sm font-medium text-foreground">Name</label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                required
+                                className="w-full rounded-lg border border-input bg-secondary/50 px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="description" className="block text-sm font-medium text-foreground">Description</label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                value={formData.description}
+                                onChange={handleChange}
+                                required
+                                rows={6}
+                                className="w-full rounded-lg border border-input bg-secondary/50 px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input resize-y min-h-[150px]"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label htmlFor="genre" className="block text-sm font-medium text-foreground">Genre</label>
+                                <input
+                                    type="text"
+                                    id="genre"
+                                    name="genre"
+                                    value={formData.genre}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full rounded-lg border border-input bg-secondary/50 px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label htmlFor="releaseDate" className="block text-sm font-medium text-foreground">Release Date</label>
+                                <input
+                                    type="date"
+                                    id="releaseDate"
+                                    name="releaseDate"
+                                    value={formData.releaseDate}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full rounded-lg border border-input bg-secondary/50 px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="imageUrl" className="block text-sm font-medium text-foreground">Image URL</label>
+                            <input
+                                type="text"
+                                id="imageUrl"
+                                name="imageUrl"
+                                value={formData.imageUrl || ""}
+                                onChange={handleChange}
+                                className="w-full rounded-lg border border-input bg-secondary/50 px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="awards" className="block text-sm font-medium text-foreground">Awards</label>
+                            <input
+                                type="text"
+                                id="awards"
+                                name="awards"
+                                value={formData.awards || ""}
+                                onChange={handleChange}
+                                className="w-full rounded-lg border border-input bg-secondary/50 px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input"
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-end gap-4 pt-4 border-t border-border">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => navigate("/admin/games")}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                variant="default"
+                                disabled={submitting}
+                            >
+                                {submitting ? "Saving..." : "Save Changes"}
+                            </Button>
+                        </div>
+                    </form>
                 </div>
-
-                <div className="form-group">
-                    <label htmlFor="description">Description</label>
-                    <textarea
-                        id="description"
-                        name="description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="genre">Genre</label>
-                    <input
-                        type="text"
-                        id="genre"
-                        name="genre"
-                        value={formData.genre}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="releaseDate">Release Date</label>
-                    <input
-                        type="date"
-                        id="releaseDate"
-                        name="releaseDate"
-                        value={formData.releaseDate}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="imageUrl">Image URL</label>
-                    <input
-                        type="text"
-                        id="imageUrl"
-                        name="imageUrl"
-                        value={formData.imageUrl || ""}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="awards">Awards</label>
-                    <input
-                        type="text"
-                        id="awards"
-                        name="awards"
-                        value={formData.awards || ""}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                <div className="form-buttons">
-                    <Button
-                        type="button"
-                        className="cancel-button"
-                        onClick={() => navigate("/admin/games")}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="submit"
-                        className="submit-button"
-                        onClick={() => {}}
-                    >
-                        {submitting ? "Saving..." : "Save Changes"}
-                    </Button>
-                </div>
-            </form>
+            </div>
         </div>
     );
 };

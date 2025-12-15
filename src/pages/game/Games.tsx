@@ -71,7 +71,7 @@ const Games: React.FC = () => {
     }, [location.search]);
 
     return (
-        <div className="min-h-screen py-12 bg-bg">
+        <div className="min-h-screen py-12 bg-background">
             <div className="mx-auto max-w-6xl space-y-8 px-4">
                 <PageHero
                     title="Games"
@@ -91,7 +91,7 @@ const Games: React.FC = () => {
                     </div>
                 </PageHero>
 
-                <div className="rounded-3xl border border bg-surface px-8 py-10 shadow-sm space-y-6">
+                <div className="rounded-2xl border border-border bg-card px-8 py-10 shadow-sm space-y-6">
                     <GameFilters
                         availableGenres={availableGenres}
                         onFilterChange={handleFilterChange}
@@ -103,13 +103,13 @@ const Games: React.FC = () => {
                     </div>
 
                     {error && (
-                        <div className="rounded-2xl border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                        <div className="rounded-xl border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                             {error}
                         </div>
                     )}
 
                     {loading && allGames.length === 0 ? (
-                        <div className="rounded-2xl border border bg-surface px-4 py-6 text-center text-text-muted">
+                        <div className="rounded-xl border border-border bg-card px-4 py-6 text-center text-muted-foreground">
                             Loading games...
                         </div>
                     ) : displayedGames.length > 0 ? (
@@ -119,9 +119,9 @@ const Games: React.FC = () => {
                                     <Link
                                         to={`/games/${game.id}`}
                                         key={game.id}
-                                        className="group block overflow-hidden rounded-2xl border border bg-surface shadow-sm transition hover:bg-[rgba(245,126,0,0.06)] hover:shadow-md"
+                                        className="group block overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1"
                                     >
-                                        <div className="relative h-48 bg-muted/30">
+                                        <div className="relative h-48 bg-muted">
                                             {game.imageUrl ? (
                                                 <img
                                                     src={game.imageUrl}
@@ -129,26 +129,26 @@ const Games: React.FC = () => {
                                                     className="h-full w-full object-cover"
                                                 />
                                             ) : (
-                                                <div className="flex h-full items-center justify-center text-text-muted">
+                                                <div className="flex h-full items-center justify-center text-muted-foreground">
                                                     Game
                                                 </div>
                                             )}
                                         </div>
                                         <div className="space-y-2 p-5">
-                                            <h3 className="text-xl font-semibold text-text group-hover:text-brand-500 transition">
+                                            <h3 className="text-xl font-semibold text-foreground group-hover:text-primary transition">
                                                 {game.name}
                                             </h3>
-                                            <p className="text-sm uppercase tracking-wide text-brand-500">
+                                            <p className="text-sm uppercase tracking-wide text-primary">
                                                 {game.genre || 'Genre TBD'}
                                             </p>
-                                            <div className="flex items-center justify-between text-xs uppercase text-text-muted">
+                                            <div className="flex items-center justify-between text-xs uppercase text-muted-foreground">
                                                 <span>{new Date(game.releaseDate).getFullYear()}</span>
                                                 {game.averageRating !== undefined && (
                                                     <span>★ {game.averageRating}</span>
                                                 )}
                                             </div>
                                             {game.awards && (
-                                                <div className="flex items-center gap-1 text-xs font-semibold text-accent">
+                                                <div className="flex items-center gap-1 text-xs font-semibold text-accent-foreground">
                                                     <span>🏆</span>
                                                     <span>Awards listed</span>
                                                 </div>
@@ -165,7 +165,7 @@ const Games: React.FC = () => {
                             />
                         </>
                     ) : (
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center text-slate-600 space-y-3">
+                        <div className="rounded-xl border border-border bg-secondary/50 p-6 text-center text-muted-foreground space-y-3">
                             <p>No games found with the current search criteria.</p>
                             <Button variant="outline" onClick={resetFilters} type="button">
                                 Clear all filters

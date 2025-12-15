@@ -142,31 +142,31 @@ const CreateChallengePage: React.FC = () => {
             <div className="mb-8">
                 <button
                     onClick={() => navigate('/challenges')}
-                    className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
+                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
                 >
                     <ArrowLeft size={20} />
                     Volver a Challenges
                 </button>
 
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-3xl font-bold text-foreground">
                     Crear Nuevo Challenge
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-2">
+                <p className="text-muted-foreground mt-2">
                     Crea un challenge para que otros usuarios puedan completar
                 </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Información básica */}
-                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+                    <h2 className="text-xl font-semibold text-foreground mb-4">
                         Información Básica
                     </h2>
 
                     <div className="space-y-4">
                         {/* Título */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <label className="block text-sm font-medium text-foreground mb-2">
                                 Título del Challenge *
                             </label>
                             <input
@@ -174,18 +174,18 @@ const CreateChallengePage: React.FC = () => {
                                 value={formData.title}
                                 onChange={(e) => handleInputChange('title', e.target.value)}
                                 placeholder="Ej: Completar Dark Souls sin morir"
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-input bg-secondary/50 text-foreground placeholder:text-muted-foreground"
                                 required
                             />
                         </div>
 
                         {/* Juego relacionado */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <label className="block text-sm font-medium text-foreground mb-2">
                                 Juego Relacionado (Opcional)
                             </label>
                             {selectedGame ? (
-                                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg">
                                     {selectedGame.imageUrl && (
                                         <img
                                             src={selectedGame.imageUrl}
@@ -194,17 +194,17 @@ const CreateChallengePage: React.FC = () => {
                                         />
                                     )}
                                     <div className="flex-1">
-                                        <p className="font-medium text-gray-900 dark:text-white">
+                                        <p className="font-medium text-foreground">
                                             {selectedGame.name}
                                         </p>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                                        <p className="text-sm text-muted-foreground">
                                             {selectedGame.genre} • {selectedGame.releaseDate}
                                         </p>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={() => setSelectedGame(null)}
-                                        className="text-gray-400 hover:text-gray-600"
+                                        className="text-muted-foreground hover:text-foreground"
                                     >
                                         <X size={20} />
                                     </button>
@@ -214,21 +214,21 @@ const CreateChallengePage: React.FC = () => {
                                     <button
                                         type="button"
                                         onClick={() => setShowGameSearch(!showGameSearch)}
-                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-left text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                        className="w-full px-3 py-2 border border-input rounded-lg text-left text-muted-foreground hover:bg-secondary/50"
                                     >
                                         <Search className="inline mr-2" size={16} />
                                         Buscar juego...
                                     </button>
 
                                     {showGameSearch && (
-                                        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
-                                            <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+                                        <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                                            <div className="p-3 border-b border-border">
                                                 <input
                                                     type="text"
                                                     placeholder="Buscar juego..."
                                                     value={searchTerm}
                                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                                    className="w-full px-3 py-2 border border-input rounded focus:ring-2 focus:ring-ring focus:border-input bg-background text-foreground"
                                                 />
                                             </div>
                                             <div className="max-h-40 overflow-y-auto">
@@ -237,7 +237,7 @@ const CreateChallengePage: React.FC = () => {
                                                         key={game.id}
                                                         type="button"
                                                         onClick={() => handleGameSelect(game)}
-                                                        className="w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3"
+                                                        className="w-full p-3 text-left hover:bg-muted/50 flex items-center gap-3"
                                                     >
                                                         {game.imageUrl && (
                                                             <img
@@ -247,10 +247,10 @@ const CreateChallengePage: React.FC = () => {
                                                             />
                                                         )}
                                                         <div>
-                                                            <p className="font-medium text-gray-900 dark:text-white">
+                                                            <p className="font-medium text-foreground">
                                                                 {game.name}
                                                             </p>
-                                                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                                            <p className="text-sm text-muted-foreground">
                                                                 {game.genre}
                                                             </p>
                                                         </div>
@@ -266,7 +266,7 @@ const CreateChallengePage: React.FC = () => {
                 </div>
 
                 {/* Descripción - UNIFICADO */}
-                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
                     <UnifiedContentEditor
                         label="Descripción del Challenge *"
                         value={formData.description}
@@ -277,14 +277,15 @@ const CreateChallengePage: React.FC = () => {
                 </div>
 
                 {/* Tareas/Checklist */}
-                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                        <h2 className="text-xl font-semibold text-foreground">
                             Tareas del Challenge
                         </h2>
                         <Button
                             type="button"
                             onClick={addItem}
+                            variant="outline"
                             className="flex items-center gap-2"
                         >
                             <Plus size={16} />
@@ -295,7 +296,7 @@ const CreateChallengePage: React.FC = () => {
                     <div className="space-y-3">
                         {formData.items.map((item, index) => (
                             <div key={index} className="flex gap-3 items-start">
-                                <span className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-2 min-w-[3rem]">
+                                <span className="text-sm font-medium text-muted-foreground mt-2 min-w-[3rem]">
                                     Tarea {index + 1}
                                 </span>
                                 <textarea
@@ -303,14 +304,14 @@ const CreateChallengePage: React.FC = () => {
                                     onChange={(e) => handleItemChange(index, e.target.value)}
                                     placeholder="Describe la tarea..."
                                     rows={2}
-                                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white resize-vertical"
+                                    className="flex-1 px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-input bg-secondary/50 text-foreground resize-vertical placeholder:text-muted-foreground"
                                     required
                                 />
                                 {formData.items.length > 1 && (
                                     <button
                                         type="button"
                                         onClick={() => removeItem(index)}
-                                        className="text-red-500 hover:text-red-700 mt-2"
+                                        className="text-destructive hover:text-destructive/80 mt-2"
                                     >
                                         <Trash2 size={16} />
                                     </button>
@@ -319,7 +320,7 @@ const CreateChallengePage: React.FC = () => {
                         ))}
                     </div>
 
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
+                    <p className="text-sm text-muted-foreground mt-4">
                         Las tareas se mostrarán en orden y los usuarios podrán marcarlas como completadas.
                     </p>
                 </div>
@@ -329,7 +330,7 @@ const CreateChallengePage: React.FC = () => {
                     <Button
                         type="button"
                         onClick={() => navigate('/challenges')}
-                        className="bg-gray-500 hover:bg-gray-600"
+                        variant="ghost"
                     >
                         Cancelar
                     </Button>
@@ -340,7 +341,7 @@ const CreateChallengePage: React.FC = () => {
                     >
                         {loading ? (
                             <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>
                                 Creating...
                             </>
                         ) : (

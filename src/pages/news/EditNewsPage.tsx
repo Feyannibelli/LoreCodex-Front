@@ -21,8 +21,8 @@ const EditNewsPage: React.FC = () => {
     };
 
     return (
-        <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">Edit News</h1>
+        <div className="min-h-screen bg-background py-12 px-4">
+            <h1 className="text-3xl font-bold mb-8 text-foreground text-center">Edit News</h1>
             <NewsForm
                 initial={{
                     title: news.title,
