@@ -1,178 +1,195 @@
-import axios from 'axios';
 import { Game, GameFormData } from '../interfaces/Game';
 import api from "../services/api.ts";
 import apiAuth from "../services/apiAuth.ts";
 
-// Interfaces para adaptar el backend al frontend
-interface BackendGame {
+export interface PagedResponse<T> {
+    content: T[];
+    pageable: {
+        pageNumber: number;
+        pageSize: number;
+        sort: { empty: boolean; sorted: boolean; unsorted: boolean };
+        offset: number;
+        paged: boolean;
+        unpaged: boolean;
+    };
+    last: boolean;
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+    sort: { empty: boolean; sorted: boolean; unsorted: boolean };
+    first: boolean;
+    numberOfElements: number;
+    empty: boolean;
+}
+
+export interface GameDetailResponse {
     id: number;
+    igdbId?: number;
     title: string;
     description: string;
     coverImage: string;
-    releaseDate: string;
-    averageRating: number;
-    likes: number;
+    releaseDate: string | null;
+    averageRating: number | null;
+    likes: number | null;
     genres: string[];
-    awards: string[];
+    developersAndPublishers: string[];
+    playerCount: string | null;
+    awards?: string[];
+    tags?: string[];
 }
 
-interface BackendGameRequest {
-    title: string;
-    description: string;
-    coverImage: string;
-    releaseDate: string;
-    genres: string[];
-    awards: string[];
-}
+export interface GameSearchResponse extends GameDetailResponse { }
 
-const adaptBackendGameToFrontend = (backendGame: BackendGame): Game => {
+const adaptBackendToFrontend = (backendGame: GameDetailResponse): Game => {
     return {
-        id: backendGame.id,
-        name: backendGame.title,
-        description: backendGame.description,
-        genre: backendGame.genres?.length > 0 ? backendGame.genres[0] : '',
-        releaseDate: backendGame.releaseDate,
-        imageUrl: backendGame.coverImage,
-        //awards: backendGame.awards.join(', '),
-        averageRating: backendGame.averageRating,
-        likes: backendGame.likes
+        ...backendGame,
+        genres: backendGame.genres || [],
+        tags: backendGame.tags || [],
+        developersAndPublishers: backendGame.developersAndPublishers || [],
+        title: backendGame.title || "Untitled",
+        coverImage: backendGame.coverImage || "",
     };
 };
 
-const adaptFrontendGameToBackend = (frontendGame: GameFormData): BackendGameRequest => {
-    // Procesar awards como array
-    let awardsArray: string[] = [];
-    if (frontendGame.awards) {
-        awardsArray = [frontendGame.awards];
-    }
-
-    // Procesar genres como array
-    let genresArray: string[] = [];
-    if (frontendGame.genre) {
-        genresArray = [frontendGame.genre];
-    }
-
+const adaptFrontendGameToBackend = (frontendGame: GameFormData): any => {
     return {
         title: frontendGame.name,
         description: frontendGame.description,
         coverImage: frontendGame.imageUrl || '',
         releaseDate: frontendGame.releaseDate,
-        genres: genresArray,
-        awards: awardsArray
+        genre: frontendGame.genre,                              // Singular genre
+        genres: frontendGame.genres || [],                      // Plural genres array
+        tags: frontendGame.tags || [],                          // Tags array
+        developersAndPublishers: frontendGame.developersAndPublishers || [], // Developers/Publishers
+        rating: frontendGame.rating,                            // Rating value
+        awards: frontendGame.awards ? [frontendGame.awards] : [] // Awards array
     };
 };
 
 const gameService = {
-    // Obtener todos los juegos
-    getAllGames: async (): Promise<Game[]> => {
-        try {
-            const response = await api.get(`/games/allGames`);
-            return response.data.map(adaptBackendGameToFrontend);
-        } catch (error) {
-            console.error('Error fetching games:', error);
-            // Don't fail the entire app for non-critical errors
-            return [];
-        }
+
+    // 1. GET /igdb/top
+    getDiscoveryGamesPaginated: async (page: number, pageSize: number, sort: string = 'rating,desc'): Promise<PagedResponse<Game>> => {
+        const params = { page, size: pageSize, sort };
+        const response = await api.get<PagedResponse<GameDetailResponse>>('/igdb/top', { params });
+        return {
+            ...response.data,
+            content: response.data.content.map(adaptBackendToFrontend)
+        };
     },
 
-    // Obtener un juego por ID
-    getGameById: async (id: number): Promise<Game> => {
-        try {
-            const response = await api.get(`/games/${id}`);
-            return adaptBackendGameToFrontend(response.data);
-        } catch (error) {
-            console.error(`Error fetching game with id ${id}:`, error);
-            throw error;
-        }
+    // 2. GET /igdb/search
+    searchGamesPaginated: async (query: string, page: number, pageSize: number, sort: string = 'relevance,desc'): Promise<PagedResponse<Game>> => {
+        const params = { query, page, size: pageSize, sort };
+        const response = await api.get<PagedResponse<GameSearchResponse>>('/igdb/search', { params });
+        return {
+            ...response.data,
+            content: response.data.content.map(adaptBackendToFrontend)
+        };
     },
 
-    // Buscar juegos por nombre (podriamos usarlo para lo de menciones?)
-    searchGamesByName: async (name: string): Promise<Game[]> => {
-        try {
-            const response = await apiAuth.get(`/games/search?title=${name}`);
-            return response.data.map(adaptBackendGameToFrontend);
-        } catch (error) {
-            console.error('Error searching games by name:', error);
-            return [];
-        }
+    // Search games by title in our database (for mentions, autocomplete, etc.)
+    searchGamesByTitle: async (title: string, page: number = 0, size: number = 10): Promise<Game[]> => {
+        const params = { title, page, size };
+        const response = await api.get<Game[]>('/games/search', { params });
+        return response.data;
     },
 
-    // Crear un nuevo juego (solo admin)
-    createGame: async (gameData: GameFormData): Promise<Game> => {
-        try {
-            const backendGame = adaptFrontendGameToBackend(gameData);
-            const response = await apiAuth.post(`/games`, backendGame);
-            return adaptBackendGameToFrontend(response.data);
-        } catch (error) {
-            console.error('Error creating game:', error);
-            if (axios.isAxiosError(error) && error.response) {
-                console.error('API response error:', error.response.data);
-            }
-            throw error;
-        }
+    // 3. GET /igdb/{igdbId}
+    getIGDBGameDetail: async (igdbId: number): Promise<Game> => {
+        const response = await api.get<GameDetailResponse>(`/igdb/${igdbId}`);
+        return adaptBackendToFrontend(response.data);
     },
 
-    // Actualizar un juego existente (solo admin)
-    updateGame: async (id: number, gameData: GameFormData): Promise<Game> => {
-        try {
-            const backendGame = adaptFrontendGameToBackend(gameData);
-            const response = await apiAuth.put(`/games/${id}`, backendGame);
-            return adaptBackendGameToFrontend(response.data);
-        } catch (error) {
-            console.error(`Error updating game with id ${id}:`, error);
-            if (axios.isAxiosError(error) && error.response) {
-                console.error('API response error:', error.response.data);
-            }
-            throw error;
-        }
+    // 4. POST /igdb/import/{igdbId}
+    importIGDBGame: async (igdbId: number): Promise<Game> => {
+        const response = await apiAuth.post<GameDetailResponse>(`/igdb/import/${igdbId}`);
+        return adaptBackendToFrontend(response.data);
     },
 
-    // Eliminar un juego (solo admin)
-    deleteGame: async (id: number): Promise<void> => {
-        try {
-            await apiAuth.delete(`/games/${id}`);
-        } catch (error) {
-            console.error(`Error deleting game with id ${id}:`, error);
-            throw error;
-        }
+    // GET /games/allGames - Primary endpoint for all game browsing
+    // Supports: page, size, sort, tag (optional), title (optional)
+    getLibraryGamesPaginated: async (page: number, pageSize: number, sort: string = 'rating,desc', tag?: string, title?: string): Promise<PagedResponse<Game>> => {
+        const params: any = { page, size: pageSize, sort };
+        if (tag) params.tag = tag;
+        if (title) params.title = title;
+
+        const response = await api.get<PagedResponse<GameDetailResponse>>('/games/allGames', { params });
+        return {
+            ...response.data,
+            content: response.data.content.map(adaptBackendToFrontend)
+        };
     },
 
-    // Dar like a un juego
+    // 6. POST /games/{id}/like
     likeGame: async (id: number): Promise<Game> => {
-        try {
-            const response = await apiAuth.post(`/games/${id}/like`);
-            return adaptBackendGameToFrontend(response.data);
-        } catch (error) {
-            console.error(`Error liking game with id ${id}:`, error);
-            // Check if it's an auth error (401/403)
-            if (axios.isAxiosError(error) && error.response &&
-                (error.response.status === 401 || error.response.status === 403)) {
-                throw new Error("Authentication required to like this game");
-            }
-            throw error;
-        }
+        const response = await apiAuth.post<GameDetailResponse>(`/games/${id}/like`);
+        return adaptBackendToFrontend(response.data);
     },
 
-    // Calificar un juego
+    // 7. POST /games/{id}/rate
     rateGame: async (id: number, rating: number): Promise<Game> => {
-        try {
-            const response = await apiAuth.post(`/games/${id}/rate?rating=${rating}`);
-            return adaptBackendGameToFrontend(response.data);
-        } catch (error) {
-            console.error(`Error rating game with id ${id}:`, error);
-            // Check if it's an auth error (401/403)
-            if (axios.isAxiosError(error) && error.response &&
-                (error.response.status === 401 || error.response.status === 403)) {
-                throw new Error("Authentication required to rate this game");
-            }
-            throw error;
-        }
+        const response = await apiAuth.post<GameDetailResponse>(`/games/${id}/rate?rating=${rating}`);
+        return adaptBackendToFrontend(response.data);
+    },
+
+    // --- Legacy / Internal Endpoints (CRUD) ---
+
+    // Get Library Game by DB ID
+    getGameById: async (id: number): Promise<Game> => {
+        const response = await api.get<GameDetailResponse>(`/games/${id}`);
+        return adaptBackendToFrontend(response.data);
+    },
+
+    createGame: async (gameData: GameFormData): Promise<Game> => {
+        const backendGame = adaptFrontendGameToBackend(gameData);
+        const response = await apiAuth.post<GameDetailResponse>(`/games`, backendGame);
+        return adaptBackendToFrontend(response.data);
+    },
+
+    updateGame: async (id: number, gameData: GameFormData): Promise<Game> => {
+        const backendGame = adaptFrontendGameToBackend(gameData);
+        const response = await apiAuth.put<GameDetailResponse>(`/games/${id}`, backendGame);
+        return adaptBackendToFrontend(response.data);
+    },
+
+    deleteGame: async (id: number): Promise<void> => {
+        await apiAuth.delete(`/games/${id}`);
     },
 
     getAverageRating: async (gameId: number): Promise<number> => {
         const response = await api.get(`/rating/${gameId}/average-rating`);
         return response.data;
-    }
+    },
+
+    // Unified Smart Flow: Using Internal /games Endpoints Only
+    getGames: async (params: { page: number; size: number; sort: string; search?: string; tag?: string }): Promise<PagedResponse<Game>> => {
+        const { page, size, sort, search, tag } = params;
+
+        // Use /games/allGames for ALL scenarios
+        // This endpoint supports: page, size, sort, tag (optional), title (optional)
+        const queryParams: any = { page, size, sort };
+
+        // Add tag filter if present
+        if (tag?.trim()) {
+            queryParams.tag = tag;
+        }
+
+        // Add title search if present
+        if (search?.trim()) {
+            queryParams.title = search;
+        }
+
+        const response = await api.get<PagedResponse<GameDetailResponse>>('/games/allGames', { params: queryParams });
+        return {
+            ...response.data,
+            content: response.data.content.map(adaptBackendToFrontend)
+        };
+    },
+
+    adaptBackendToFrontend
 };
 
 export default gameService;
+

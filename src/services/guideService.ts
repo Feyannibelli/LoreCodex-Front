@@ -47,6 +47,11 @@ const guideService = {
     getPublishedGuides: () =>
         api.get(`/guides/all/published`).then(r => r.data.map(toFrontend)),
 
+    getPublishedGuidesPaginated: (page: number, pageSize: number) =>
+        api.get('/guides/all/published', {
+            params: { page, size: pageSize }
+        }).then(r => r.data.map(toFrontend)),
+
     /* Drafts del usuario (nuevo endpoint) */
     getDraftsByUser: (userId: number) =>
         apiAuth

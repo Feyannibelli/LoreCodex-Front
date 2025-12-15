@@ -1,21 +1,29 @@
-// src/interfaces/Game.ts
 export interface Game {
     id: number;
-    name: string;
+    title: string;
     description: string;
-    genre: string;
-    releaseDate: string;
-    imageUrl?: string;
-    awards?: string;
-    averageRating?: number;
-    likes?: number;
+    genres: string[];
+    releaseDate: string | null;
+    coverImage: string;
+    awards?: string[];
+    averageRating: number | null;
+    likes: number | null;
+    playerCount: string | null;
+    tags: string[];
+    igdbId?: number;
+    developersAndPublishers: string[];
+    createdAt?: string;
 }
 
 export interface GameFormData {
-    name: string;
+    name: string;              // Maps to title
     description: string;
-    genre: string;
+    genre: string;             // Singular genre (for backward compatibility)
+    genres: string[];          // Plural genres array (backend expects both)
+    tags: string[];            // Tags array
+    developersAndPublishers: string[]; // Developers and publishers array
     releaseDate: string;
-    imageUrl?: string;
-    awards?: string;
+    imageUrl?: string;         // Maps to coverImage
+    awards?: string;           // Single award string (converted to array)
+    rating?: number;           // Rating value
 }

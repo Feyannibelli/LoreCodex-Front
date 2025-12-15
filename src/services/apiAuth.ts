@@ -1,15 +1,17 @@
 // src/services/apiAuth.ts
 import axios from 'axios';
 import { API_URL } from './api';
+import { getAccessToken } from '../auth/token';
 
 const apiAuth = axios.create({
     baseURL: API_URL,
 });
 
 apiAuth.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token');
-        if (token && config.headers) {
+    async (config) => {
+        const token = await getAccessToken();
+        if (token) {
+            config.headers = config.headers ?? {};
             config.headers['Authorization'] = `Bearer ${token}`;
         }
         return config;
@@ -33,9 +35,7 @@ apiAuth.interceptors.response.use(
                         error.config?.url?.includes('/rate') ||
                         error.config?.method !== 'get'));
 
-            if (localStorage.getItem('token') && isSecureEndpoint) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('userId');
+            if (isSecureEndpoint) {
                 window.location.href = '/login';
             }
         }

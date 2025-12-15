@@ -166,6 +166,18 @@ const challengeService = {
         }
     },
 
+    getAllChallengesPaginated: async (page: number, pageSize: number): Promise<Challenge[]> => {
+        try {
+            const response = await api.get('/challenges', {
+                params: { page, size: pageSize }
+            });
+            return response.data.map(adaptBackendChallengeToFrontend);
+        } catch (error) {
+            console.error('Error fetching paginated challenges:', error);
+            return [];
+        }
+    },
+
     // Actualizar un challenge existente
     updateChallenge: async (id: number, challengeData: ChallengeFormData): Promise<Challenge> => {
         try {

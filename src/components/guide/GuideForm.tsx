@@ -1,24 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GuideForm as Form } from "../../interfaces/Guide";
-import { MentionInput } from "../MentionInput.tsx";
-import { MentionDisplay, useMentions } from "../MentionDisplay.tsx";
-import MarkdownEditor from "../MarkdownEditor.tsx";
+import UnifiedContentEditor from "../UnifiedContentEditor";
+import ProInput from "../ui/ProInput";
+import ProEditorLayout from "../layout/ProEditorLayout";
+import Button from "../Button";
+import { Save, Send, Image as ImageIcon, Tag, Hash, FileText, Eye } from "lucide-react";
+import { cn } from "../../lib/utils";
 
 interface Props {
     initial?: Form;
-    submitLabel: string;                // texto del botón principal
-    onSubmit: (data: Form) => void;     // callback principal
-    onPublish?: (data: Form) => void;   // callback opcional "Publish"
+    submitLabel: string;
+    onSubmit: (data: Form) => void;
+    onPublish?: (data: Form) => void;
     publishLabel?: string;
+    pageTitle: string;
+    breadcrumbs: { label: string; href?: string }[];
 }
 
 const GuideForm: React.FC<Props> = ({
-                                        initial,
-                                        submitLabel,
-                                        onSubmit,
-                                        onPublish,
-                                        publishLabel = "Create Guide"
-                                    }) => {
+    initial,
+    submitLabel,
+    onSubmit,
+    onPublish,
+    publishLabel = "Publish Guide",
+    pageTitle,
+    breadcrumbs
+}) => {
+    // Form State
     const [form, setForm] = useState<Form>(
         initial ?? {
             title: "",
@@ -30,23 +38,21 @@ const GuideForm: React.FC<Props> = ({
         }
     );
 
-    // Modo de edición: 'mentions' o 'markdown'
-    const [editorMode, setEditorMode] = useState<'mentions' | 'markdown'>('markdown');
+    // Save Status State (simulated for UI feedback)
+    const [status, setStatus] = useState<'saved' | 'unsaved' | 'saving'>('saved');
 
-    // Preview mode para mostrar cómo se verán las menciones (solo para modo mentions)
-    const [isPreviewMode, setIsPreviewMode] = useState(false);
-    const { hasMentions, mentionCount } = useMentions(form.content);
+    // Mark as unsaved on change
+    useEffect(() => {
+        setStatus('unsaved');
+    }, [form]);
 
-    const handle = (
+    const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         const { name, value, type } = e.target;
         setForm(prev => ({
             ...prev,
-            [name]:
-                type === "checkbox"
-                    ? (e.target as HTMLInputElement).checked
-                    : value,
+            [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
         }));
     };
 
@@ -60,255 +66,156 @@ const GuideForm: React.FC<Props> = ({
             tags: e.target.value.split(",").map(t => t.trim()).filter(Boolean),
         }));
 
-    const handleMentionClick = (mention: any) => {
-        // Aquí puedes manejar clicks en menciones (ej: abrir modal, navegar, etc.)
-        console.log('Mention clicked:', mention);
+    const handleSubmit = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        setStatus('saving');
+        onSubmit(form);
     };
 
-    return (
-        <div className="space-y-4 max-w-4xl mx-auto">
-            <form
-                onSubmit={e => {
-                    e.preventDefault();
-                    onSubmit(form);
-                }}
-                className="space-y-6"
+    const handlePublish = () => {
+        if (onPublish) {
+            setStatus('saving');
+            onPublish({ ...form, published: true, draft: false });
+        }
+    };
+
+    // Actions Component for Header
+    const FormActions = (
+        <div className="flex items-center gap-2">
+            <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleSubmit()}
+                className="text-muted-foreground hover:text-foreground hidden sm:flex"
             >
-                {/* Title */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Title
-                    </label>
-                    <input
-                        name="title"
-                        value={form.title}
-                        onChange={handle}
-                        className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Enter guide title..."
-                        required
-                    />
+                <Save className="h-4 w-4 mr-2" />
+                {submitLabel}
+            </Button>
+
+            {onPublish && (
+                <Button
+                    variant="primary" // Assuming you have a primary variant or use default/className
+                    size="sm"
+                    onClick={handlePublish}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shadow-primary/20"
+                >
+                    <Send className="h-4 w-4 mr-2" />
+                    {publishLabel}
+                </Button>
+            )}
+        </div>
+    );
+
+    return (
+        <ProEditorLayout
+            title={pageTitle}
+            breadcrumbs={breadcrumbs}
+            actions={FormActions}
+            status={status}
+            className="pb-20"
+        >
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Left Column: Basics & Metadata (Sticky on Desktop) */}
+                <div className="space-y-6 lg:col-span-1">
+                    {/* BASICS CARD */}
+                    <div className="rounded-xl border border-white/5 bg-card/60 backdrop-blur-sm p-5 space-y-6">
+                        <div className="flex items-center gap-2 text-muted-foreground pb-2 border-b border-white/5">
+                            <FileText className="h-4 w-4" />
+                            <h3 className="text-xs font-bold uppercase tracking-wider">Basics</h3>
+                        </div>
+
+                        <ProInput
+                            label="Title"
+                            name="title"
+                            value={form.title}
+                            onChange={handleChange}
+                            placeholder="Guide Title"
+                            required
+                            icon={Hash}
+                        />
+
+                        <div className="space-y-3">
+                            <ProInput
+                                label="Cover Image"
+                                name="coverImageUrl"
+                                value={form.coverImageUrl ?? ""}
+                                onChange={handleChange}
+                                placeholder="https://..."
+                                icon={ImageIcon}
+                            />
+
+                            {/* Small Cover Preview */}
+                            <div className="aspect-video w-full rounded-lg bg-black/40 border border-white/5 overflow-hidden relative group">
+                                {form.coverImageUrl ? (
+                                    <img
+                                        src={form.coverImageUrl}
+                                        alt="Preview"
+                                        className="w-full h-full object-cover transition-opacity group-hover:opacity-80"
+                                        onError={(e) => (e.currentTarget.style.display = 'none')}
+                                    />
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground/40">
+                                        <ImageIcon className="h-8 w-8 mb-2" />
+                                        <span className="text-xs">No cover image</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* METADATA CARD */}
+                    <div className="rounded-xl border border-white/5 bg-card/60 backdrop-blur-sm p-5 space-y-6">
+                        <div className="flex items-center gap-2 text-muted-foreground pb-2 border-b border-white/5">
+                            <Tag className="h-4 w-4" />
+                            <h3 className="text-xs font-bold uppercase tracking-wider">Metadata</h3>
+                        </div>
+
+                        <div className="space-y-2">
+                            <ProInput
+                                label="Tags"
+                                name="tags"
+                                value={form.tags?.join(", ") ?? ""}
+                                onChange={handleTags}
+                                placeholder="comma, separated, tags"
+                                helperText="Press comma to separate"
+                                icon={Tag}
+                            />
+                            {/* Tags Preview Pills */}
+                            {form.tags && form.tags.length > 0 && (
+                                <div className="flex flex-wrap gap-2 pt-2">
+                                    {form.tags.map((tag, i) => (
+                                        <span key={i} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary border border-primary/20">
+                                            #{tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
-                {/* Cover Image URL */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Cover Image URL (optional)
-                    </label>
-                    <input
-                        name="coverImageUrl"
-                        value={form.coverImageUrl ?? ""}
-                        onChange={handle}
-                        className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="https://example.com/image.jpg"
-                    />
-                    {form.coverImageUrl && (
-                        <div className="mt-2">
-                            <img
-                                src={form.coverImageUrl}
-                                alt="Cover preview"
-                                className="max-w-xs h-32 object-cover rounded border"
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = 'none';
-                                }}
+                {/* Right Column: Main Content Editor */}
+                <div className="lg:col-span-2 min-h-[500px]">
+                    <div className="rounded-xl border border-white/5 bg-card/90 shadow-sm overflow-hidden h-full flex flex-col">
+                        {/* Optional Toolbar Header provided by UnifiedContentEditor logic usually, simplified here */}
+                        <div className="p-1 border-b border-white/5 bg-muted/20 flex items-center justify-between px-4 py-2">
+                            <span className="text-xs font-medium text-muted-foreground uppercase">MD Editor</span>
+                            <Eye className="h-3 w-3 text-muted-foreground" />
+                        </div>
+
+                        <div className="flex-1 p-0">
+                            {/* Passing a wrapper style via className logic if supported, or modifying UnifiedContentEditor */}
+                            <UnifiedContentEditor
+                                value={form.content}
+                                onChange={handleContentChange}
+                                rows={30}
+                                placeholder="# Start writing your masterpiece..."
                             />
                         </div>
-                    )}
-                </div>
-
-                {/* Content Editor Mode Selector */}
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                        <label className="block text-sm font-medium text-gray-700">
-                            Content
-                        </label>
-                        <div className="flex items-center space-x-2">
-                            <span className="text-sm text-gray-600">Editor:</span>
-                            <button
-                                type="button"
-                                onClick={() => setEditorMode('markdown')}
-                                className={`px-3 py-1 text-sm rounded ${
-                                    editorMode === 'markdown'
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                }`}
-                            >
-                                📝 Markdown
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setEditorMode('mentions')}
-                                className={`px-3 py-1 text-sm rounded ${
-                                    editorMode === 'mentions'
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                }`}
-                            >
-                                🔗 Mentions
-                            </button>
-                            {editorMode === 'mentions' && hasMentions && (
-                                <span className="text-sm text-blue-600">
-                                    {mentionCount} mention{mentionCount !== 1 ? 's' : ''}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Markdown Editor */}
-                    {editorMode === 'markdown' && (
-                        <MarkdownEditor
-                            value={form.content}
-                            onChange={handleContentChange}
-                            placeholder="Write your guide content using Markdown...
-
-# Main Title
-## Subtitle
-### Section
-
-**Bold text** and *italic text*
-
-- List item 1
-- List item 2
-
-[Link text](https://example.com)
-
-`code snippet`
-
-> This is a quote"
-                            rows={15}
-                        />
-                    )}
-
-                    {/* Mentions Editor */}
-                    {editorMode === 'mentions' && (
-                        <>
-                            {!isPreviewMode ? (
-                                <MentionInput
-                                    value={form.content}
-                                    onChange={handleContentChange}
-                                    multiline={true}
-                                    rows={12}
-                                    className="min-h-[300px] font-mono text-sm"
-                                    placeholder="Write your guide content here...
-
-Use mentions to reference other content:
-• /games/Game Name - to mention games
-• /guides/Guide Title - to reference other guides
-• /challenges/Challenge Title - to mention challenges
-• /lists/List Name - to reference lists
-• /news/Article Title - to mention news articles"
-                                />
-                            ) : (
-                                <div className="border border-gray-300 rounded-lg p-4 min-h-[300px] bg-gray-50">
-                                    <div className="prose prose-slate max-w-none">
-                                        <MentionDisplay
-                                            text={form.content}
-                                            onMentionClick={handleMentionClick}
-                                            className="whitespace-pre-wrap"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Preview Toggle and Mention Help for Mentions Mode */}
-                            <div className="mt-2 flex items-center justify-between">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsPreviewMode(!isPreviewMode)}
-                                    className="text-sm text-gray-600 hover:text-gray-800 underline"
-                                >
-                                    {isPreviewMode ? 'Edit' : 'Preview'}
-                                </button>
-
-                                <div className="text-xs text-gray-500">
-                                    <details>
-                                        <summary className="cursor-pointer hover:text-gray-700">
-                                            How to use mentions
-                                        </summary>
-                                        <div className="mt-2 space-y-1 text-right">
-                                            <p>• Type <code>/games/</code> and start typing a game name</p>
-                                            <p>• Type <code>/guides/</code> to reference other guides</p>
-                                            <p>• Type <code>/challenges/</code> to mention challenges</p>
-                                            <p>• Type <code>/lists/</code> to reference lists</p>
-                                            <p>• Type <code>/news/</code> to mention news articles</p>
-                                            <p className="text-blue-600">Use arrow keys to navigate suggestions, Enter to select</p>
-                                        </div>
-                                    </details>
-                                </div>
-                            </div>
-                        </>
-                    )}
-
-                    {/* Editor Help */}
-                    <div className="mt-2 text-xs text-gray-500">
-                        <p>
-                            💡 <strong>Tip:</strong> Use{' '}
-                            <span className="font-medium">Markdown mode</span> for rich formatting with headers, lists, and links.{' '}
-                            Use <span className="font-medium">Mentions mode</span> to reference other content in your platform.
-                        </p>
                     </div>
                 </div>
-
-                {/* Tags */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Tags (optional)
-                    </label>
-                    <input
-                        name="tags"
-                        onChange={handleTags}
-                        value={form.tags?.join(", ") ?? ""}
-                        className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="tutorial, beginner, strategy (comma-separated)"
-                    />
-                    {form.tags && form.tags.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-2">
-                            {form.tags.map((tag, index) => (
-                                <span
-                                    key={index}
-                                    className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs"
-                                >
-                                    {tag}
-                                </span>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t">
-                    {/* Primary Save Button */}
-                    <button
-                        type="button"
-                        onClick={() => onSubmit(form)}
-                        className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium"
-                    >
-                        {submitLabel}
-                    </button>
-
-                    {/* Publish Button (if available) */}
-                    {onPublish && (
-                        <button
-                            type="button"
-                            onClick={() => onPublish({ ...form, published: true, draft: false })}
-                            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium"
-                        >
-                            {publishLabel}
-                        </button>
-                    )}
-
-                    {/* Preview Toggle for Mobile (only for mentions mode) */}
-                    {editorMode === 'mentions' && (
-                        <button
-                            type="button"
-                            onClick={() => setIsPreviewMode(!isPreviewMode)}
-                            className="sm:hidden bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                        >
-                            {isPreviewMode ? '✏️ Edit Mode' : '👁️ Preview Mode'}
-                        </button>
-                    )}
-                </div>
-            </form>
-        </div>
+            </div>
+        </ProEditorLayout>
     );
 };
 

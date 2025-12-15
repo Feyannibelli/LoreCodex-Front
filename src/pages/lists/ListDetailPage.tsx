@@ -47,8 +47,8 @@ const ListDetailPage: React.FC = () => {
         return (
             <div className="max-w-4xl mx-auto p-8">
                 <div className="text-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Cargando lista...</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading list...</p>
                 </div>
             </div>
         );
@@ -84,7 +84,7 @@ const ListDetailPage: React.FC = () => {
                         </p>
                         <Link
                             to="/lists"
-                            className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                            className="inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors"
                         >
                             Explorar otras listas
                         </Link>
@@ -108,7 +108,7 @@ const ListDetailPage: React.FC = () => {
                             <span>Por</span>
                             <Link
                                 to={`/profile/${list.userId}`}
-                                className="font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+                                className="font-semibold text-indigo-600 hover:text-indigo-700 hover:underline"
                             >
                                 {author || `Usuario ${list.userId}`}
                             </Link>
@@ -178,7 +178,7 @@ const ListDetailPage: React.FC = () => {
                                             </div>
 
                                             {/* Tipo de contenido */}
-                                            <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                                            <div className="absolute top-2 right-2 bg-indigo-600 text-white text-xs px-2 py-1 rounded">
                                                 {item.type}
                                             </div>
                                         </div>
@@ -189,11 +189,7 @@ const ListDetailPage: React.FC = () => {
                                                 {item.title}
                                             </h3>
 
-                                            {item.description && (
-                                                <p className="text-sm text-gray-600 line-clamp-2">
-                                                    {item.description}
-                                                </p>
-                                            )}
+                                            {/* `description` no viene en este DTO */}
                                         </div>
                                     </Link>
                                 </div>
@@ -215,7 +211,7 @@ const ListDetailPage: React.FC = () => {
             <div className="flex justify-between items-center pt-8 border-t">
                 <Link
                     to="/lists"
-                    className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium"
+                    className="flex items-center space-x-2 text-indigo-600 hover:text-indigo-700 font-medium"
                 >
                     <span>←</span>
                     <span>Volver a todas las listas</span>

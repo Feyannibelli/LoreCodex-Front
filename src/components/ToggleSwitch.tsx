@@ -46,7 +46,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
                     <div
                         className={`w-14 h-7 rounded-full transition-colors duration-200 ease-in-out cursor-pointer ${
                             checked
-                                ? 'bg-[#f47e00]'
+                                ? 'bg-orange-500'
                                 : 'bg-gray-300 dark:bg-gray-600'
                         } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                         onClick={() => !disabled && onChange(!checked)}

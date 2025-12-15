@@ -5,7 +5,7 @@ import challengeService from '../services/challengeService';
 import { listService } from '../services/listService';
 import newsService from '../services/newsService';
 import { MentionSuggestion } from '../components/MentionInput';
-import {Guide} from "../interfaces/Guide.ts";
+import { Guide } from "../interfaces/Guide.ts";
 
 type MentionType = 'games' | 'guides' | 'challenges' | 'lists' | 'news';
 
@@ -26,12 +26,12 @@ export const useMentionSuggestions = () => {
 
             switch (type) {
                 case 'games': {
-                    const games = await gameService.searchGamesByName(query);
+                    const games = await gameService.searchGamesByTitle(query, 0, 8);
                     results = games.map(game => ({
                         id: game.id,
-                        name: game.name,
+                        name: game.title,
                         type: 'games' as const,
-                        thumbnailUrl: game.imageUrl
+                        thumbnailUrl: game.coverImage || undefined
                     }));
                     break;
                 }

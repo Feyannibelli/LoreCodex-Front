@@ -1,13 +1,25 @@
-// src/pages/Profile.tsx
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import authService, { UserData } from '../services/authService';
+import { Mail, Bell, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useAuth0 } from '@auth0/auth0-react';
 import emailService from '../services/emailService';
 import Button from '../components/Button';
+import SettingsLayout from '../components/settings/SettingsLayout';
+import SettingsSectionCard from '../components/settings/SettingsSectionCard';
+
+type ClaimRecord = Record<string, unknown> | null;
+
+function readCustomClaimString(source: unknown, claimName: string): string | undefined {
+    if (!source || typeof source !== 'object') return undefined;
+    const record = source as Record<string, unknown>;
+    const value = record[claimName];
+    return typeof value === 'string' && value.trim() ? value : undefined;
+}
 
 const Profile: React.FC = () => {
-    const [userData, setUserData] = useState<UserData | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { user: backendUser, loading, logout } = useAuth();
+    const { user: auth0User, getIdTokenClaims } = useAuth0();
+    const [idTokenClaims, setIdTokenClaims] = useState<ClaimRecord>(null);
     const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(false);
     const [updatingNotifications, setUpdatingNotifications] = useState(false);
     const [sendingTestEmail, setSendingTestEmail] = useState(false);
@@ -15,61 +27,61 @@ const Profile: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const user = await authService.getCurrentUser();
-                setUserData(user);
-                // Asumir que el backend devuelve esta propiedad en userData
-                setEmailNotificationsEnabled(user.emailNotificationsEnabled || false);
-            } catch (error) {
-                console.error('Error fetching user:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+        setEmailNotificationsEnabled(backendUser?.emailNotificationsEnabled || false);
+    }, [backendUser?.emailNotificationsEnabled]);
 
-        fetchUser();
-    }, []);
+    useEffect(() => {
+        let cancelled = false;
+        if (!auth0User) {
+            setIdTokenClaims(null);
+            return;
+        }
+        (async () => {
+            try {
+                const claims = await getIdTokenClaims();
+                if (!cancelled) setIdTokenClaims((claims ?? {}) as Record<string, unknown>);
+            } catch {
+                if (!cancelled) setIdTokenClaims(null);
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [auth0User, getIdTokenClaims]);
 
     const handleEmailNotificationToggle = async (enabled: boolean) => {
         setUpdatingNotifications(true);
         setErrorMessage('');
         setSuccessMessage('');
-
         try {
             await emailService.updateEmailNotifications(enabled);
             setEmailNotificationsEnabled(enabled);
-            setSuccessMessage(enabled ?
-                'Email notifications enabled successfully!' :
-                'Email notifications disabled successfully!'
+            setSuccessMessage(
+                enabled ? 'Email notifications enabled successfully!' : 'Email notifications disabled successfully!'
             );
-        } catch (error) {
+        } catch {
             setErrorMessage('Failed to update email notification settings');
-            console.error('Error updating email notifications:', error);
         } finally {
             setUpdatingNotifications(false);
         }
     };
 
     const handleSendTestEmail = async () => {
-        if (!userData?.email) return;
-
+        if (!backendUser?.email) return;
         setSendingTestEmail(true);
         setErrorMessage('');
         setSuccessMessage('');
-
         try {
-            await emailService.sendTestEmail(userData.email);
+            await emailService.sendTestEmail(backendUser.email);
             setSuccessMessage('Test email sent successfully!');
-        } catch (error) {
+        } catch {
             setErrorMessage('Failed to send test email');
-            console.error('Error sending test email:', error);
         } finally {
             setSendingTestEmail(false);
         }
     };
 
-    // Auto-hide messages after 5 seconds
     useEffect(() => {
         if (successMessage || errorMessage) {
             const timer = setTimeout(() => {
@@ -80,140 +92,222 @@ const Profile: React.FC = () => {
         }
     }, [successMessage, errorMessage]);
 
-    if (loading) return <div className="text-center mt-20 text-lg font-semibold">Loading...</div>;
+    if (loading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-background py-16">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
 
-    if (!userData) return <div className="text-center mt-20 text-lg text-red-600">User not found.</div>;
+    if (!backendUser && !auth0User) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-background py-16">
+                <p className="text-muted-foreground text-lg">User not found.</p>
+            </div>
+        );
+    }
 
-    const userInitial = userData.username.charAt(0).toUpperCase();
+    const auth0Username =
+        readCustomClaimString(idTokenClaims, 'https://api.lorecodex.com/username') ||
+        readCustomClaimString(auth0User, 'https://api.lorecodex.com/username') ||
+        auth0User?.nickname ||
+        auth0User?.name ||
+        auth0User?.email ||
+        auth0User?.sub ||
+        'User';
+
+    const displayName = backendUser?.username || auth0Username;
+    const displayEmail = backendUser?.email || auth0User?.email || '—';
+    const profilePicture = backendUser?.profilePicture || auth0User?.picture;
+    const userInitial = (displayName?.charAt(0) || 'U').toUpperCase();
 
     return (
-        <div className="flex flex-col items-center p-8">
-            {/* Messages */}
+        <SettingsLayout
+            title="Profile"
+            description="Manage your account settings and preferences"
+            actions={
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={logout}
+                    className="gap-2"
+                >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                </Button>
+            }
+        >
+            {/* Success/Error Messages */}
             {successMessage && (
-                <div className="w-full max-w-5xl mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+                <div className="rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm text-green-400 shadow-sm backdrop-blur-sm animate-fade-in">
                     {successMessage}
                 </div>
             )}
             {errorMessage && (
-                <div className="w-full max-w-5xl mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400 shadow-sm backdrop-blur-sm animate-fade-in">
                     {errorMessage}
                 </div>
             )}
 
-            {/* Encabezado del perfil */}
-            <div className="flex flex-col md:flex-row items-center gap-8 w-full max-w-5xl bg-white dark:bg-[#313E3F] shadow-md rounded-lg p-8">
-                {/* Imagen o inicial */}
-                <div className="flex items-center justify-center h-32 w-32 rounded-full bg-gray-300 text-4xl font-bold text-white overflow-hidden">
-                    <span>{userInitial}</span>
-                </div>
+            {/* Profile Header - Compact */}
+            <SettingsSectionCard className="relative overflow-hidden">
+                {/* Subtle gradient background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50" />
 
-                {/* Info básica */}
-                <div className="flex flex-col items-center md:items-start">
-                    <h1 className="text-3xl font-bold text-[#0C0C0C] dark:text-white">{userData.username}</h1>
-                    <p className="text-gray-600 dark:text-gray-300">{userData.email}</p>
-                </div>
-            </div>
+                <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                    {/* Avatar + Info */}
+                    <div className="flex items-center gap-4">
+                        {/* Avatar */}
+                        <div className="relative">
+                            <div className="h-20 w-20 rounded-2xl border-2 border-white/10 bg-secondary/50 flex items-center justify-center text-2xl font-bold text-foreground overflow-hidden">
+                                {profilePicture ? (
+                                    <img
+                                        src={profilePicture}
+                                        alt="Profile"
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="bg-gradient-to-br from-primary/20 to-primary/5 bg-clip-text text-transparent">
+                                        {userInitial}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
 
-            {/* Configuración de notificaciones por email */}
-            <div className="w-full max-w-5xl mt-8 bg-white dark:bg-[#313E3F] shadow-md rounded-lg p-6">
-                <h2 className="text-xl font-bold text-[#0C0C0C] dark:text-white mb-4">Email Notifications</h2>
-
-                <div className="flex items-center justify-between mb-4">
-                    <div className="flex flex-col">
-                        <label className="text-lg font-medium text-[#0C0C0C] dark:text-white">
-                            Receive email notifications
-                        </label>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                            Get notified about important updates and activities
-                        </p>
+                        {/* Name + Email */}
+                        <div className="space-y-1">
+                            <h2 className="text-2xl font-bold text-foreground">
+                                {displayName}
+                            </h2>
+                            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Mail className="h-3.5 w-3.5" />
+                                {displayEmail}
+                            </p>
+                        </div>
                     </div>
 
-                    <div className="flex items-center">
-                        <input
-                            type="checkbox"
-                            id="emailNotifications"
-                            checked={emailNotificationsEnabled}
-                            onChange={(e) => handleEmailNotificationToggle(e.target.checked)}
-                            disabled={updatingNotifications}
-                            className="w-5 h-5 text-[#f47e00] bg-gray-100 border-gray-300 rounded focus:ring-[#f47e00] focus:ring-2"
-                        />
-                        <label htmlFor="emailNotifications" className="ml-2 text-sm font-medium text-[#0C0C0C] dark:text-white">
+                    {/* Optional: Edit Profile Button */}
+                    {/* <Button variant="outline" size="sm">
+                        Edit Profile
+                    </Button> */}
+                </div>
+            </SettingsSectionCard>
+
+            {/* Account Information - Settings Style Rows */}
+            <SettingsSectionCard
+                title="Account Information"
+                description="Your account details and membership info"
+            >
+                <div className="space-y-1">
+                    {/* Username Row */}
+                    <div className="flex items-center justify-between py-3 border-b border-white/5">
+                        <span className="text-sm text-muted-foreground">Username</span>
+                        <span className="font-medium text-foreground">{displayName}</span>
+                    </div>
+
+                    {/* Email Row */}
+                    <div className="flex items-center justify-between py-3 border-b border-white/5">
+                        <span className="text-sm text-muted-foreground">Email</span>
+                        <span className="font-medium text-foreground">{displayEmail}</span>
+                    </div>
+
+                    {/* Member Since Row */}
+                    {backendUser?.createdAt && (
+                        <div className="flex items-center justify-between py-3">
+                            <span className="text-sm text-muted-foreground">Member Since</span>
+                            <span className="font-medium text-foreground">
+                                {new Date(backendUser.createdAt).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long'
+                                })}
+                            </span>
+                        </div>
+                    )}
+                </div>
+            </SettingsSectionCard>
+
+            {/* Preferences */}
+            <SettingsSectionCard
+                title="Preferences"
+                description="Manage your notification settings"
+            >
+                {/* Email Notifications Toggle */}
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between rounded-xl border border-white/5 bg-secondary/10 p-4 transition-colors hover:bg-secondary/20">
+                    <div className="flex items-start gap-3">
+                        <div className="rounded-lg bg-primary/10 p-2 ring-1 ring-primary/20">
+                            <Bell className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                            <p className="font-medium text-foreground">Email Notifications</p>
+                            <p className="text-sm text-muted-foreground">
+                                Receive updates about important activities
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <label className="relative inline-flex cursor-pointer items-center">
+                            <input
+                                type="checkbox"
+                                checked={emailNotificationsEnabled}
+                                onChange={(event) => handleEmailNotificationToggle(event.target.checked)}
+                                disabled={updatingNotifications}
+                                className="peer sr-only"
+                            />
+                            <span className="h-6 w-11 rounded-full border border-white/10 bg-secondary/50 transition peer-checked:border-primary peer-checked:bg-primary peer-disabled:opacity-50 peer-disabled:cursor-not-allowed" />
+                            <span className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition peer-checked:translate-x-5 peer-disabled:opacity-70" />
+                        </label>
+                        <span className="text-sm font-medium text-muted-foreground min-w-[4rem]">
                             {emailNotificationsEnabled ? 'Enabled' : 'Disabled'}
-                        </label>
+                        </span>
                     </div>
                 </div>
 
-                {/* Botón para enviar email de prueba */}
+                {/* Test Email */}
                 {emailNotificationsEnabled && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                    <div className="rounded-xl border border-white/5 bg-secondary/10 p-4 transition-colors hover:bg-secondary/20">
                         <div className="flex items-center justify-between">
-                            <div className="flex flex-col">
-                                <h3 className="text-lg font-medium text-[#0C0C0C] dark:text-white">
-                                    Test Email
-                                </h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-300">
-                                    Send a test email to verify your notifications are working
+                            <div>
+                                <p className="font-medium text-foreground">Test Email</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Verify your notifications are working
                                 </p>
                             </div>
                             <Button
                                 onClick={handleSendTestEmail}
                                 disabled={sendingTestEmail}
-                                className="bg-[#f47e00] hover:bg-[#d56b00] text-white font-semibold py-2 px-4 rounded"
+                                size="sm"
+                                variant="outline"
                             >
-                                {sendingTestEmail ? 'Sending...' : 'Send Test Email'}
+                                {sendingTestEmail ? 'Sending…' : 'Send Test'}
                             </Button>
                         </div>
                     </div>
                 )}
-            </div>
+            </SettingsSectionCard>
 
-            {/* Sección de navegación a contenido del usuario */}
-            <div className="w-full max-w-5xl mt-8 bg-white dark:bg-[#313E3F] shadow-md rounded-lg p-6">
-                <h2 className="text-xl font-bold text-[#0C0C0C] dark:text-white mb-6">My Content</h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {/* Mis Drafts */}
-                    <Link
-                        to="/my-drafts"
-                        className="flex flex-col items-center p-6 bg-gradient-to-br from-[#f47e00] to-[#d56b00] text-white rounded-lg hover:from-[#d56b00] hover:to-[#b85800] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                    >
-                        <div className="text-3xl mb-3">📝</div>
-                        <h3 className="text-lg font-semibold mb-2">My Drafts</h3>
-                        <p className="text-sm text-center opacity-90">View and edit your draft guides</p>
-                    </Link>
-
-                    {/* Mis Listas */}
-                    <Link
-                        to="/my-lists"
-                        className="flex flex-col items-center p-6 bg-gradient-to-br from-[#00a8ff] to-[#0078d4] text-white rounded-lg hover:from-[#0078d4] hover:to-[#005a9e] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                    >
-                        <div className="text-3xl mb-3">📋</div>
-                        <h3 className="text-lg font-semibold mb-2">My Lists</h3>
-                        <p className="text-sm text-center opacity-90">Manage your curated content lists</p>
-                    </Link>
-
-                    {/* Mis Challenges */}
-                    <Link
-                        to="/my-challenges"
-                        className="flex flex-col items-center p-6 bg-gradient-to-br from-[#7b68ee] to-[#6a5acd] text-white rounded-lg hover:from-[#6a5acd] hover:to-[#483d8b] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                    >
-                        <div className="text-3xl mb-3">🏆</div>
-                        <h3 className="text-lg font-semibold mb-2">My Challenges</h3>
-                        <p className="text-sm text-center opacity-90">Track your created challenges</p>
-                    </Link>
-
-                    {/* Mis Guides */}
-                    <Link
-                        to="/my-guides"
-                        className="flex flex-col items-center p-6 bg-gradient-to-br from-[#20b2aa] to-[#008b8b] text-white rounded-lg hover:from-[#008b8b] hover:to-[#006666] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                    >
-                        <div className="text-3xl mb-3">📚</div>
-                        <h3 className="text-lg font-semibold mb-2">My Guides</h3>
-                        <p className="text-sm text-center opacity-90">View your published guides</p>
-                    </Link>
-                </div>
-            </div>
-        </div>
+            {/* Advanced / Developer Info - Collapsible (Optional) */}
+            {/* Uncomment if needed for debugging */}
+            {/* <SettingsSectionCard
+                title="Advanced"
+                description="Technical information for debugging"
+            >
+                <details className="group">
+                    <summary className="flex cursor-pointer items-center justify-between rounded-lg border border-white/5 bg-secondary/10 p-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/20">
+                        <span>Developer Information</span>
+                        <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                    </summary>
+                    <div className="mt-3 space-y-2 rounded-lg border border-white/5 bg-secondary/5 p-4">
+                        <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Auth0 ID</span>
+                            <code className="rounded bg-secondary/50 px-2 py-1 text-xs font-mono text-foreground">
+                                {auth0User?.sub || 'N/A'}
+                            </code>
+                        </div>
+                    </div>
+                </details>
+            </SettingsSectionCard> */}
+        </SettingsLayout>
     );
 };
 

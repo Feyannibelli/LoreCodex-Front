@@ -1,62 +1,101 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import UnifiedContentEditor from '../UnifiedContentEditor';
+import apiAuth from '../../services/apiAuth';
 
 const CreateGuideForm: React.FC = () => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        try {
-            const token = localStorage.getItem('token'); // Asumiendo que guardás el token en localStorage
-            await axios.post(
-                'http://localhost:8081/guides/create',
-                {
-                    title,
-                    content,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+        if (!title.trim()) {
+            alert('El título es obligatorio');
+            return;
+        }
 
-            alert('Guide created successfully!');
+        if (!content.trim()) {
+            alert('El contenido es obligatorio');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await apiAuth.post('/guides/create', { title, content });
+
+            alert('¡Guía creada exitosamente!');
             setTitle('');
             setContent('');
         } catch (error) {
             console.error('Error creating guide:', error);
-            alert('Failed to create guide');
+            alert('Error al crear la guía');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="p-4 max-w-md mx-auto">
-            <h2 className="text-2xl font-bold mb-4">Create a New Guide</h2>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <input
-                    type="text"
-                    placeholder="Title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="border rounded p-2"
-                    required
-                />
-                <textarea
-                    placeholder="Content"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    className="border rounded p-2 h-40"
-                    required
-                />
-                <button
-                    type="submit"
-                    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-                >
-                    Create Guide
-                </button>
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+                Create New Guide
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Título */}
+                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Title *
+                    </label>
+                    <input
+                        type="text"
+                        placeholder="Your guide title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-3 focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        required
+                    />
+                </div>
+
+                {/* Contenido - UNIFICADO */}
+                <div className="bg-white dark:bg-[#313E3F] rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                    <UnifiedContentEditor
+                        label="Content *"
+                        value={content}
+                        onChange={setContent}
+                        rows={15}
+                        placeholder="Write your guide using Markdown and mentions...
+
+# Main Title
+## Subtitle
+
+**Bold text** and *italic text*
+
+Mention related content:
+• /games/ for games
+• /guides/ for other guides
+• /challenges/ for challenges"
+                        helpText="Use Markdown for formatting and mentions to reference content."
+                    />
+                </div>
+
+                {/* Botón de envío */}
+                <div className="flex justify-end">
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-sm"
+                    >
+                        {loading ? (
+                            <span className="flex items-center gap-2">
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                Creando...
+                            </span>
+                        ) : (
+                            'Crear Guía'
+                        )}
+                    </button>
+                </div>
             </form>
         </div>
     );
