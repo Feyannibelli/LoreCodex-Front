@@ -34,7 +34,7 @@ const NewsDetailPage: React.FC = () => {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F47E00]"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
                 </div>
             </div>
         );
@@ -106,7 +106,7 @@ const NewsDetailPage: React.FC = () => {
                         {news.tags.map((tag) => (
                             <span
                                 key={tag}
-                                className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium"
+                                className="inline-flex items-center gap-1 px-3 py-1 bg-orange-500/10 text-orange-600 rounded-full text-sm font-medium"
                             >
                                 <Tag size={14} />
                                 #{tag}
@@ -157,7 +157,7 @@ const NewsDetailPage: React.FC = () => {
                                 onClick={() =>
                                     newsService.publish(news.id).then(res => setNews(res.data))
                                 }
-                                className="bg-green-600 hover:bg-green-700"
+                                className="bg-indigo-600 hover:bg-indigo-700"
                             >
                                 ✅ Publicar
                             </Button>

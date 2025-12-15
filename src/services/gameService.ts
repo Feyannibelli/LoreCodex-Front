@@ -75,6 +75,19 @@ const gameService = {
         }
     },
 
+    // Mejores aproximaciones desde el endpoint existente `/games/allGames`
+    getRecentlyAddedGames: async (limit: number = 10): Promise<Game[]> => {
+        const games = await gameService.getAllGames();
+        return [...games].sort((a, b) => (b.id ?? 0) - (a.id ?? 0)).slice(0, limit);
+    },
+
+    getPopularGames: async (limit: number = 8): Promise<Game[]> => {
+        const games = await gameService.getAllGames();
+        return [...games]
+            .sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0) || (b.averageRating ?? 0) - (a.averageRating ?? 0))
+            .slice(0, limit);
+    },
+
     // Obtener un juego por ID
     getGameById: async (id: number): Promise<Game> => {
         try {

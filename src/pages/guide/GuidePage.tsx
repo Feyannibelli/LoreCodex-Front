@@ -1,11 +1,14 @@
-import { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import guideService from "../../services/guideService.ts";
 import { useAuth } from "../../context/AuthContext.tsx";
 import { Guide } from "../../interfaces/Guide.ts";
 import { useInfiniteScroll } from "../../hook/useInfiniteScroll.ts";
 import InfiniteScrollTrigger from "../../components/InfiniteScrollTrigger.tsx";
-import { Search, BookOpen } from "lucide-react";
+import PrimaryButton from "../../components/ui/PrimaryButton";
+import SecondaryButton from "../../components/ui/SecondaryButton";
+import SearchInput from "../../components/ui/SearchInput";
+import PageHero from "../../components/ui/PageHero";
 
 const GuidePage: React.FC = () => {
     const { isAuthenticated } = useAuth();
@@ -27,7 +30,6 @@ const GuidePage: React.FC = () => {
         pageSize: 10
     });
 
-    // Filtrar guías localmente basado en el término de búsqueda
     useEffect(() => {
         if (searchTerm.trim() === "") {
             setFilteredGuides(guides);
@@ -41,123 +43,123 @@ const GuidePage: React.FC = () => {
     }, [searchTerm, guides]);
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                    Published Guides
-                </h1>
-                {isAuthenticated && (
-                    <div className="flex gap-3">
-                        <Link
-                            to="/my-drafts"
-                            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded font-medium transition-colors"
-                        >
-                            📝 My Drafts
-                        </Link>
-                        <Link
-                            to="/guides/create"
-                            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded font-medium transition-colors"
-                        >
-                            + New Guide
-                        </Link>
-                    </div>
-                )}
-            </div>
+        <div className="bg-slate-50 min-h-screen py-12">
+            <div className="mx-auto max-w-6xl space-y-8 px-4">
+                <PageHero
+                    title="Published Guides"
+                    subtitle="Guides"
+                    description="Encuentra guías destacadas creadas por la comunidad y comparte tu propia sabiduría."
+                    actions={
+                        <>
+                            {isAuthenticated && (
+                                <>
+                                    <Link to="/my-drafts">
+                                        <SecondaryButton type="button">
+                                            📝 My Drafts
+                                        </SecondaryButton>
+                                    </Link>
+                                    <Link to="/guides/create">
+                                        <PrimaryButton type="button">
+                                            + New Guide
+                                        </PrimaryButton>
+                                    </Link>
+                                </>
+                            )}
+                        </>
+                    }
+                >
+                    <form onSubmit={(e) => e.preventDefault()} className="space-y-3 md:space-y-0 md:flex md:gap-3">
+                        <SearchInput
+                            placeholder="Filter guides by title or content"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <PrimaryButton type="button">
+                            Search
+                        </PrimaryButton>
+                    </form>
+                </PageHero>
 
-            {/* Search Bar */}
-            <div className="mb-6">
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                    <input
-                        type="text"
-                        placeholder="Search guides by title or content..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                    />
-                </div>
-            </div>
-
-            {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    {error}
-                </div>
-            )}
-
-            {loading && guides.length === 0 ? (
-                <div className="flex justify-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-                </div>
-            ) : filteredGuides.length === 0 ? (
-                <div className="text-center py-12">
-                    <BookOpen className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <p className="text-gray-500 dark:text-gray-400 text-lg mb-4">
-                        {searchTerm ? "No guides found matching your search." : "No published guides yet."}
-                    </p>
-                    {isAuthenticated && !searchTerm && (
-                        <Link
-                            to="/guides/create"
-                            className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-                        >
-                            Create the first guide!
-                        </Link>
+                <div className="rounded-3xl border border-slate-200 bg-white px-8 py-10 shadow-sm space-y-6">
+                    {error && (
+                        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                            {error}
+                        </div>
                     )}
-                </div>
-            ) : (
-                <>
-                    <ul className="space-y-4">
-                        {filteredGuides.map(g => (
-                            <li key={g.id} className="bg-white dark:bg-[#313E3F] border border-gray-200 dark:border-gray-700 p-6 rounded-lg hover:shadow-lg transition-shadow">
-                                <Link
-                                    to={`/guides/${g.id}`}
-                                    className="block"
-                                >
-                                    <div className="flex items-start gap-4">
+
+                    {loading && guides.length === 0 ? (
+                        <div className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-6 text-center text-slate-500">
+                            Loading guides...
+                        </div>
+                    ) : filteredGuides.length === 0 ? (
+                        <div className="text-center space-y-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-10 text-slate-600">
+                            <p className="text-lg font-semibold">No guides found.</p>
+                            <p className="text-sm">Try another search or check back later.</p>
+                            {isAuthenticated && (
+                                <PrimaryButton type="button">
+                                    Create the first guide!
+                                </PrimaryButton>
+                            )}
+                        </div>
+                    ) : (
+                        <>
+                            <div className="grid grid-cols-1 gap-6">
+                                {filteredGuides.map(g => (
+                                    <Link
+                                        to={`/guides/${g.id}`}
+                                        key={g.id}
+                                        className="group flex flex-col rounded-2xl border border-slate-100 bg-white shadow-sm transition hover:border-indigo-200"
+                                    >
                                         {g.coverImageUrl && (
-                                            <img
-                                                src={g.coverImageUrl}
-                                                alt={g.title}
-                                                className="w-32 h-24 object-cover rounded flex-shrink-0"
-                                                onError={(e) => {
-                                                    (e.target as HTMLImageElement).style.display = 'none';
-                                                }}
-                                            />
-                                        )}
-                                        <div className="flex-1 min-w-0">
-                                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-400 mb-2">
-                                                {g.title}
-                                            </h2>
-                                            <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-3">
-                                                <span>{new Date(g.createdAt).toLocaleDateString()}</span>
-                                                {g.tags && g.tags.length > 0 && (
-                                                    <div className="flex gap-2">
-                                                        {g.tags.slice(0, 3).map(tag => (
-                                                            <span key={tag} className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded text-xs">
-                                                                #{tag}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                )}
+                                            <div className="h-64 w-full overflow-hidden rounded-t-2xl bg-slate-100">
+                                                <img
+                                                    src={g.coverImageUrl}
+                                                    alt={g.title}
+                                                    className="h-full w-full object-cover"
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).style.display = 'none';
+                                                    }}
+                                                />
                                             </div>
-                                            <p className="text-gray-700 dark:text-gray-300 line-clamp-2">
-                                                {g.content.substring(0, 150)}...
+                                        )}
+                                        <div className="flex flex-col space-y-3 p-6">
+                                            <div>
+                                                <h2 className="text-2xl font-semibold text-slate-900 group-hover:text-indigo-600 mb-2">
+                                                    {g.title}
+                                                </h2>
+                                                <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
+                                                    <span>{new Date(g.createdAt).toLocaleDateString()}</span>
+                                                    {g.tags && g.tags.length > 0 && (
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {g.tags.slice(0, 3).map(tag => (
+                                                                <span
+                                                                    key={tag}
+                                                                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-indigo-700"
+                                                                >
+                                                                    #{tag}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <p className="text-sm text-slate-600 line-clamp-3">
+                                                {g.content.substring(0, 180)}...
                                             </p>
                                         </div>
-                                    </div>
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
+                                    </Link>
+                                ))}
+                            </div>
 
-                    {searchTerm === "" && (
-                        <InfiniteScrollTrigger
-                            onIntersect={loadMore}
-                            loading={loading}
-                            hasMore={hasMore}
-                        />
+                            <InfiniteScrollTrigger
+                                onIntersect={loadMore}
+                                loading={loading}
+                                hasMore={hasMore}
+                            />
+                        </>
                     )}
-                </>
-            )}
+                </div>
+            </div>
         </div>
     );
 };

@@ -45,7 +45,7 @@ const NewsForm: React.FC<Props> = ({ initial, onSubmit, submitLabel }) => {
                     id="title"
                     name="title"
                     placeholder="Ingresa el título de la noticia"
-                    className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:bg-gray-700 dark:text-white"
+                    className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-colors dark:bg-gray-700 dark:text-white"
                     value={form.title}
                     onChange={handleChange}
                     required
@@ -80,7 +80,7 @@ Puedes mencionar:
                     id="coverImage"
                     name="coverImage"
                     placeholder="URL de la imagen de portada"
-                    className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:bg-gray-700 dark:text-white"
+                    className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-colors dark:bg-gray-700 dark:text-white"
                     value={form.coverImage ?? ""}
                     onChange={handleChange}
                 />
@@ -115,7 +115,7 @@ Puedes mencionar:
                     id="tags"
                     name="tags"
                     placeholder="tecnología, noticias, actualidad"
-                    className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:bg-gray-700 dark:text-white"
+                    className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-colors dark:bg-gray-700 dark:text-white"
                     value={form.tags?.join(", ") ?? ""}
                     onChange={handleTags}
                 />
@@ -124,7 +124,7 @@ Puedes mencionar:
                         {form.tags.map(tag => (
                             <span
                                 key={tag}
-                                className="inline-flex items-center text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 px-3 py-1 rounded-full font-medium"
+                                className="inline-flex items-center text-xs bg-orange-500/10 text-orange-600 px-3 py-1 rounded-full font-medium"
                             >
                                 #{tag}
                             </span>
@@ -137,7 +137,7 @@ Puedes mencionar:
             <div className="flex justify-end pt-4">
                 <button
                     type="submit"
-                    className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all font-medium shadow-sm"
+                    className="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-600/20 transition-all font-medium shadow-sm"
                 >
                     {submitLabel}
                 </button>

@@ -125,7 +125,7 @@ const ChallengeDetailPage: React.FC = () => {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F47E00]"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
                 </div>
             </div>
         );
@@ -196,11 +196,13 @@ const ChallengeDetailPage: React.FC = () => {
                             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                                 <User size={18}/>
                                 <span>Creado por{' '}
-                                    <strong className="cursor-pointer text-blue-600 hover:underline" onClick={() => navigate(`/profile/${challenge?.creatorId}`)}>
+                                    <strong className="cursor-pointer text-indigo-600 hover:underline" onClick={() => navigate(`/profile/${challenge?.creatorId}`)}>
                                         {challenge.creatorUsername}
                                     </strong>
                                     {isOwner && (
-                                        <Crown size={16} className="inline ml-1 text-yellow-500" title="Eres el creador" />
+                                        <span title="Eres el creador">
+                                            <Crown size={16} className="inline ml-1 text-yellow-500" />
+                                        </span>
                                     )}
                                 </span>
                             </div>
@@ -217,7 +219,7 @@ const ChallengeDetailPage: React.FC = () => {
                                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                         Progreso: {progress.completed}/{progress.total}
                                         {isOwner && (
-                                            <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                            <span className="ml-2 text-xs bg-orange-500/10 text-orange-600 px-2 py-1 rounded-full">
                                                 Creador participando
                                             </span>
                                         )}
@@ -267,8 +269,8 @@ const ChallengeDetailPage: React.FC = () => {
                             ) : (
                                 <div className="space-y-2">
                                     {isOwner && (
-                                        <div className="text-center p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                                            <p className="text-blue-800 dark:text-blue-200 text-sm">
+                                        <div className="text-center p-3 bg-orange-500/10 rounded-lg">
+                                            <p className="text-orange-600 text-sm">
                                                 Estás participando en tu propio challenge
                                             </p>
                                         </div>

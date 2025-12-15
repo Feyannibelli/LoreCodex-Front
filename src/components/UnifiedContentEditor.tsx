@@ -44,7 +44,7 @@ const UnifiedContentEditor: React.FC<UnifiedContentEditorProps> = ({
                     onClick={() => setShowPreview(false)}
                     className={`px-4 py-2 text-sm font-medium transition-colors ${
                         !showPreview
-                            ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
+                            ? 'border-b-2 border-orange-500 text-orange-600'
                             : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                 >
@@ -55,7 +55,7 @@ const UnifiedContentEditor: React.FC<UnifiedContentEditorProps> = ({
                     onClick={() => setShowPreview(true)}
                     className={`px-4 py-2 text-sm font-medium transition-colors ${
                         showPreview
-                            ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
+                            ? 'border-b-2 border-orange-500 text-orange-600'
                             : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                 >
@@ -192,10 +192,10 @@ const UnifiedContentEditor: React.FC<UnifiedContentEditorProps> = ({
 
             {/* Instrucciones */}
             {!showPreview && (
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-                    <p className="text-xs text-blue-800 dark:text-blue-200">
+                <div className="bg-indigo-600/10 border border-indigo-600/20 rounded-lg p-3">
+                    <p className="text-xs text-indigo-700 dark:text-indigo-300">
                         <strong>💡 Tip:</strong> Usa <strong>**negrita**</strong>, <em>*cursiva*</em>,
-                        <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">`código`</code>,
+                        <code className="bg-indigo-600/10 px-1 rounded">`código`</code>,
                         <strong>## Títulos</strong>, y menciones como <strong>/games/</strong>,
                         <strong>/guides/</strong>, <strong>/challenges/</strong>, <strong>/lists/</strong>,
                         <strong>/news/</strong> para referenciar contenido.

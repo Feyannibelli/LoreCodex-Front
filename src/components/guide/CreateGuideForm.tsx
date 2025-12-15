@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import UnifiedContentEditor from '../UnifiedContentEditor';
+import apiAuth from '../../services/apiAuth';
 
 const CreateGuideForm: React.FC = () => {
     const [title, setTitle] = useState('');
@@ -22,16 +22,7 @@ const CreateGuideForm: React.FC = () => {
 
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            await axios.post(
-                'http://localhost:8081/guides/create',
-                { title, content },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            await apiAuth.post('/guides/create', { title, content });
 
             alert('¡Guía creada exitosamente!');
             setTitle('');
@@ -61,7 +52,7 @@ const CreateGuideForm: React.FC = () => {
                         placeholder="Título de tu guía"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-3 focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
                         required
                     />
                 </div>
@@ -93,7 +84,7 @@ Menciona contenido relacionado:
                     <button
                         type="submit"
                         disabled={loading}
-                        className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-sm"
+                        className="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-sm"
                     >
                         {loading ? (
                             <span className="flex items-center gap-2">

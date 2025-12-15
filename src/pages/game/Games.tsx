@@ -6,8 +6,10 @@ import searchService from "../../services/searchService.ts";
 import GameFilters, { FiltersState } from "../../components/GameFilters.tsx";
 import InfiniteScrollTrigger from "../../components/InfiniteScrollTrigger.tsx";
 import { useInfiniteScroll } from "../../hook/useInfiniteScroll.ts";
-import "../../css/Games.css";
-import "../../css/GameFilters.css";
+import PrimaryButton from "../../components/ui/PrimaryButton";
+import SecondaryButton from "../../components/ui/SecondaryButton";
+import SearchInput from "../../components/ui/SearchInput";
+import PageHero from "../../components/ui/PageHero";
 
 const Games: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
@@ -17,16 +19,12 @@ const Games: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Función para cargar juegos paginados
     const fetchGames = useCallback(async (page: number, pageSize: number): Promise<Game[]> => {
         const games = await gameService.getAllGamesPaginated(page, pageSize);
-
-        // Extraer géneros únicos de la primera carga
         if (page === 0) {
             const genres = searchService.getAvailableGenres(games);
             setAvailableGenres(genres);
         }
-
         return games;
     }, []);
 
@@ -42,14 +40,12 @@ const Games: React.FC = () => {
         pageSize: 12
     });
 
-    // Aplicar filtros localmente a los juegos cargados
     const displayedGames = React.useMemo(() => {
         return searchService.filterGames(allGames, searchTerm, activeFilters || undefined);
     }, [allGames, searchTerm, activeFilters]);
 
     const handleSearch = async (e: React.FormEvent | null) => {
         if (e) e.preventDefault();
-
         if (searchTerm.trim()) {
             navigate(`/games?search=${encodeURIComponent(searchTerm)}`);
         } else {
@@ -76,91 +72,110 @@ const Games: React.FC = () => {
     }, [location.search]);
 
     return (
-        <div className="games-container">
-            <h1>Games</h1>
+        <div className="bg-slate-50 min-h-screen py-12">
+            <div className="mx-auto max-w-6xl space-y-8 px-4">
+                <PageHero
+                    title="Games"
+                    description="Explora y filtra tus títulos favoritos con la colección completa de LoreCodex."
+                >
+                    <form onSubmit={handleSearch} className="space-y-3 md:space-y-0 md:flex md:gap-3">
+                        <SearchInput
+                            placeholder="Search game titles or descriptions"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <PrimaryButton type="submit">
+                            Search
+                        </PrimaryButton>
+                        <SecondaryButton type="button" onClick={resetFilters}>
+                            Reset filters
+                        </SecondaryButton>
+                    </form>
+                </PageHero>
 
-            {/* Search bar */}
-            <div className="games-search-container">
-                <form className="games-search-bar" onSubmit={handleSearch}>
-                    <input
-                        type="text"
-                        className="games-search-input"
-                        placeholder="Search game titles or descriptions"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                <div className="rounded-3xl border border-slate-200 bg-white px-8 py-10 shadow-sm space-y-6">
+                    <GameFilters
+                        availableGenres={availableGenres}
+                        onFilterChange={handleFilterChange}
+                        onReset={resetFilters}
                     />
-                    <button type="submit" className="games-search-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                        </svg>
-                    </button>
-                </form>
-            </div>
 
-            {/* Filters */}
-            <GameFilters
-                availableGenres={availableGenres}
-                onFilterChange={handleFilterChange}
-                onReset={resetFilters}
-            />
-
-            {/* Results summary */}
-            <div className="results-summary">
-                <p>Showing {displayedGames.length} games {hasMore && '(loading more...)'}</p>
-            </div>
-
-            {error && <div className="error-message">{error}</div>}
-
-            {loading && allGames.length === 0 ? (
-                <div className="loading">Loading games...</div>
-            ) : displayedGames.length > 0 ? (
-                <>
-                    <div className="games-grid">
-                        {displayedGames.map((game) => (
-                            <Link to={`/games/${game.id}`} className="game-card" key={game.id}>
-                                <div className="game-image">
-                                    {game.imageUrl ? (
-                                        <img src={game.imageUrl} alt={game.name} />
-                                    ) : (
-                                        "Game"
-                                    )}
-                                </div>
-                                <div className="game-info">
-                                    <div className="game-name">{game.name}</div>
-                                    <div className="game-genre">{game.genre}</div>
-                                    <div className="game-meta">
-                                        <span>{new Date(game.releaseDate).getFullYear()}</span>
-                                        {game.averageRating !== undefined && (
-                                            <span>★ {game.averageRating}</span>
-                                        )}
-                                    </div>
-                                    {game.awards && (
-                                        <div className="game-awards">
-                                            <span>🏆</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </Link>
-                        ))}
+                    <div className="text-sm text-slate-600">
+                        Showing {displayedGames.length} games {hasMore && '(loading more...)'}
                     </div>
 
-                    <InfiniteScrollTrigger
-                        onIntersect={loadMore}
-                        loading={loading}
-                        hasMore={hasMore && displayedGames.length === allGames.length}
-                    />
-                </>
-            ) : (
-                <div className="no-games-found">
-                    No games found with the current search criteria.
-                    <button
-                        onClick={resetFilters}
-                        className="clear-filters-button"
-                    >
-                        Clear all filters
-                    </button>
+                    {error && (
+                        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                            {error}
+                        </div>
+                    )}
+
+                    {loading && allGames.length === 0 ? (
+                        <div className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-6 text-center text-slate-500">
+                            Loading games...
+                        </div>
+                    ) : displayedGames.length > 0 ? (
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {displayedGames.map((game) => (
+                                    <Link
+                                        to={`/games/${game.id}`}
+                                        key={game.id}
+                                        className="group block overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition hover:border-indigo-200"
+                                    >
+                                        <div className="relative h-48 bg-slate-100">
+                                            {game.imageUrl ? (
+                                                <img
+                                                    src={game.imageUrl}
+                                                    alt={game.name}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="flex h-full items-center justify-center text-slate-400">
+                                                    Game
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="space-y-2 p-5">
+                                            <h3 className="text-xl font-semibold text-slate-900 group-hover:text-indigo-600 transition">
+                                                {game.name}
+                                            </h3>
+                                            <p className="text-sm uppercase tracking-wide text-indigo-600">
+                                                {game.genre || 'Genre TBD'}
+                                            </p>
+                                            <div className="flex items-center justify-between text-xs uppercase text-slate-500">
+                                                <span>{new Date(game.releaseDate).getFullYear()}</span>
+                                                {game.averageRating !== undefined && (
+                                                    <span>★ {game.averageRating}</span>
+                                                )}
+                                            </div>
+                                            {game.awards && (
+                                                <div className="flex items-center gap-1 text-xs font-semibold text-orange-600">
+                                                    <span>🏆</span>
+                                                    <span>Awards listed</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+
+                            <InfiniteScrollTrigger
+                                onIntersect={loadMore}
+                                loading={loading}
+                                hasMore={hasMore && displayedGames.length === allGames.length}
+                            />
+                        </>
+                    ) : (
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center text-slate-600 space-y-3">
+                            <p>No games found with the current search criteria.</p>
+                            <SecondaryButton onClick={resetFilters} type="button">
+                                Clear all filters
+                            </SecondaryButton>
+                        </div>
+                    )}
                 </div>
-            )}
+            </div>
         </div>
     );
 };

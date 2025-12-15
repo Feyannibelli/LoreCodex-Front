@@ -13,7 +13,7 @@
 }
 
 .toolbar button {
-    background-color: #f47e00;
+    background-color: #F97316;
     color: white;
     border: none;
     padding: 0.4rem 0.8rem;
@@ -24,7 +24,7 @@
 }
 
 .toolbar button:hover {
-    background-color: #d56b00;
+    background-color: #EA580C;
 }
 
 .editor-content {
@@ -37,7 +37,7 @@
 
 .editor-content h1 {
     font-size: 1.8rem;
-    color: #f47e00;
+    color: #F97316;
 }
 
 .editor-content h2 {

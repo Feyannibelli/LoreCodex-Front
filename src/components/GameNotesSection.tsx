@@ -64,7 +64,7 @@ const GameNotesSection: React.FC<Props> = ({ gameId }) => {
               onChange={(e) => setNewNote(e.target.value)}
           />
                     <button
-                        className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+                        className="mt-2 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50"
                         onClick={addNote}
                         disabled={!newNote.trim()}
                     >
@@ -92,7 +92,7 @@ const GameNotesSection: React.FC<Props> = ({ gameId }) => {
                 />
                                 <div className="mt-2 space-x-2">
                                     <button
-                                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                                        className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700"
                                         onClick={() => saveEdit(note.id)}
                                     >
                                         Save
@@ -123,7 +123,7 @@ const GameNotesSection: React.FC<Props> = ({ gameId }) => {
 
                                 {/* editar */}
                                 <button
-                                    className="absolute top-2 right-8 text-gray-500 hover:text-blue-600"
+                                    className="absolute top-2 right-8 text-gray-500 hover:text-indigo-600"
                                     onClick={() => {
                                         setEditingId(note.id);
                                         setEditingText(note.content);

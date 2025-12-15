@@ -54,7 +54,7 @@ const AdminNewsList: React.FC = () => {
                 <h1 className="text-2xl font-bold">Admin News</h1>
                 <Link
                     to="/admin/news/create"
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
                 >
                     + New
                 </Link>
@@ -68,7 +68,7 @@ const AdminNewsList: React.FC = () => {
 
             {loading && news.length === 0 ? (
                 <div className="flex justify-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
                 </div>
             ) : (
                 <>
@@ -100,7 +100,7 @@ const AdminNewsList: React.FC = () => {
                                             className={`text-sm px-2 py-1 rounded ${
                                                 n.published
                                                     ? "bg-yellow-500 text-white"
-                                                    : "bg-green-600 text-white"
+                                                    : "bg-indigo-600 text-white"
                                             }`}
                                         >
                                             {n.published ? "Unpublish" : "Publish"}

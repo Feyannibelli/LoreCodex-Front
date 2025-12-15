@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, FileJson, CheckCircle, XCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+import apiAuth from '../../services/apiAuth';
+import axios from 'axios';
 
 interface GameImportResult {
     title: string;
@@ -146,22 +148,12 @@ const BatchImportGames: React.FC = () => {
         setImportResult(null);
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:8081/games/batch/import', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: jsonContent
+            const payload = JSON.parse(jsonContent);
+            const response = await apiAuth.post('/games/batch/import', payload, {
+                headers: { 'Content-Type': 'application/json' },
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Error ${response.status}: ${errorText}`);
-            }
-
-            const result: BatchGameResponse = await response.json();
+            const result: BatchGameResponse = response.data;
             setImportResult(result);
 
             if (result.failureCount === 0) {
@@ -172,7 +164,14 @@ const BatchImportGames: React.FC = () => {
             }
         } catch (error) {
             console.error('Error importing games:', error);
-            alert('Error al importar juegos: ' + (error as Error).message);
+            const message = axios.isAxiosError(error)
+                ? (typeof error.response?.data === 'string'
+                    ? error.response.data
+                    : (error.response?.data as { message?: string } | undefined)?.message) ?? error.message
+                : error instanceof Error
+                    ? error.message
+                    : 'Error desconocido';
+            alert('Error al importar juegos: ' + message);
         } finally {
             setIsSubmitting(false);
         }
@@ -200,7 +199,7 @@ const BatchImportGames: React.FC = () => {
 
                     <div className="bg-white rounded-lg shadow-sm p-6">
                         <div className="flex items-center gap-3 mb-2">
-                            <FileJson className="text-blue-600" size={32} />
+                            <FileJson className="text-indigo-600" size={32} />
                             <h1 className="text-3xl font-bold text-gray-900">
                                 Importación Masiva de Juegos
                             </h1>
@@ -235,8 +234,8 @@ const BatchImportGames: React.FC = () => {
                       file:mr-4 file:py-2 file:px-4
                       file:rounded-lg file:border-0
                       file:text-sm file:font-semibold
-                      file:bg-blue-50 file:text-blue-700
-                      hover:file:bg-blue-100 cursor-pointer"
+                      file:bg-indigo-600/10 file:text-indigo-700
+                      hover:file:bg-indigo-600/20 cursor-pointer"
                                     />
                                     <p className="text-xs text-gray-500 mt-1">Máximo 5MB</p>
                                 </div>
@@ -265,7 +264,7 @@ const BatchImportGames: React.FC = () => {
                     onChange={handleJsonChange}
                     placeholder='{"games": [{"title": "..."}]}'
                     className="w-full h-96 p-4 font-mono text-sm border rounded-lg
-                    focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    focus:ring-2 focus:ring-indigo-600 focus:border-transparent resize-none"
                     spellCheck={false}
                 />
 
@@ -306,7 +305,7 @@ const BatchImportGames: React.FC = () => {
                             <button
                                 onClick={handleSubmit}
                                 disabled={!isValidJson || isSubmitting}
-                                className="flex-1 py-3 px-6 bg-green-600 hover:bg-green-700
+                                className="flex-1 py-3 px-6 bg-indigo-600 hover:bg-indigo-700
                   disabled:bg-gray-300 disabled:cursor-not-allowed
                   text-white font-semibold rounded-lg transition-colors
                   flex items-center justify-center gap-2"
@@ -376,8 +375,8 @@ const BatchImportGames: React.FC = () => {
                                     </ul>
                                 </div>
 
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                    <p className="text-xs text-blue-800">
+                                <div className="bg-indigo-600/10 border border-indigo-600/20 rounded-lg p-3">
+                                    <p className="text-xs text-indigo-700 dark:text-indigo-300">
                                         💡 <strong>Tip:</strong> Los juegos duplicados (mismo título) serán rechazados automáticamente
                                     </p>
                                 </div>
@@ -390,9 +389,9 @@ const BatchImportGames: React.FC = () => {
                                 <h2 className="text-xl font-semibold mb-4">📊 Resultados de la Importación</h2>
 
                                 <div className="grid grid-cols-3 gap-4 mb-6">
-                                    <div className="bg-blue-50 rounded-lg p-4 text-center">
-                                        <div className="text-2xl font-bold text-blue-600">{importResult.totalProcessed}</div>
-                                        <div className="text-xs text-blue-800">Total</div>
+                                    <div className="bg-indigo-600/10 rounded-lg p-4 text-center">
+                                        <div className="text-2xl font-bold text-indigo-700 dark:text-indigo-300">{importResult.totalProcessed}</div>
+                                        <div className="text-xs text-indigo-700 dark:text-indigo-300">Total</div>
                                     </div>
                                     <div className="bg-green-50 rounded-lg p-4 text-center">
                                         <div className="text-2xl font-bold text-green-600">{importResult.successCount}</div>

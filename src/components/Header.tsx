@@ -1,30 +1,57 @@
 import React from 'react';
-import {Link, useNavigate} from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import NotificationsBell from "../components/NotificationsBell.tsx";
-import { ChevronDown } from 'lucide-react';
+import { ArrowLeft, ChevronDown } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../components/ui/dropdown-menu";
 
 const Header: React.FC = () => {
     const { isAuthenticated, user, isAdmin, logout } = useAuth();
+    const location = useLocation();
     const navigate = useNavigate();
     const userInitial = user?.username.charAt(0).toUpperCase() || 'U';
 
+    const isHome = location.pathname === '/';
+
+    const handleBack = () => {
+        if (window.history.length > 1) {
+            navigate(-1);
+        } else {
+            navigate('/');
+        }
+    };
+
     return (
-        <header className="flex items-center justify-between p-4 shadow-md sticky top-0 bg-white dark:bg-[#313E3F] z-50 transition-colors">
-            {/* Logo */}
-            <div className="text-2xl font-bold text-[#F47E00] dark:text-white">
+        <header className="grid grid-cols-3 items-center p-4 shadow-md sticky top-0 bg-white dark:bg-[#313E3F] z-50 transition-colors">
+            {/* Left: Back */}
+            <div className="justify-self-start">
+                {!isHome ? (
+                    <button
+                        type="button"
+                        onClick={handleBack}
+                        aria-label="Volver"
+                        className="h-9 w-9 inline-flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                    >
+                        <ArrowLeft className="h-5 w-5 text-[#0C0C0C] dark:text-white" />
+                    </button>
+                ) : (
+                    <div className="h-9 w-9" />
+                )}
+            </div>
+
+            {/* Center: Logo */}
+            <div className="justify-self-center text-2xl font-bold text-orange-500">
                 <Link to="/">LoreCodex</Link>
             </div>
 
             {/* Right section */}
-            <div className="flex items-center gap-4">
+            <div className="justify-self-end flex items-center gap-4">
                 {isAuthenticated ? (
                     <>
                         {/* dropdown del admin*/}
                         {isAdmin && (
                             <DropdownMenu>
-                                <DropdownMenuTrigger className="px-3 py-1 bg-gray-800 text-white rounded hover:bg-gray-700 cursor-pointer">
+                                <DropdownMenuTrigger className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 cursor-pointer">
                                     Admin
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
@@ -80,7 +107,6 @@ const Header: React.FC = () => {
                                 <DropdownMenuItem
                                     onClick={() => {
                                         logout();
-                                        navigate('/login');
                                     }}
                                 >
                                     Logout

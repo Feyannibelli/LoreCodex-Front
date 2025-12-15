@@ -174,7 +174,7 @@ const CreateChallengePage: React.FC = () => {
                                 value={formData.title}
                                 onChange={(e) => handleInputChange('title', e.target.value)}
                                 placeholder="Ej: Completar Dark Souls sin morir"
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#F47E00] focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
                                 required
                             />
                         </div>
@@ -228,7 +228,7 @@ const CreateChallengePage: React.FC = () => {
                                                     placeholder="Buscar juego..."
                                                     value={searchTerm}
                                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-[#F47E00] focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
                                                 />
                                             </div>
                                             <div className="max-h-40 overflow-y-auto">
@@ -303,7 +303,7 @@ const CreateChallengePage: React.FC = () => {
                                     onChange={(e) => handleItemChange(index, e.target.value)}
                                     placeholder="Describe la tarea..."
                                     rows={2}
-                                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#F47E00] focus:border-transparent dark:bg-gray-700 dark:text-white resize-vertical"
+                                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white resize-vertical"
                                     required
                                 />
                                 {formData.items.length > 1 && (
@@ -341,10 +341,10 @@ const CreateChallengePage: React.FC = () => {
                         {loading ? (
                             <>
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                Creando...
+                                Creating...
                             </>
                         ) : (
-                            'Crear Challenge'
+                            'Create Challenge'
                         )}
                     </Button>
                 </div>

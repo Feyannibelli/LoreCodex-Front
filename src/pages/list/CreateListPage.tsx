@@ -169,7 +169,7 @@ const CreateListPage: React.FC = () => {
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
                             placeholder="Enter list title..."
                         />
                     </div>
@@ -194,7 +194,7 @@ const CreateListPage: React.FC = () => {
                         <select
                             value={searchType}
                             onChange={(e) => setSearchType(e.target.value as ListItemType)}
-                            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-600"
                         >
                             <option value={ListItemType.GAME}>Games</option>
                             <option value={ListItemType.GUIDE}>Guides</option>
@@ -206,7 +206,7 @@ const CreateListPage: React.FC = () => {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder={`Search ${searchType.toLowerCase()}s...`}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
                         />
                     </div>
 
@@ -238,7 +238,7 @@ const CreateListPage: React.FC = () => {
                                         <Button
                                             type="button"
                                             onClick={() => addItemToList(item)}
-                                            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
+                                            className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm"
                                         >
                                             Add
                                         </Button>
@@ -302,7 +302,7 @@ const CreateListPage: React.FC = () => {
                     <Button
                         type="submit"
                         disabled={!title.trim() || selectedItems.length === 0 || isSubmitting}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded disabled:opacity-50"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded disabled:opacity-50"
                     >
                         {isSubmitting ? 'Creating...' : 'Create List'}
                     </Button>

@@ -89,8 +89,10 @@ const PublicProfile: React.FC = () => {
                 { isAuthenticated && userId && me?.id !== +userId && (
                     <button
                         onClick={toggleFollow}
-                        className={`ml-auto px-4 py-1 rounded ${
-                            isFollowing ? 'bg-gray-300' : 'bg-blue-600 text-white'
+                        className={`ml-auto px-4 py-1 rounded transition-colors ${
+                            isFollowing
+                                ? 'bg-slate-200 text-slate-800 hover:bg-slate-300'
+                                : 'bg-indigo-600 text-white hover:bg-indigo-700'
                         }`}
                     >
                         {isFollowing ? 'Siguiendo' : 'Seguir'}
@@ -115,7 +117,7 @@ const PublicProfile: React.FC = () => {
                     <ul className="space-y-1">
                         {profile.guides.map(g => (
                             <li key={g.id}>
-                                <Link to={`/guides/${g.id}`} className="text-blue-600 hover:underline">
+                                <Link to={`/guides/${g.id}`} className="text-indigo-600 hover:underline">
                                     {g.title}
                                 </Link>
                             </li>
@@ -133,7 +135,7 @@ const PublicProfile: React.FC = () => {
                     <ul className="space-y-1">
                         {lists.map(l => (
                             <li key={l.id}>
-                                <Link to={`/lists/${l.id}`} className="text-blue-600 hover:underline">
+                                <Link to={`/lists/${l.id}`} className="text-indigo-600 hover:underline">
                                     {l.title}
                                 </Link>
                             </li>
@@ -152,7 +154,7 @@ const PublicProfile: React.FC = () => {
                             <li key={r.id}>
                                 <a
                                     href={`/games/${r.gameId}`}
-                                    className="text-blue-600 hover:underline"
+                                    className="text-indigo-600 hover:underline"
                                 >
                                     {r.gameTitle}: “{r.content.substring(0, 50)}…”
                                 </a>

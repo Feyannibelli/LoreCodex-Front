@@ -230,7 +230,7 @@ export const MentionInput: React.FC<MentionInputProps> = ({
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
-                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${className}`}
+                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent ${className}`}
                 rows={multiline ? rows : undefined}
             />
 
@@ -253,7 +253,7 @@ export const MentionInput: React.FC<MentionInputProps> = ({
                                 key={`${suggestion.type}-${suggestion.id}`}
                                 className={`px-3 py-2 cursor-pointer flex items-center space-x-2 ${
                                     index === mentionState.selectedIndex
-                                        ? 'bg-blue-100 text-blue-800'
+                                        ? 'bg-orange-500/10 text-orange-600'
                                         : 'hover:bg-gray-100'
                                 }`}
                                 onClick={() => selectSuggestion(suggestion)}

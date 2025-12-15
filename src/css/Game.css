@@ -133,7 +133,7 @@
     background-color: white;
     border-bottom: 2px solid white;
     font-weight: 600;
-    color: #3b82f6;
+    color: #F97316;
 }
 
 .tab-content {
@@ -149,7 +149,7 @@
 }
 
 .add-content-button {
-    background-color: #22c55e;
+    background-color: #4F46E5;
     color: white;
     padding: 8px 16px;
     border: none;
@@ -159,7 +159,7 @@
 }
 
 .add-content-button:hover {
-    background-color: #16a34a;
+    background-color: #4338CA;
 }
 
 @media (max-width: 768px) {

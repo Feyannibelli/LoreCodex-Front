@@ -46,12 +46,7 @@ const searchService = {
 
             // Filter by awards
             if (filters.hasAwards) {
-                filteredGames = filteredGames.filter(game =>
-                    game.awards &&
-                    (typeof game.awards === 'string'
-                        ? game.awards.trim() !== ''
-                        : game.awards.length > 0)
-                );
+                filteredGames = filteredGames.filter(game => (game.awards ?? '').trim() !== '');
             }
 
             // Filter by minimum rating

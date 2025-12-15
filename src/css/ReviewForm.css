@@ -57,8 +57,8 @@
 
 .review-textarea textarea:focus {
     outline: none;
-    border-color: #4a76a8;
-    box-shadow: 0 0 0 2px rgba(74, 118, 168, 0.2);
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
 }
 
 .form-actions {
@@ -68,7 +68,7 @@
 }
 
 .submit-button {
-    background-color: #4a76a8;
+    background-color: #4F46E5;
     color: white;
 }
 

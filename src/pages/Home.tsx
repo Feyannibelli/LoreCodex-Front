@@ -26,7 +26,7 @@ const Home: React.FC = () => {
     /* published guides */
     useEffect(() => {
         guideService.getPublishedGuides()
-            .then(guides => {
+            .then((guides: Guide[]) => {
                 // Mostrar las 6 más recientes
                 const recent = guides
                     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())

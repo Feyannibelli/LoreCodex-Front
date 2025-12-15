@@ -59,12 +59,12 @@ const AdminGames: React.FC = () => {
                 {/* CORREGIDO: Solo un conjunto de botones */}
                 <div className="flex gap-3">
                     <Link to="/admin/games/create">
-                        <Button className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
+                        <Button className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700">
                             <Plus size={20} /> Create Game
                         </Button>
                     </Link>
                     <Link to="/admin/games/batch-import">
-                        <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
+                        <Button className="flex items-center gap-2 !bg-transparent !text-indigo-600 !border !border-indigo-600 hover:!bg-indigo-50">
                             <FileJson size={20} /> Batch Import
                         </Button>
                     </Link>

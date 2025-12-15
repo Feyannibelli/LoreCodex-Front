@@ -143,7 +143,7 @@ const CreateListPage: React.FC = () => {
                         placeholder="Ej: Mis juegos favoritos de 2024"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
                         maxLength={100}
                     />
                     <p className="text-sm text-gray-500 mt-1">
@@ -179,7 +179,7 @@ const CreateListPage: React.FC = () => {
                             placeholder="Buscar juegos para agregar..."
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
                         />
                         {suggestions.length > 0 && (
                             <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-48 overflow-auto shadow-lg">
@@ -273,7 +273,7 @@ const CreateListPage: React.FC = () => {
                     <Button
                         onClick={handleSubmit}
                         disabled={loading || !title.trim() || items.length === 0}
-                        className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-8 py-2 rounded-lg font-medium"
+                        className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-8 py-2 rounded-lg font-medium"
                     >
                         {loading ? 'Creando...' : 'Crear Lista'}
                     </Button>
@@ -281,9 +281,9 @@ const CreateListPage: React.FC = () => {
             </div>
 
             {/* Instrucciones */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 className="font-medium text-blue-900 mb-2">💡 Consejos para crear una buena lista</h3>
-                <ul className="text-sm text-blue-800 space-y-1">
+            <div className="bg-indigo-600/10 border border-indigo-600/20 rounded-lg p-4">
+                <h3 className="font-medium text-indigo-700 dark:text-indigo-300 mb-2">💡 Consejos para crear una buena lista</h3>
+                <ul className="text-sm text-indigo-700 dark:text-indigo-300 space-y-1">
                     <li>• Usa un título descriptivo que explique el tema de tu lista</li>
                     <li>• En la descripción, explica los criterios de selección o el contexto</li>
                     <li>• Puedes usar Markdown para formatear la descripción (negrita, cursiva, enlaces, etc.)</li>

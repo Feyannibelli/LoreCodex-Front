@@ -10,6 +10,7 @@ export interface DateFilter {
 export interface FiltersState {
     genres: string[];
     dateFilter: DateFilter;
+    hasAwards: boolean;
     minRating: number | null;
     sortBy: 'popularity' | 'releaseDate' | 'name' | null;
     sortOrder: 'asc' | 'desc';
@@ -29,6 +30,7 @@ const GameFilters: React.FC<GameFiltersProps> = ({
     const [filters, setFilters] = useState<FiltersState>({
         genres: [],
         dateFilter: {},
+        hasAwards: false,
         minRating: null,
         sortBy: null,
         sortOrder: 'desc'
@@ -71,6 +73,7 @@ const GameFilters: React.FC<GameFiltersProps> = ({
         const initialFilters: FiltersState = {
             genres: [],
             dateFilter: {},
+            hasAwards: false,
             minRating: null,
             sortBy: null,
             sortOrder: 'desc'

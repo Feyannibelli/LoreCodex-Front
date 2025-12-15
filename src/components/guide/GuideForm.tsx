@@ -69,7 +69,7 @@ const GuideForm: React.FC<Props> = ({
                         name="title"
                         value={form.title}
                         onChange={handle}
-                        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
                         placeholder="Ej: Guía completa para principiantes..."
                         required
                     />
@@ -84,7 +84,7 @@ const GuideForm: React.FC<Props> = ({
                         name="coverImageUrl"
                         value={form.coverImageUrl ?? ""}
                         onChange={handle}
-                        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
                         placeholder="https://ejemplo.com/imagen.jpg"
                     />
                     {form.coverImageUrl && (
@@ -148,7 +148,7 @@ Puedes mencionar contenido:
                         name="tags"
                         onChange={handleTags}
                         value={form.tags?.join(", ") ?? ""}
-                        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
                         placeholder="tutorial, principiante, estrategia"
                     />
                     {form.tags && form.tags.length > 0 && (
@@ -156,7 +156,7 @@ Puedes mencionar contenido:
                             {form.tags.map((tag, index) => (
                                 <span
                                     key={index}
-                                    className="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs font-medium"
+                                    className="inline-flex items-center px-3 py-1 bg-orange-500/10 text-orange-600 rounded-full text-xs font-medium"
                                 >
                                     #{tag}
                                 </span>
@@ -170,7 +170,7 @@ Puedes mencionar contenido:
                     {/* Primary Save Button */}
                     <button
                         type="submit"
-                        className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium shadow-sm flex items-center justify-center gap-2"
+                        className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-sm flex items-center justify-center gap-2"
                     >
                         💾 {submitLabel}
                     </button>
@@ -180,7 +180,7 @@ Puedes mencionar contenido:
                         <button
                             type="button"
                             onClick={() => onPublish({ ...form, published: true, draft: false })}
-                            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm flex items-center justify-center gap-2"
+                            className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors font-medium shadow-sm flex items-center justify-center gap-2"
                         >
                             🚀 {publishLabel}
                         </button>

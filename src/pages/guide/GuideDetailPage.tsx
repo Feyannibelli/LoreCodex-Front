@@ -40,7 +40,7 @@ const GuideDetailPage: React.FC = () => {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F47E00]"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
                 </div>
             </div>
         );
@@ -103,7 +103,7 @@ const GuideDetailPage: React.FC = () => {
                         {authorUsername ? (
                             <Link
                                 to={`/profile/${guide.authorId}`}
-                                className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                                className="text-indigo-600 hover:underline font-medium"
                             >
                                 {authorUsername}
                             </Link>
@@ -139,7 +139,7 @@ const GuideDetailPage: React.FC = () => {
                         {guide.tags.map((tag, index) => (
                             <span
                                 key={index}
-                                className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium"
+                                className="px-3 py-1 bg-orange-500/10 text-orange-600 rounded-full text-sm font-medium"
                             >
                                 #{tag}
                             </span>
@@ -196,20 +196,20 @@ const GuideDetailPage: React.FC = () => {
                         ) : (
                             <Button
                                 onClick={() => guideService.publish(guide.id).then(setGuide)}
-                                className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700"
                             >
                                 <Upload size={16} />
                                 Publicar
                             </Button>
                         )}
 
-                        <Button
-                            onClick={() => navigate(`/guides/edit/${guide.id}`)}
-                            className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600"
-                        >
-                            <Edit size={16} />
-                            Editar
-                        </Button>
+                    <Button
+                        onClick={() => navigate(`/guides/edit/${guide.id}`)}
+                        className="flex items-center gap-2 !bg-transparent !text-indigo-600 !border !border-indigo-600 hover:!bg-indigo-50"
+                    >
+                        <Edit size={16} />
+                        Editar
+                    </Button>
 
                         <Button
                             onClick={() => {

@@ -29,7 +29,7 @@ const MentionLink: React.FC<MentionLinkProps> = ({ mention, onClick }) => {
     const getTypeColor = (type: string) => {
         switch (type) {
             case 'games':
-                return 'bg-blue-100 text-blue-800 hover:bg-blue-200';
+                return 'bg-indigo-600/10 text-indigo-700 hover:bg-indigo-600/20';
             case 'guides':
                 return 'bg-green-100 text-green-800 hover:bg-green-200';
             case 'challenges':

@@ -21,13 +21,13 @@
 .custom-button.submit-button,
 .custom-button.update-button,
 .custom-button.save-button {
-    background-color: #22c55e;
+    background-color: #4F46E5;
 }
 
 .custom-button.submit-button:hover:not(:disabled),
 .custom-button.update-button:hover:not(:disabled),
 .custom-button.save-button:hover:not(:disabled) {
-    background-color: #16a34a;
+    background-color: #4338CA;
 }
 
 .custom-button.delete-button,
@@ -60,19 +60,19 @@
 
 .custom-button.confirm-button,
 .custom-button.primary-button {
-    background-color: #3b82f6;
+    background-color: #4F46E5;
 }
 
 .custom-button.confirm-button:hover:not(:disabled),
 .custom-button.primary-button:hover:not(:disabled) {
-    background-color: #2563eb;
+    background-color: #4338CA;
 }
 
-.custom-button:not([class*="-button"]) {
+.custom-button:not([class*="-button"]):not([class*="bg-"]) {
     background-color: #333;
 }
 
-.custom-button:not([class*="-button"]):hover:not(:disabled) {
+.custom-button:not([class*="-button"]):not([class*="bg-"]):hover:not(:disabled) {
     background-color: #555;
 }
 

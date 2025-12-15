@@ -57,11 +57,11 @@ const CommentItem: React.FC<CommentItemProps> = ({
     };
 
     return (
-        <div className={`border-l-2 ${level === 0 ? 'border-blue-200 dark:border-blue-800' : 'border-gray-200 dark:border-gray-700'} pl-4 py-3`}>
+        <div className={`border-l-2 ${level === 0 ? 'border-orange-500/30' : 'border-gray-200 dark:border-gray-700'} pl-4 py-3`}>
             {/* Header del comentario */}
             <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-orange-500 flex items-center justify-center text-white font-semibold text-sm">
                         {comment.username[0].toUpperCase()}
                     </div>
                     <div>
@@ -101,7 +101,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                 {currentUser && level < maxLevel && (
                     <button
                         onClick={() => setShowReplyBox(!showReplyBox)}
-                        className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+                        className="flex items-center gap-1 text-indigo-600 hover:text-indigo-700 font-medium"
                     >
                         <Reply size={14} />
                         Responder
@@ -126,7 +126,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}
               placeholder="Escribe tu respuesta..."
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
               rows={3}
           />
                     <div className="flex justify-end gap-2 mt-2">
@@ -139,7 +139,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                         <button
                             onClick={handleReply}
                             disabled={!replyContent.trim() || isReplying}
-                            className="flex items-center gap-1 px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-1 px-3 py-1 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <Send size={14} />
                             {isReplying ? 'Enviando...' : 'Responder'}

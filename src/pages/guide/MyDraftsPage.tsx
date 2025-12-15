@@ -10,7 +10,7 @@ import { FileEdit, ArrowLeft } from "lucide-react";
 const MyDraftsPage: React.FC = () => {
     const { user } = useAuth();
 
-    const fetchDrafts = useCallback(async (page: number, pageSize: number): Promise<Guide[]> => {
+    const fetchDrafts = useCallback(async (_page: number, _pageSize: number): Promise<Guide[]> => {
         if (!user) return [];
         return await guideService.getDraftsByUser(user.id);
     }, [user]);
@@ -58,7 +58,7 @@ const MyDraftsPage: React.FC = () => {
 
             {loading && drafts.length === 0 ? (
                 <div className="flex justify-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
                 </div>
             ) : drafts.length === 0 ? (
                 <div className="text-center py-12">
@@ -66,15 +66,15 @@ const MyDraftsPage: React.FC = () => {
                     <p className="text-gray-500 dark:text-gray-400 text-lg mb-4">No drafts yet.</p>
                     <Link
                         to="/guides/create"
-                        className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                        className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                     >
                         Create Your First Guide
                     </Link>
                 </div>
             ) : (
                 <>
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-                        <p className="text-sm text-blue-800 dark:text-blue-200">
+                    <div className="bg-indigo-600/10 border border-indigo-600/20 rounded-lg p-4 mb-6">
+                        <p className="text-sm text-indigo-700 dark:text-indigo-300">
                             💡 <strong>Tip:</strong> Drafts are only visible to you. Publish them to share with others!
                         </p>
                     </div>
@@ -121,7 +121,7 @@ const MyDraftsPage: React.FC = () => {
                                         </span>
                                         <Link
                                             to={`/guides/edit/${d.id}`}
-                                            className="inline-flex items-center justify-center gap-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+                                            className="inline-flex items-center justify-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
                                         >
                                             <FileEdit size={16} />
                                             Edit

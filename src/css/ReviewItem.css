@@ -22,7 +22,7 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background-color: #4a76a8;
+    background-color: #4F46E5;
     color: white;
     display: flex;
     align-items: center;
@@ -90,7 +90,7 @@
 }
 
 .like-button.active, .dislike-button.active {
-    color: #4a76a8;
+    color: #4F46E5;
     font-weight: 500;
 }
 

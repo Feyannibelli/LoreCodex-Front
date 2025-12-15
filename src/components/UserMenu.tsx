@@ -1,44 +1,74 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 const UserMenu: React.FC = () => {
     return (
-        <nav className="bg-gray-100 p-4 flex gap-4 justify-center">
-            <Link
+        <nav className="bg-slate-50 border-b border-slate-200 px-4 py-3 flex gap-6 justify-center">
+            <NavLink
                 to="/guides"
-                className="text-gray-700 hover:text-blue-500 font-semibold"
+                className={({ isActive }) =>
+                    `font-semibold transition-colors ${
+                        isActive
+                            ? 'text-orange-600 border-b-2 border-orange-500 pb-1'
+                            : 'text-slate-700 hover:text-indigo-600'
+                    }`
+                }
             >
                 Guides
-            </Link>
+            </NavLink>
 
-            <Link
+            <NavLink
                 to="/games"
-                className="text-gray-700 hover:text-blue-500 font-semibold"
+                className={({ isActive }) =>
+                    `font-semibold transition-colors ${
+                        isActive
+                            ? 'text-orange-600 border-b-2 border-orange-500 pb-1'
+                            : 'text-slate-700 hover:text-indigo-600'
+                    }`
+                }
             >
                 Games
-            </Link>
+            </NavLink>
 
-            <Link
+            <NavLink
                 to="/lists"
-                className="text-gray-700 hover:text-blue-500 font-semibold"
+                className={({ isActive }) =>
+                    `font-semibold transition-colors ${
+                        isActive
+                            ? 'text-orange-600 border-b-2 border-orange-500 pb-1'
+                            : 'text-slate-700 hover:text-indigo-600'
+                    }`
+                }
             >
                 Lists
-            </Link>
+            </NavLink>
 
-            <Link
+            <NavLink
                 to="/challenges"
-                className="text-gray-700 hover:text-blue-500 font-semibold"
+                className={({ isActive }) =>
+                    `font-semibold transition-colors ${
+                        isActive
+                            ? 'text-orange-600 border-b-2 border-orange-500 pb-1'
+                            : 'text-slate-700 hover:text-indigo-600'
+                    }`
+                }
             >
                 Challenges
-            </Link>
+            </NavLink>
 
             {/* NUEVO enlace */}
-            <Link
+            <NavLink
                 to="/news"
-                className="text-gray-700 hover:text-blue-500 font-semibold"
+                className={({ isActive }) =>
+                    `font-semibold transition-colors ${
+                        isActive
+                            ? 'text-orange-600 border-b-2 border-orange-500 pb-1'
+                            : 'text-slate-700 hover:text-indigo-600'
+                    }`
+                }
             >
                 News
-            </Link>
+            </NavLink>
         </nav>
     );
 };

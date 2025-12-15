@@ -8,7 +8,7 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/": ["./src/"]
+      "@/*": ["./src/*"]
     },
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "bundler",
