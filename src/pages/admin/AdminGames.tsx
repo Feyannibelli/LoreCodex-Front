@@ -22,8 +22,8 @@ const AdminGames: React.FC = () => {
     const loadGames = async () => {
         try {
             setLoading(true);
-            const data = await gameService.getAllGames();
-            setGames(data);
+            const data = await gameService.getLibraryGamesPaginated(0, 50);
+            setGames(data.content);
             setError(null);
         } catch (err) {
             console.error("Error loading games:", err);
@@ -96,9 +96,9 @@ const AdminGames: React.FC = () => {
                                     games.map((game) => (
                                         <tr key={game.id} className="hover:bg-muted/30 transition-colors">
                                             <td className="p-4 text-foreground">{game.id}</td>
-                                            <td className="p-4 text-foreground font-medium">{game.name}</td>
-                                            <td className="p-4 text-muted-foreground">{game.genre}</td>
-                                            <td className="p-4 text-muted-foreground">{new Date(game.releaseDate).toLocaleDateString()}</td>
+                                            <td className="p-4 text-foreground font-medium">{game.title}</td>
+                                            <td className="p-4 text-muted-foreground">{game.genres?.join(", ") || "N/A"}</td>
+                                            <td className="p-4 text-muted-foreground">{game.releaseDate ? new Date(game.releaseDate).toLocaleDateString() : 'N/A'}</td>
                                             <td className="p-4 text-right">
                                                 <div className="flex justify-end gap-2">
                                                     <Button
@@ -134,7 +134,7 @@ const AdminGames: React.FC = () => {
                     onClose={() => setIsDeleteModalOpen(false)}
                     onConfirm={confirmDelete}
                     title="Confirm deletion"
-                    message={`Are you sure you want to delete the game "${gameToDelete?.name}"? This action cannot be undone.`}
+                    message={`Are you sure you want to delete the game "${gameToDelete?.title}"? This action cannot be undone.`}
                 />
             </div>
         </div>

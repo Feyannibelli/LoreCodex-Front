@@ -6,7 +6,7 @@ import Register from './pages/Register'
 import Header from './components/Header'
 import Profile from './pages/Profile'
 import AdminUsers from './pages/admin/AdminUsers.tsx'
-import Games from './pages/game/Games.tsx'
+
 import AdminGames from './pages/admin/AdminGames.tsx'
 import CreateGame from './pages/game/CreateGame.tsx'
 import EditGame from './pages/admin/EditGame.tsx'
@@ -88,8 +88,9 @@ const App: React.FC = () => {
 
 
                 {/* Protected routes for admins only */}
-                <Route path="/games" element={<Games />} />
+                {/* <Route path="/games" element={<Games />} /> Route collision removed */}
                 <Route path="/games/:id" element={<Game />} />
+                <Route path="/games/igdb/:igdbId" element={<Game />} />
                 <Route
                     path="/admin/users"
                     element={

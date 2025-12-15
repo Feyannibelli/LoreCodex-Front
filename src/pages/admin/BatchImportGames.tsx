@@ -189,14 +189,6 @@ const BatchImportGames: React.FC = () => {
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
-                    <button
-                        onClick={() => navigate('/admin/games')}
-                        className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
-                    >
-                        <ArrowLeft size={20} />
-                        Volver a Gestión de Juegos
-                    </button>
-
                     <div className="bg-card rounded-xl border border-border shadow-sm p-6">
                         <div className="flex items-center gap-3 mb-2">
                             <FileJson className="text-primary" size={32} />

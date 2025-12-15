@@ -31,8 +31,8 @@ const CreateListPage: React.FC = () => {
         }
         const handler = setTimeout(() => {
             gameService
-                .searchGamesByName(query)
-                .then(setSuggestions)
+                .searchGamesPaginated(query, 0, 10) // Search 1st page, 10 results
+                .then(response => setSuggestions(response.content))
                 .catch(console.error);
         }, 300);
         return () => clearTimeout(handler);

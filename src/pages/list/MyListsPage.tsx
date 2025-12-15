@@ -21,7 +21,7 @@ const MyListsPage: React.FC = () => {
         error,
         loadMore,
         refresh
-    } = useInfiniteScroll({
+    } = useInfiniteScroll<UserListResponse>({
         fetchFunction: fetchUserLists,
         pageSize: 12
     });

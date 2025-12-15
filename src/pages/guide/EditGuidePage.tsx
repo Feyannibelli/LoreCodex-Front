@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import guideService from "../../services/guideService.ts";
-import {Guide, GuideForm as Form} from "../../interfaces/Guide";
+import { Guide, GuideForm as Form } from "../../interfaces/Guide";
 import GuideForm from "../../components/guide/GuideForm.tsx";
 
 
@@ -14,7 +14,7 @@ const EditGuidePage: React.FC = () => {
         if (id) guideService.getById(+id).then(setGuide);
     }, [id]);
 
-    if (!guide) return <div className="p-4">Loading…</div>;
+    if (!guide) return <div className="p-20 text-center">Loading editor...</div>;
 
     /* --- callbacks --- */
     const saveDraft = (data: Form) => {
@@ -27,23 +27,29 @@ const EditGuidePage: React.FC = () => {
         guideService.update(guide.id, payload).then(g => navigate(`/guides/${g.id}`));
     };
 
+    const breadcrumbs = [
+        { label: "Home", href: "/" },
+        { label: "Guides", href: "/guides" },
+        { label: "Edit Guide" } // Could append guide.title if desired
+    ];
+
     return (
-        <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">Edit Guide</h1>
-            <GuideForm
-                initial={{
-                    title: guide.title,
-                    content: guide.content,
-                    coverImageUrl: guide.coverImageUrl ?? "",
-                    tags: guide.tags,
-                    published: guide.published,
-                    draft: guide.draft,
-                }}
-                submitLabel="Save draft"
-                onSubmit={saveDraft}     // botón gris “Save draft”
-                onPublish={publishGuide} // botón verde “Publish”
-            />
-        </div>
+        <GuideForm
+            initial={{
+                title: guide.title,
+                content: guide.content,
+                coverImageUrl: guide.coverImageUrl ?? "",
+                tags: guide.tags,
+                published: guide.published,
+                draft: guide.draft,
+            }}
+            pageTitle={`Edit: ${guide.title}`}
+            breadcrumbs={breadcrumbs}
+            submitLabel="Save changes"
+            onSubmit={saveDraft}
+            onPublish={publishGuide}
+            publishLabel={guide.published ? "Update & Publish" : "Publish Guide"}
+        />
     );
 };
 

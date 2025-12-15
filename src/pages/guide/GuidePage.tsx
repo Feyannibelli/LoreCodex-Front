@@ -25,7 +25,7 @@ const GuidePage: React.FC = () => {
         hasMore,
         error,
         loadMore
-    } = useInfiniteScroll({
+    } = useInfiniteScroll<Guide>({
         fetchFunction: fetchGuides,
         pageSize: 10
     });

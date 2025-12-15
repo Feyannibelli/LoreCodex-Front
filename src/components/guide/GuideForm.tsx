@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GuideForm as Form } from "../../interfaces/Guide";
 import UnifiedContentEditor from "../UnifiedContentEditor";
-import Input from "../ui/Input";
+import ProInput from "../ui/ProInput";
+import ProEditorLayout from "../layout/ProEditorLayout";
 import Button from "../Button";
-import { Save, Send } from "lucide-react";
+import { Save, Send, Image as ImageIcon, Tag, Hash, FileText, Eye } from "lucide-react";
+import { cn } from "../../lib/utils";
 
 interface Props {
     initial?: Form;
@@ -11,6 +13,8 @@ interface Props {
     onSubmit: (data: Form) => void;
     onPublish?: (data: Form) => void;
     publishLabel?: string;
+    pageTitle: string;
+    breadcrumbs: { label: string; href?: string }[];
 }
 
 const GuideForm: React.FC<Props> = ({
@@ -18,8 +22,11 @@ const GuideForm: React.FC<Props> = ({
     submitLabel,
     onSubmit,
     onPublish,
-    publishLabel = "Publish Guide"
+    publishLabel = "Publish Guide",
+    pageTitle,
+    breadcrumbs
 }) => {
+    // Form State
     const [form, setForm] = useState<Form>(
         initial ?? {
             title: "",
@@ -31,16 +38,21 @@ const GuideForm: React.FC<Props> = ({
         }
     );
 
-    const handle = (
+    // Save Status State (simulated for UI feedback)
+    const [status, setStatus] = useState<'saved' | 'unsaved' | 'saving'>('saved');
+
+    // Mark as unsaved on change
+    useEffect(() => {
+        setStatus('unsaved');
+    }, [form]);
+
+    const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         const { name, value, type } = e.target;
         setForm(prev => ({
             ...prev,
-            [name]:
-                type === "checkbox"
-                    ? (e.target as HTMLInputElement).checked
-                    : value,
+            [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
         }));
     };
 
@@ -54,147 +66,156 @@ const GuideForm: React.FC<Props> = ({
             tags: e.target.value.split(",").map(t => t.trim()).filter(Boolean),
         }));
 
-    return (
-        <div className="space-y-8 max-w-4xl mx-auto">
-            <form
-                onSubmit={e => {
-                    e.preventDefault();
-                    onSubmit(form);
-                }}
-                className="space-y-8"
+    const handleSubmit = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        setStatus('saving');
+        onSubmit(form);
+    };
+
+    const handlePublish = () => {
+        if (onPublish) {
+            setStatus('saving');
+            onPublish({ ...form, published: true, draft: false });
+        }
+    };
+
+    // Actions Component for Header
+    const FormActions = (
+        <div className="flex items-center gap-2">
+            <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleSubmit()}
+                className="text-muted-foreground hover:text-foreground hidden sm:flex"
             >
-                {/* Title */}
-                <div className="space-y-2">
-                    <Input
-                        label="Guide Title *"
-                        name="title"
-                        value={form.title}
-                        onChange={handle}
-                        placeholder="Ex: Complete guide for beginners..."
-                        required
-                        className="bg-secondary/30 border-white/5 focus:border-primary/50 text-lg py-6"
-                    />
-                </div>
+                <Save className="h-4 w-4 mr-2" />
+                {submitLabel}
+            </Button>
 
-                {/* Cover Image URL */}
-                <div className="space-y-4">
-                    <Input
-                        label="Cover Image URL (Optional)"
-                        name="coverImageUrl"
-                        value={form.coverImageUrl ?? ""}
-                        onChange={handle}
-                        placeholder="https://example.com/image.jpg"
-                        className="bg-secondary/30 border-white/5"
-                    />
+            {onPublish && (
+                <Button
+                    variant="primary" // Assuming you have a primary variant or use default/className
+                    size="sm"
+                    onClick={handlePublish}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shadow-primary/20"
+                >
+                    <Send className="h-4 w-4 mr-2" />
+                    {publishLabel}
+                </Button>
+            )}
+        </div>
+    );
 
-                    {form.coverImageUrl && (
-                        <div className="mt-4 p-4 rounded-xl border border-white/5 bg-secondary/20 backdrop-blur-sm">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
-                                Preview
-                            </p>
-                            <div className="relative aspect-video max-w-sm rounded-lg overflow-hidden bg-background shadow-lg">
-                                <img
-                                    src={form.coverImageUrl}
-                                    alt="Cover preview"
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                        (e.target as HTMLImageElement).style.display = 'none';
-                                    }}
-                                />
+    return (
+        <ProEditorLayout
+            title={pageTitle}
+            breadcrumbs={breadcrumbs}
+            actions={FormActions}
+            status={status}
+            className="pb-20"
+        >
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Left Column: Basics & Metadata (Sticky on Desktop) */}
+                <div className="space-y-6 lg:col-span-1">
+                    {/* BASICS CARD */}
+                    <div className="rounded-xl border border-white/5 bg-card/60 backdrop-blur-sm p-5 space-y-6">
+                        <div className="flex items-center gap-2 text-muted-foreground pb-2 border-b border-white/5">
+                            <FileText className="h-4 w-4" />
+                            <h3 className="text-xs font-bold uppercase tracking-wider">Basics</h3>
+                        </div>
+
+                        <ProInput
+                            label="Title"
+                            name="title"
+                            value={form.title}
+                            onChange={handleChange}
+                            placeholder="Guide Title"
+                            required
+                            icon={Hash}
+                        />
+
+                        <div className="space-y-3">
+                            <ProInput
+                                label="Cover Image"
+                                name="coverImageUrl"
+                                value={form.coverImageUrl ?? ""}
+                                onChange={handleChange}
+                                placeholder="https://..."
+                                icon={ImageIcon}
+                            />
+
+                            {/* Small Cover Preview */}
+                            <div className="aspect-video w-full rounded-lg bg-black/40 border border-white/5 overflow-hidden relative group">
+                                {form.coverImageUrl ? (
+                                    <img
+                                        src={form.coverImageUrl}
+                                        alt="Preview"
+                                        className="w-full h-full object-cover transition-opacity group-hover:opacity-80"
+                                        onError={(e) => (e.currentTarget.style.display = 'none')}
+                                    />
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground/40">
+                                        <ImageIcon className="h-8 w-8 mb-2" />
+                                        <span className="text-xs">No cover image</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
-                    )}
-                </div>
+                    </div>
 
-                {/* Content - UNIFIED */}
-                <div className="space-y-2">
-                    <UnifiedContentEditor
-                        label="Guide Content *"
-                        value={form.content}
-                        onChange={handleContentChange}
-                        rows={20}
-                        placeholder="Write your guide using Markdown...
-
-# Main Title
-## Subtitle
-### Section
-
-**Bold text** and *italic text*
-
-- List item 1
-- List item 2
-
-[Link text](https://example.com)
-
-`code snippet`
-
-> This is a quote
-
-You can mention content:
-• /games/ to mention games
-• /guides/ to reference other guides
-• /challenges/ to mention challenges
-• /lists/ to reference lists
-• /news/ to mention news"
-                        helpText="Write your full guide. Use Markdown for rich formatting and mentions to reference other platform content."
-                    />
-                </div>
-
-                {/* Tags */}
-                <div className="space-y-3">
-                    <Input
-                        label="Tags (Optional)"
-                        name="tags"
-                        onChange={handleTags}
-                        value={form.tags?.join(", ") ?? ""}
-                        helperText="Separate tags with commas"
-                        placeholder="tutorial, beginner, strategy"
-                        className="bg-secondary/30 border-white/5"
-                    />
-
-                    {form.tags && form.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 pt-1">
-                            {form.tags.map((tag, index) => (
-                                <span
-                                    key={index}
-                                    className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 shadow-sm"
-                                >
-                                    #{tag}
-                                </span>
-                            ))}
+                    {/* METADATA CARD */}
+                    <div className="rounded-xl border border-white/5 bg-card/60 backdrop-blur-sm p-5 space-y-6">
+                        <div className="flex items-center gap-2 text-muted-foreground pb-2 border-b border-white/5">
+                            <Tag className="h-4 w-4" />
+                            <h3 className="text-xs font-bold uppercase tracking-wider">Metadata</h3>
                         </div>
-                    )}
+
+                        <div className="space-y-2">
+                            <ProInput
+                                label="Tags"
+                                name="tags"
+                                value={form.tags?.join(", ") ?? ""}
+                                onChange={handleTags}
+                                placeholder="comma, separated, tags"
+                                helperText="Press comma to separate"
+                                icon={Tag}
+                            />
+                            {/* Tags Preview Pills */}
+                            {form.tags && form.tags.length > 0 && (
+                                <div className="flex flex-wrap gap-2 pt-2">
+                                    {form.tags.map((tag, i) => (
+                                        <span key={i} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary border border-primary/20">
+                                            #{tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-white/5">
-                    {/* Primary Save Button */}
-                    <Button
-                        type="submit"
-                        variant="secondary"
-                        size="lg"
-                        className="w-full sm:w-auto font-semibold gap-2"
-                    >
-                        <Save className="h-4 w-4" />
-                        {submitLabel}
-                    </Button>
+                {/* Right Column: Main Content Editor */}
+                <div className="lg:col-span-2 min-h-[500px]">
+                    <div className="rounded-xl border border-white/5 bg-card/90 shadow-sm overflow-hidden h-full flex flex-col">
+                        {/* Optional Toolbar Header provided by UnifiedContentEditor logic usually, simplified here */}
+                        <div className="p-1 border-b border-white/5 bg-muted/20 flex items-center justify-between px-4 py-2">
+                            <span className="text-xs font-medium text-muted-foreground uppercase">MD Editor</span>
+                            <Eye className="h-3 w-3 text-muted-foreground" />
+                        </div>
 
-                    {/* Publish Button (if available) */}
-                    {onPublish && (
-                        <Button
-                            type="button"
-                            variant="default"
-                            size="lg"
-                            onClick={() => onPublish({ ...form, published: true, draft: false })}
-                            className="w-full sm:w-auto font-bold shadow-lg shadow-primary/20 gap-2"
-                        >
-                            <Send className="h-4 w-4" />
-                            {publishLabel}
-                        </Button>
-                    )}
+                        <div className="flex-1 p-0">
+                            {/* Passing a wrapper style via className logic if supported, or modifying UnifiedContentEditor */}
+                            <UnifiedContentEditor
+                                value={form.content}
+                                onChange={handleContentChange}
+                                rows={30}
+                                placeholder="# Start writing your masterpiece..."
+                            />
+                        </div>
+                    </div>
                 </div>
-            </form>
-        </div>
+            </div>
+        </ProEditorLayout>
     );
 };
 

@@ -41,10 +41,17 @@ const Home: React.FC = () => {
     const loadGames = async () => {
         try {
             setLoading(true);
-            const allGames = await gameService.getAllGames();
+            // Use internal /games/allGames endpoint to fetch games
+            const response = await gameService.getLibraryGamesPaginated(0, 24, 'rating,desc');
+            const allGames = response.content;
 
+            // Logic to simulate "Recently Added" and "Popular" from the fetched batch
             const recent = [...allGames]
-                .sort((a, b) => +new Date(b.releaseDate) - +new Date(a.releaseDate))
+                .sort((a, b) => {
+                    const dateA = a.releaseDate ? new Date(a.releaseDate).getTime() : 0;
+                    const dateB = b.releaseDate ? new Date(b.releaseDate).getTime() : 0;
+                    return dateB - dateA;
+                })
                 .slice(0, 10);
 
             const popular = [...allGames]
@@ -215,13 +222,13 @@ const Home: React.FC = () => {
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
                                 {recentlyAdded.map(game => (
                                     <Link
-                                        key={game.id}
+                                        key={game.id ?? game.igdbId ?? Math.random()}
                                         to={`/games/${game.id}`}
                                         className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-card shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10"
                                     >
                                         <div className="aspect-[3/4] w-full overflow-hidden bg-muted relative">
-                                            {game.imageUrl ? (
-                                                <img src={game.imageUrl} alt={game.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                            {game.coverImage ? (
+                                                <img src={game.coverImage} alt={game.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                             ) : (
                                                 <div className="flex h-full items-center justify-center text-muted-foreground">Game</div>
                                             )}
@@ -231,10 +238,10 @@ const Home: React.FC = () => {
 
                                         <div className="p-4 bg-card group-hover:bg-card/80 transition-colors">
                                             <h3 className="text-sm font-semibold text-foreground line-clamp-1 mb-1 group-hover:text-primary transition-colors">
-                                                {game.name}
+                                                {game.title}
                                             </h3>
                                             <p className="text-xs text-muted-foreground">
-                                                {new Date(game.releaseDate).getFullYear()}
+                                                {game.releaseDate ? new Date(game.releaseDate).getFullYear() : 'N/A'}
                                             </p>
                                         </div>
 
@@ -263,25 +270,25 @@ const Home: React.FC = () => {
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
                                 {popularGames.map(game => (
                                     <Link
-                                        key={game.id}
+                                        key={game.id ?? game.igdbId ?? Math.random()}
                                         to={`/games/${game.id}`}
                                         className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-card shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10"
                                     >
                                         <div className="aspect-[3/4] w-full overflow-hidden bg-muted relative">
-                                            {game.imageUrl ? (
-                                                <img src={game.imageUrl} alt={game.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                            {game.coverImage ? (
+                                                <img src={game.coverImage} alt={game.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                             ) : (
                                                 <div className="flex h-full items-center justify-center text-muted-foreground">Game</div>
                                             )}
                                         </div>
                                         <div className="p-4 bg-card border-t border-white/5">
                                             <h3 className="text-sm font-semibold text-foreground line-clamp-1 mb-1 group-hover:text-primary transition-colors">
-                                                {game.name}
+                                                {game.title}
                                             </h3>
                                             <div className="flex items-center justify-between">
-                                                <span className="text-xs text-muted-foreground">{game.genre}</span>
-                                                {game.averageRating && (
-                                                    <span className="text-xs font-semibold text-amber-400">★ {game.averageRating}</span>
+                                                <span className="text-xs text-muted-foreground">{game.genres?.[0] || 'Game'}</span>
+                                                {game.averageRating !== null && game.averageRating !== undefined && game.averageRating > 0 && (
+                                                    <span className="text-xs font-semibold text-amber-400">★ {game.averageRating.toFixed(1)}</span>
                                                 )}
                                             </div>
                                         </div>

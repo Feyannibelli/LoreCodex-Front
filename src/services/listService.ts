@@ -93,5 +93,17 @@ export const listService = {
     getListAuthor: async (listId: number): Promise<string> => {
         const response = await api.get(`/lists/${listId}/author`);
         return response.data;
+    },
+
+    // Get list by ID
+    getListById: async (listId: number): Promise<UserListResponse> => {
+        const response = await api.get(`/lists/${listId}`);
+        return response.data;
+    },
+
+    // Update a list
+    updateList: async (listId: number, listData: UserListRequest): Promise<UserListResponse> => {
+        const response = await apiAuth.put(`/lists/${listId}/update`, listData);
+        return response.data;
     }
 };

@@ -22,8 +22,10 @@ const searchService = {
             // Filter by genres
             if (filters.genres.length > 0) {
                 filteredGames = filteredGames.filter(game =>
-                    filters.genres.some(genre =>
-                        game.genre.toLowerCase() === genre.toLowerCase()
+                    filters.genres.some(filterGenre =>
+                        game.genres.some(gameGenre =>
+                            gameGenre.toLowerCase() === filterGenre.toLowerCase()
+                        )
                     )
                 );
             }
@@ -92,8 +94,12 @@ const searchService = {
         const genres = new Set<string>();
 
         games.forEach(game => {
-            if (game.genre && game.genre.trim() !== '') {
-                genres.add(game.genre.trim());
+            if (game.genres && Array.isArray(game.genres)) {
+                game.genres.forEach(g => {
+                    if (g.trim() !== '') {
+                        genres.add(g.trim());
+                    }
+                });
             }
         });
 

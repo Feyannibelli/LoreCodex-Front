@@ -35,12 +35,12 @@ const EditGame: React.FC = () => {
                     console.log('originalDate:', gameData.releaseDate);
 
                     setFormData({
-                        name: gameData.name,
+                        name: gameData.title,
                         description: gameData.description,
-                        genre: gameData.genre,
-                        releaseDate: gameData.releaseDate,
-                        imageUrl: gameData.imageUrl || "",
-                        awards: gameData.awards || ""
+                        genre: gameData.genres?.[0] || "",
+                        releaseDate: gameData.releaseDate || "",
+                        imageUrl: gameData.coverImage || "",
+                        awards: gameData.awards?.join(", ") || ""
                     });
                     setError(null);
                 }

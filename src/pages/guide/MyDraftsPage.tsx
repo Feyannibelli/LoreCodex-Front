@@ -21,7 +21,7 @@ const MyDraftsPage: React.FC = () => {
         hasMore,
         error,
         loadMore
-    } = useInfiniteScroll({
+    } = useInfiniteScroll<Guide>({
         fetchFunction: fetchDrafts,
         pageSize: 10
     });

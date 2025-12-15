@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Mail, User as UserIcon } from 'lucide-react';
+import { Mail, Bell, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useAuth0 } from '@auth0/auth0-react';
 import emailService from '../services/emailService';
-import PrimaryButton from '../components/ui/PrimaryButton';
-import SecondaryButton from '../components/ui/SecondaryButton';
-import PageHero from '../components/ui/PageHero';
+import Button from '../components/Button';
+import SettingsLayout from '../components/settings/SettingsLayout';
+import SettingsSectionCard from '../components/settings/SettingsSectionCard';
 
 type ClaimRecord = Record<string, unknown> | null;
 
@@ -94,16 +94,16 @@ const Profile: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-slate-50 py-16">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            <div className="flex min-h-screen items-center justify-center bg-background py-16">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
         );
     }
 
     if (!backendUser && !auth0User) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-slate-50 py-16">
-                <p className="text-slate-600 text-lg">User not found.</p>
+            <div className="flex min-h-screen items-center justify-center bg-background py-16">
+                <p className="text-muted-foreground text-lg">User not found.</p>
             </div>
         );
     }
@@ -123,112 +123,202 @@ const Profile: React.FC = () => {
     const userInitial = (displayName?.charAt(0) || 'U').toUpperCase();
 
     return (
-        <div className="bg-slate-50 min-h-screen py-12">
-            <div className="mx-auto max-w-5xl space-y-8 px-4">
-                {successMessage && (
-                    <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 shadow-sm">
-                        {successMessage}
-                    </div>
-                )}
-                {errorMessage && (
-                    <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 shadow-sm">
-                        {errorMessage}
-                    </div>
-                )}
-
-                <PageHero
-                    title="Your profile"
-                    subtitle="Account overview"
-                    description="Gestioná tu cuenta, actualizá notificaciones y revisá tus accesos desde este espacio."
-                    actions={
-                        <SecondaryButton type="button" onClick={logout}>
-                            Logout
-                        </SecondaryButton>
-                    }
+        <SettingsLayout
+            breadcrumbs={[
+                { label: 'Account', href: '/profile' },
+                { label: 'Profile' }
+            ]}
+            title="Profile"
+            description="Manage your account settings and preferences"
+            actions={
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={logout}
+                    className="gap-2"
                 >
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center">
-                        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-indigo-600 text-3xl font-bold text-white shadow-lg">
-                            {profilePicture ? (
-                                <img src={profilePicture} alt="Profile" className="h-full w-full rounded-2xl object-cover" />
-                            ) : (
-                                userInitial
-                            )}
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                </Button>
+            }
+        >
+            {/* Success/Error Messages */}
+            {successMessage && (
+                <div className="rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm text-green-400 shadow-sm backdrop-blur-sm animate-fade-in">
+                    {successMessage}
+                </div>
+            )}
+            {errorMessage && (
+                <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400 shadow-sm backdrop-blur-sm animate-fade-in">
+                    {errorMessage}
+                </div>
+            )}
+
+            {/* Profile Header - Compact */}
+            <SettingsSectionCard className="relative overflow-hidden">
+                {/* Subtle gradient background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50" />
+
+                <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                    {/* Avatar + Info */}
+                    <div className="flex items-center gap-4">
+                        {/* Avatar */}
+                        <div className="relative group cursor-pointer">
+                            <div className="h-20 w-20 rounded-2xl border-2 border-white/10 bg-secondary/50 flex items-center justify-center text-2xl font-bold text-foreground overflow-hidden transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-lg group-hover:shadow-primary/20">
+                                {profilePicture ? (
+                                    <img
+                                        src={profilePicture}
+                                        alt="Profile"
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="bg-gradient-to-br from-primary/20 to-primary/5 bg-clip-text text-transparent">
+                                        {userInitial}
+                                    </span>
+                                )}
+                            </div>
+                            {/* Hover overlay */}
+                            <div className="absolute inset-0 rounded-2xl bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span className="text-xs font-medium text-primary">Edit</span>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-lg font-semibold text-slate-900">{displayName}</p>
-                            <p className="flex items-center gap-2 text-sm text-slate-500">
-                                <Mail className="h-4 w-4 text-slate-400" />
+
+                        {/* Name + Email */}
+                        <div className="space-y-1">
+                            <h2 className="text-2xl font-bold text-foreground">
+                                {displayName}
+                            </h2>
+                            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Mail className="h-3.5 w-3.5" />
                                 {displayEmail}
                             </p>
                         </div>
                     </div>
-                </PageHero>
 
-                <div className="rounded-3xl border border-slate-200 bg-white px-8 py-10 shadow-sm space-y-6">
-                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                        <div>
-                            <p className="text-sm font-semibold uppercase tracking-widest text-indigo-600">Email notifications</p>
-                            <p className="text-slate-600">Manténte al tanto de novedades y actividades importantes.</p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <label className="relative inline-flex cursor-pointer items-center">
-                                <input
-                                    type="checkbox"
-                                    checked={emailNotificationsEnabled}
-                                    onChange={(event) => handleEmailNotificationToggle(event.target.checked)}
-                                    disabled={updatingNotifications}
-                                    className="peer sr-only"
-                                />
-                                <span className="h-6 w-11 rounded-full border border-slate-300 bg-slate-100 transition peer-checked:border-indigo-600 peer-checked:bg-indigo-600" />
-                                <span className="absolute left-0.5 top-0.5 h-5 w-5 translate-y-0.5 rounded-full bg-white shadow transition peer-checked:translate-x-5" />
-                            </label>
-                            <span className="text-sm text-slate-600">{emailNotificationsEnabled ? 'Enabled' : 'Disabled'}</span>
-                        </div>
+                    {/* Optional: Edit Profile Button */}
+                    {/* <Button variant="outline" size="sm">
+                        Edit Profile
+                    </Button> */}
+                </div>
+            </SettingsSectionCard>
+
+            {/* Account Information - Settings Style Rows */}
+            <SettingsSectionCard
+                title="Account Information"
+                description="Your account details and membership info"
+            >
+                <div className="space-y-1">
+                    {/* Username Row */}
+                    <div className="flex items-center justify-between py-3 border-b border-white/5">
+                        <span className="text-sm text-muted-foreground">Username</span>
+                        <span className="font-medium text-foreground">{displayName}</span>
                     </div>
 
-                    {emailNotificationsEnabled && (
-                        <div className="rounded-2xl border border-slate-100 bg-slate-50 px-6 py-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-semibold text-slate-900">Test email</p>
-                                    <p className="text-xs text-slate-500">Verificá que tus notificaciones estén activas.</p>
-                                </div>
-                                <PrimaryButton type="button" onClick={handleSendTestEmail} disabled={sendingTestEmail}>
-                                    {sendingTestEmail ? 'Sending…' : 'Send Test Email'}
-                                </PrimaryButton>
-                            </div>
+                    {/* Member Since Row */}
+                    {(backendUser as any)?.createdAt && (
+                        <div className="flex items-center justify-between py-3 border-b border-white/5">
+                            <span className="text-sm text-muted-foreground">Member Since</span>
+                            <span className="font-medium text-foreground">
+                                {new Date((backendUser as any).createdAt).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })}
+                            </span>
                         </div>
                     )}
 
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div className="rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4">
-                            <p className="text-sm text-slate-500">Auth0 ID</p>
-                            <p className="font-semibold text-slate-900">{auth0User?.sub || 'N/A'}</p>
+                    {/* Account Type Row (if applicable) */}
+                    <div className="flex items-center justify-between py-3">
+                        <span className="text-sm text-muted-foreground">Account Type</span>
+                        <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                            Standard
+                        </span>
+                    </div>
+                </div>
+            </SettingsSectionCard>
+
+            {/* Preferences */}
+            <SettingsSectionCard
+                title="Preferences"
+                description="Manage your notification settings"
+            >
+                {/* Email Notifications Toggle */}
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between rounded-xl border border-white/5 bg-secondary/10 p-4 transition-colors hover:bg-secondary/20">
+                    <div className="flex items-start gap-3">
+                        <div className="rounded-lg bg-primary/10 p-2 ring-1 ring-primary/20">
+                            <Bell className="h-5 w-5 text-primary" />
                         </div>
-                        <div className="rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4">
-                            <p className="text-sm text-slate-500">Member since</p>
-                            <p className="font-semibold text-slate-900">
-                                {backendUser?.createdAt ? new Date(backendUser.createdAt).toLocaleDateString() : '—'}
+                        <div>
+                            <p className="font-medium text-foreground">Email Notifications</p>
+                            <p className="text-sm text-muted-foreground">
+                                Receive updates about important activities
                             </p>
                         </div>
                     </div>
-                </div>
-
-                <div className="rounded-3xl border border-slate-200 bg-white px-8 py-10 shadow-sm space-y-4">
-                    <h2 className="text-xl font-semibold text-slate-900">Account overview</h2>
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div className="space-y-1 rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4">
-                            <p className="text-xs uppercase tracking-widest text-slate-500">Username</p>
-                            <p className="font-semibold text-slate-900">{displayName}</p>
-                        </div>
-                        <div className="space-y-1 rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4">
-                            <p className="text-xs uppercase tracking-widest text-slate-500">Email</p>
-                            <p className="font-semibold text-slate-900">{displayEmail}</p>
-                        </div>
+                    <div className="flex items-center gap-3">
+                        <label className="relative inline-flex cursor-pointer items-center">
+                            <input
+                                type="checkbox"
+                                checked={emailNotificationsEnabled}
+                                onChange={(event) => handleEmailNotificationToggle(event.target.checked)}
+                                disabled={updatingNotifications}
+                                className="peer sr-only"
+                            />
+                            <span className="h-6 w-11 rounded-full border border-white/10 bg-secondary/50 transition peer-checked:border-primary peer-checked:bg-primary peer-disabled:opacity-50 peer-disabled:cursor-not-allowed" />
+                            <span className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition peer-checked:translate-x-5 peer-disabled:opacity-70" />
+                        </label>
+                        <span className="text-sm font-medium text-muted-foreground min-w-[4rem]">
+                            {emailNotificationsEnabled ? 'Enabled' : 'Disabled'}
+                        </span>
                     </div>
                 </div>
-            </div>
-        </div>
+
+                {/* Test Email */}
+                {emailNotificationsEnabled && (
+                    <div className="rounded-xl border border-white/5 bg-secondary/10 p-4 transition-colors hover:bg-secondary/20">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="font-medium text-foreground">Test Email</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Verify your notifications are working
+                                </p>
+                            </div>
+                            <Button
+                                onClick={handleSendTestEmail}
+                                disabled={sendingTestEmail}
+                                size="sm"
+                                variant="outline"
+                            >
+                                {sendingTestEmail ? 'Sending…' : 'Send Test'}
+                            </Button>
+                        </div>
+                    </div>
+                )}
+            </SettingsSectionCard>
+
+            {/* Advanced / Developer Info - Collapsible (Optional) */}
+            {/* Uncomment if needed for debugging */}
+            {/* <SettingsSectionCard
+                title="Advanced"
+                description="Technical information for debugging"
+            >
+                <details className="group">
+                    <summary className="flex cursor-pointer items-center justify-between rounded-lg border border-white/5 bg-secondary/10 p-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/20">
+                        <span>Developer Information</span>
+                        <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                    </summary>
+                    <div className="mt-3 space-y-2 rounded-lg border border-white/5 bg-secondary/5 p-4">
+                        <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Auth0 ID</span>
+                            <code className="rounded bg-secondary/50 px-2 py-1 text-xs font-mono text-foreground">
+                                {auth0User?.sub || 'N/A'}
+                            </code>
+                        </div>
+                    </div>
+                </details>
+            </SettingsSectionCard> */}
+        </SettingsLayout>
     );
 };
 

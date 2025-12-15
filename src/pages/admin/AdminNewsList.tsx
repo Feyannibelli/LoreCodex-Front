@@ -20,7 +20,7 @@ const AdminNewsList: React.FC = () => {
         error,
         loadMore,
         refresh
-    } = useInfiniteScroll({
+    } = useInfiniteScroll<News>({
         fetchFunction: fetchNews,
         pageSize: 15
     });
@@ -95,8 +95,8 @@ const AdminNewsList: React.FC = () => {
                                             </td>
                                             <td className="p-4">
                                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${n.published
-                                                        ? "bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20"
-                                                        : "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border border-yellow-500/20"
+                                                    ? "bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20"
+                                                    : "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border border-yellow-500/20"
                                                     }`}>
                                                     {n.published ? "Published" : "Draft"}
                                                 </span>
@@ -106,8 +106,8 @@ const AdminNewsList: React.FC = () => {
                                                 <button
                                                     onClick={() => handleTogglePublish(n)}
                                                     className={`text-sm px-3 py-1.5 rounded-lg border transition-colors font-medium ${n.published
-                                                            ? "border-yellow-500/50 text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/10"
-                                                            : "bg-primary text-primary-foreground hover:bg-primary/90 border-transparent shadow-sm"
+                                                        ? "border-yellow-500/50 text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/10"
+                                                        : "bg-primary text-primary-foreground hover:bg-primary/90 border-transparent shadow-sm"
                                                         }`}
                                                 >
                                                     {n.published ? "Unpublish" : "Publish"}
