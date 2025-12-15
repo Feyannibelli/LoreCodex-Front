@@ -50,52 +50,51 @@ interface BackendGameRequest {
     tags?: string[];
 }
 
-const adaptBackendGameToFrontend = (backendGame: BackendGame): Game => {
+// Adaptador: convierte la respuesta del backend (`GameDetailResponse`) a la interfaz `Game` usada en el frontend.
+const adaptBackendToFrontend = (backendGame: GameDetailResponse): Game => {
     // Convertir array de géneros a string separado por comas
-    const genreString = backendGame.genres?.length > 0
+    const genresString = backendGame.genres && backendGame.genres.length > 0
         ? backendGame.genres.join(', ')
         : '';
 
     return {
         id: backendGame.id,
-        name: backendGame.title,
+        title: backendGame.title,
         description: backendGame.description,
-        genre: genreString,
-        releaseDate: backendGame.releaseDate,
-        imageUrl: backendGame.coverImage,
-        averageRating: backendGame.rating || 0,
-        likes: backendGame.likes || 0,
-        ratingCount: backendGame.ratingCount || 0 // NUEVO
-    };
+        genres: genresString,
+        releaseDate: backendGame.releaseDate || null,
+        coverImage: backendGame.coverImage,
+        awards: backendGame.awards && backendGame.awards.length > 0 ? backendGame.awards.join(', ') : undefined,
+        averageRating: typeof backendGame.rating === 'number' ? backendGame.rating : null,
+        likes: typeof backendGame.likes === 'number' ? backendGame.likes : null,
+        ratingCount: backendGame.ratingCount ?? 0,
+        playerCount: null,
+        tags: [],
+        developersAndPublishers: [],
+    } as Game;
 };
 
 const adaptFrontendGameToBackend = (frontendGame: GameFormData): BackendGameRequest => {
     // Procesar awards como array
-    let awardsArray: string[] = [];
-    if (frontendGame.awards) {
-        awardsArray = [frontendGame.awards];
-    }
+    const awardsArray: string[] = frontendGame.awards ? [frontendGame.awards] : [];
 
     // Procesar genres como array - dividir por comas si es necesario
-    let genresArray: string[] = [];
-    if (frontendGame.genre) {
-        // Si contiene comas, dividir; sino, usar como un solo género
-        genresArray = frontendGame.genre.includes(',')
-            ? frontendGame.genre.split(',').map(g => g.trim())
-            : [frontendGame.genre.trim()];
-    }
+    const genresArray: string[] = frontendGame.genres && frontendGame.genres.length > 0
+        ? frontendGame.genres
+        : (frontendGame.genre ? (frontendGame.genre.includes(',') ? frontendGame.genre.split(',').map(g => g.trim()) : [frontendGame.genre.trim()]) : []);
 
     return {
         title: frontendGame.name,
         description: frontendGame.description,
         coverImage: frontendGame.imageUrl || '',
-        releaseDate: frontendGame.releaseDate,
-        genre: frontendGame.genre,                              // Singular genre
-        genres: frontendGame.genres || [],                      // Plural genres array
-        tags: frontendGame.tags || [],                          // Tags array
-        developersAndPublishers: frontendGame.developersAndPublishers || [], // Developers/Publishers
-        rating: frontendGame.rating,                            // Rating value
-        awards: frontendGame.awards ? [frontendGame.awards] : [] // Awards array
+        releaseDate: frontendGame.releaseDate || null,
+        averageRating: frontendGame.rating ?? null,
+        likes: null,
+        genres: genresArray,
+        developersAndPublishers: frontendGame.developersAndPublishers || [],
+        playerCount: null,
+        awards: awardsArray,
+        tags: frontendGame.tags || []
     };
 };
 
@@ -103,8 +102,8 @@ const gameService = {
     // Obtener todos los juegos
     getAllGames: async (): Promise<Game[]> => {
         try {
-            const response = await api.get(`/games/allGames`);
-            return response.data.map(adaptBackendGameToFrontend);
+            const response = await api.get<GameDetailResponse[]>(`/games/allGames`);
+            return response.data.map(adaptBackendToFrontend);
         } catch (error) {
             console.error('Error fetching games:', error);
             return [];
@@ -115,7 +114,7 @@ const gameService = {
     getGameById: async (id: number): Promise<Game> => {
         try {
             const response = await api.get(`/games/${id}`);
-            return adaptBackendGameToFrontend(response.data);
+            return adaptBackendToFrontend(response.data as GameDetailResponse);
         } catch (error) {
             console.error(`Error fetching game with id ${id}:`, error);
             throw error;
@@ -125,8 +124,8 @@ const gameService = {
     // Buscar juegos por nombre
     searchGamesByName: async (name: string): Promise<Game[]> => {
         try {
-            const response = await apiAuth.get(`/games/search?title=${name}`);
-            return response.data.map(adaptBackendGameToFrontend);
+            const response = await apiAuth.get<GameDetailResponse[]>(`/games/search`, { params: { title: name } });
+            return response.data.map(adaptBackendToFrontend);
         } catch (error) {
             console.error('Error searching games by name:', error);
             return [];
@@ -163,7 +162,7 @@ const gameService = {
 
         // Use /games/allGames for ALL scenarios
         // This endpoint supports: page, size, sort, tag (optional), title (optional)
-        const queryParams: any = { page, size, sort };
+        const queryParams: Record<string, string | number> = { page, size, sort };
 
         // Add tag filter if present
         if (tag?.trim()) {
