@@ -76,10 +76,7 @@ const gameService = {
     getAllGames: async (): Promise<Game[]> => {
         try {
             const response = await api.get(`/games/allGames`);
-            console.log('Raw backend response:', response.data); // DEBUG
-            const adapted = response.data.map(adaptBackendGameToFrontend);
-            console.log('Adapted games:', adapted); // DEBUG
-            return adapted;
+            return response.data.map(adaptBackendGameToFrontend);
         } catch (error) {
             console.error('Error fetching games:', error);
             return [];
