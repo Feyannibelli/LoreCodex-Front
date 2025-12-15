@@ -6,7 +6,7 @@ import CommentSection from "../../components/comments/CommentSection";
 import guideService from "../../services/guideService";
 import { useAuth } from "../../context/AuthContext";
 import Button from "../../components/Button";
-import { ArrowLeft, Calendar, Heart, Share2, Edit, Trash2, Upload, Lock } from "lucide-react";
+import { ArrowLeft, Calendar, Heart, Share2, Edit, Trash2, Upload, Lock, Shield } from "lucide-react";
 
 const GuideDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -34,6 +34,18 @@ const GuideDetailPage: React.FC = () => {
         const url = window.location.href;
         navigator.clipboard.writeText(url);
         alert('¡Enlace copiado al portapapeles!');
+    };
+
+    const handleDelete = () => {
+        if (!guide) return;
+
+        const confirmMessage = isAdmin && guide.authorId !== user?.id
+            ? `⚠️ ADMIN: ¿Estás seguro de eliminar la guía "${guide.title}" de otro usuario? Esta acción no se puede deshacer.`
+            : `¿Estás seguro de eliminar "${guide.title}"? Esta acción no se puede deshacer.`;
+
+        if (confirm(confirmMessage)) {
+            guideService.delete(guide.id).then(() => navigate("/guides"));
+        }
     };
 
     if (loading) {
@@ -64,7 +76,10 @@ const GuideDetailPage: React.FC = () => {
         );
     }
 
+    // CORREGIDO: Verificar permisos correctamente
     const canEdit = guide.authorId === user?.id;
+    const canDelete = guide.authorId === user?.id || isAdmin;
+    const canPublish = guide.authorId === user?.id || isAdmin;
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
@@ -178,24 +193,33 @@ const GuideDetailPage: React.FC = () => {
                 </div>
             )}
 
-            {/* Author Actions */}
-            {canEdit && (
+            {/* Author/Admin Actions */}
+            {(canEdit || canPublish || canDelete) && (
                 <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg mb-8">
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
-                        Acciones del Autor
+                    <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        {isAdmin && guide.authorId !== user?.id && (
+                            <Shield size={20} className="text-red-500" />
+                        )}
+                        {isAdmin && guide.authorId !== user?.id ? 'Acciones de Admin' : 'Acciones del Autor'}
                     </h3>
+
+                    {isAdmin && guide.authorId !== user?.id && (
+                        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
+                            <p className="text-sm text-red-800 dark:text-red-200">
+                                ⚠️ Estás administrando la guía de otro usuario. Usa estos controles con precaución.
+                            </p>
+                        </div>
+                    )}
+
                     <div className="flex flex-wrap gap-3">
-                        {guide.published ? (
+                        {/* CORREGIDO: Solo mostrar botón de publicar/despublicar según el estado */}
+                        {canPublish && !guide.published && (
                             <Button
-                                onClick={() => guideService.unpublish(guide.id).then(setGuide)}
-                                className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600"
-                            >
-                                <Lock size={16} />
-                                Despublicar
-                            </Button>
-                        ) : (
-                            <Button
-                                onClick={() => guideService.publish(guide.id).then(setGuide)}
+                                onClick={() => guideService.publish(guide.id).then(updated => {
+                                    setGuide(updated);
+                                    // Recargar página para actualizar listas
+                                    window.location.reload();
+                                })}
                                 className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
                             >
                                 <Upload size={16} />
@@ -203,30 +227,44 @@ const GuideDetailPage: React.FC = () => {
                             </Button>
                         )}
 
-                        <Button
-                            onClick={() => navigate(`/guides/edit/${guide.id}`)}
-                            className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600"
-                        >
-                            <Edit size={16} />
-                            Editar
-                        </Button>
+                        {canPublish && guide.published && (
+                            <Button
+                                onClick={() => guideService.unpublish(guide.id).then(updated => {
+                                    setGuide(updated);
+                                    // Recargar página para actualizar listas
+                                    window.location.reload();
+                                })}
+                                className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600"
+                            >
+                                <Lock size={16} />
+                                Despublicar
+                            </Button>
+                        )}
 
-                        <Button
-                            onClick={() => {
-                                if (confirm(`¿Estás seguro de que quieres eliminar "${guide.title}"? Esta acción no se puede deshacer.`)) {
-                                    guideService.delete(guide.id).then(() => navigate("/guides"));
-                                }
-                            }}
-                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700"
-                        >
-                            <Trash2 size={16} />
-                            Eliminar
-                        </Button>
+                        {canEdit && (
+                            <Button
+                                onClick={() => navigate(`/guides/edit/${guide.id}`)}
+                                className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600"
+                            >
+                                <Edit size={16} />
+                                Editar
+                            </Button>
+                        )}
+
+                        {canDelete && (
+                            <Button
+                                onClick={handleDelete}
+                                className="flex items-center gap-2 bg-red-600 hover:bg-red-700"
+                            >
+                                <Trash2 size={16} />
+                                {isAdmin && guide.authorId !== user?.id ? 'Eliminar (Admin)' : 'Eliminar'}
+                            </Button>
+                        )}
                     </div>
                 </div>
             )}
 
-            {/* ========== COMENTARIOS ========== */}
+            {/* Comments */}
             <CommentSection
                 entityType="guide"
                 entityId={guide.id}
