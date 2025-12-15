@@ -1,3 +1,4 @@
+// src/pages/list/ListDetailPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { listService, UserListResponse, ListItemType } from '../../services/listService';
@@ -26,7 +27,9 @@ const ListDetailPage: React.FC = () => {
         try {
             setLoading(true);
             const listData = await listService.getListById(parseInt(id));
+            console.log('Lista cargada:', listData); // DEBUG
             setList(listData);
+            setError(null);
         } catch (error) {
             console.error('Error fetching list:', error);
             setError('Failed to load list');
@@ -111,13 +114,17 @@ const ListDetailPage: React.FC = () => {
                     <div className="flex-1">
                         <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">{list.title}</h1>
                         <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
-                            <span>By{' '}
-                                <Link to={`/profile/${list.userId}`} className="text-blue-500 hover:underline">
-                                {list.username}
-                            </Link>
+                            <span>
+                                By{' '}
+                                <Link
+                                    to={`/profile/${list.userId}`}
+                                    className="text-blue-500 hover:underline font-semibold"
+                                >
+                                    {list.username || 'Anonymous'}
+                                </Link>
                             </span>
                             <span>•</span>
-                            <span>{list.items.length} items</span>
+                            <span>{list.items?.length || 0} items</span>
                             <span>•</span>
                             <span>Created {new Date(list.createdAt).toLocaleDateString()}</span>
                         </div>
@@ -125,7 +132,7 @@ const ListDetailPage: React.FC = () => {
                         {/* Descripción */}
                         {list.description && (
                             <div className="border-t pt-4">
-                                <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">Descripción</h2>
+                                <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">Description</h2>
                                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                                     <UnifiedContentRenderer content={list.description} />
                                 </div>
@@ -155,9 +162,16 @@ const ListDetailPage: React.FC = () => {
             <div className="bg-white dark:bg-[#313E3F] rounded-lg shadow-md p-6">
                 <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Items</h2>
 
-                {list.items.length === 0 ? (
+                {!list.items || list.items.length === 0 ? (
                     <div className="text-center py-8">
                         <p className="text-gray-500 dark:text-gray-400">This list is empty.</p>
+                        {isOwner && (
+                            <Link to={`/lists/edit/${list.id}`} className="mt-4 inline-block">
+                                <Button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                                    Add Items
+                                </Button>
+                            </Link>
+                        )}
                     </div>
                 ) : (
                     <div className="space-y-3">
@@ -180,12 +194,19 @@ const ListDetailPage: React.FC = () => {
                                                 src={item.thumbnailUrl}
                                                 alt={item.title}
                                                 className="w-12 h-12 object-cover rounded"
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = 'none';
+                                                }}
                                             />
                                         )}
 
                                         <div className="flex-1">
-                                            <h3 className="font-semibold text-gray-800 dark:text-white">{item.title}</h3>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{item.type.toLowerCase()}</p>
+                                            <h3 className="font-semibold text-gray-800 dark:text-white">
+                                                {item.title || 'Untitled'}
+                                            </h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">
+                                                {item.type.toLowerCase()}
+                                            </p>
                                         </div>
                                     </div>
 
@@ -201,7 +222,7 @@ const ListDetailPage: React.FC = () => {
                 )}
             </div>
 
-            {/* ========== COMENTARIOS ========== */}
+            {/* Comentarios */}
             <CommentSection
                 entityType="list"
                 entityId={list.id}

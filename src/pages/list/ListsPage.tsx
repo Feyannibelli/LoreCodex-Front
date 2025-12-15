@@ -1,3 +1,4 @@
+// src/pages/list/ListsPage.tsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { listService, UserListResponse } from '../../services/listService';
@@ -18,6 +19,7 @@ const ListsPage: React.FC = () => {
         try {
             setLoading(true);
             const allLists = await listService.getAllLists();
+            console.log('Todas las listas:', allLists); // DEBUG
             setLists(allLists);
         } catch (error) {
             console.error('Error fetching lists:', error);
@@ -99,8 +101,13 @@ const ListsPage: React.FC = () => {
                                     {list.description}
                                 </p>
                                 <div className="flex justify-between items-center text-sm text-gray-500">
-                                    <span>By {list.username || 'Anonymous'}</span>
-                                    <span>{list.items.length} items</span>
+                                    <Link
+                                        to={`/profile/${list.userId}`}
+                                        className="hover:text-blue-600 font-medium"
+                                    >
+                                        By {list.username || 'Anonymous'}
+                                    </Link>
+                                    <span>{list.items?.length || 0} items</span>
                                 </div>
                                 <div className="mt-4">
                                     <Link

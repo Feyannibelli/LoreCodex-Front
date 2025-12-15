@@ -136,10 +136,15 @@ const CreateListPage: React.FC = () => {
                 items: selectedItems
             };
 
-            await listService.createList(user.id, listData);
+            console.log('📤 Enviando lista:', listData); // DEBUG
+
+            const createdList = await listService.createList(user.id, listData);
+
+            console.log('✅ Lista creada:', createdList); // DEBUG
+
             navigate('/my-lists');
         } catch (error) {
-            console.error('Error creating list:', error);
+            console.error('❌ Error creating list:', error);
             alert('Error creating list. Please try again.');
         } finally {
             setIsSubmitting(false);
