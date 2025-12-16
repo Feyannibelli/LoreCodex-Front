@@ -39,11 +39,14 @@ const Home: React.FC = () => {
             .catch(err => console.error("Error loading news:", err));
     }, []);
 
+// Update Home.tsx loadGames function to use 'popular,desc' for trending
+
     const loadGames = async () => {
         try {
             setLoading(true);
             const recentResponse = await gameService.getLibraryGamesPaginated(0, 10, 'createdAt,desc');
-            const popularResponse = await gameService.getLibraryGamesPaginated(0, 8, 'rating,desc');
+            // CHANGED: Use 'popular,desc' which sorts by rating count (number of user ratings)
+            const popularResponse = await gameService.getLibraryGamesPaginated(0, 8, 'popular,desc');
             setRecentlyAdded(recentResponse.content);
             setPopularGames(popularResponse.content);
             setError(null);
