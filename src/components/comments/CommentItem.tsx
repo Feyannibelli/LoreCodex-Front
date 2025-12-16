@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Reply, Trash2, Send, ChevronDown, ChevronUp } from 'lucide-react';
 import { Comment } from '../../services/commentService';
 
@@ -15,12 +16,12 @@ interface CommentItemProps {
 }
 
 const CommentItem: React.FC<CommentItemProps> = ({
-                                                     comment,
-                                                     currentUser,
-                                                     onReply,
-                                                     onDelete,
-                                                     level
-                                                 }) => {
+    comment,
+    currentUser,
+    onReply,
+    onDelete,
+    level
+}) => {
     const [showReplyBox, setShowReplyBox] = useState(false);
     const [replyContent, setReplyContent] = useState('');
     const [isReplying, setIsReplying] = useState(false);
@@ -60,25 +61,25 @@ const CommentItem: React.FC<CommentItemProps> = ({
         <div className={`border-l-2 ${level === 0 ? 'border-orange-500/30' : 'border-gray-200 dark:border-gray-700'} pl-4 py-3`}>
             {/* Header del comentario */}
             <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-orange-500 flex items-center justify-center text-white font-semibold text-sm">
+                <Link to={`/profile/${comment.userId}`} className="flex items-center gap-2 group">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-orange-500 flex items-center justify-center text-white font-semibold text-sm group-hover:ring-2 group-hover:ring-primary/50 transition-all">
                         {comment.username[0].toUpperCase()}
                     </div>
                     <div>
-            <span className="font-semibold text-gray-900 dark:text-white">
-              {comment.username}
-            </span>
+                        <span className="font-semibold text-gray-900 dark:text-white group-hover:text-primary transition-colors">
+                            {comment.username}
+                        </span>
                         <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
-              {new Date(comment.createdAt).toLocaleDateString('es-ES', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-              })}
-            </span>
+                            {new Date(comment.createdAt).toLocaleDateString('es-ES', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}
+                        </span>
                     </div>
-                </div>
+                </Link>
 
                 {canDelete && (
                     <button
@@ -122,13 +123,13 @@ const CommentItem: React.FC<CommentItemProps> = ({
             {/* Caja de respuesta */}
             {showReplyBox && (
                 <div className="mt-3 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-          <textarea
-              value={replyContent}
-              onChange={(e) => setReplyContent(e.target.value)}
-              placeholder="Escribe tu respuesta..."
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
-              rows={3}
-          />
+                    <textarea
+                        value={replyContent}
+                        onChange={(e) => setReplyContent(e.target.value)}
+                        placeholder="Escribe tu respuesta..."
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
+                        rows={3}
+                    />
                     <div className="flex justify-end gap-2 mt-2">
                         <button
                             onClick={() => setShowReplyBox(false)}

@@ -5,7 +5,7 @@ import { News } from "../../interfaces/News.ts";
 import newsService from "../../services/newsService.ts";
 import UnifiedContentRenderer from "../../components/UnifiedContentRenderer";
 import CommentSection from "../../components/comments/CommentSection";
-import { ArrowLeft, Calendar, Tag } from "lucide-react";
+import { Calendar, Tag } from "lucide-react";
 import Button from "../../components/Button";
 
 const NewsDetailPage: React.FC = () => {
@@ -45,7 +45,6 @@ const NewsDetailPage: React.FC = () => {
                         Noticia no encontrada
                     </h2>
                     <Button onClick={() => navigate('/news')}>
-                        Volver a Noticias
                     </Button>
                 </div>
             </div>
@@ -60,8 +59,6 @@ const NewsDetailPage: React.FC = () => {
                     onClick={() => navigate('/news')}
                     className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
                 >
-                    <ArrowLeft size={20} />
-                    Volver a Noticias
                 </button>
 
                 {/* Cover Image */}

@@ -72,6 +72,12 @@ const GamesPage: React.FC = () => {
                 {/* 1. Header Section */}
                 <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
                     <div className="max-w-3xl space-y-2">
+                        <div className="flex items-center gap-2">
+                            <span className="h-0.5 w-8 bg-primary/60 rounded-full"></span>
+                            <p className="text-sm font-bold uppercase tracking-widest text-primary">
+                                GAMES
+                            </p>
+                        </div>
                         <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
                             Game Library
                         </h1>

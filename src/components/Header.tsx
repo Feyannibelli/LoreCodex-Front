@@ -92,7 +92,10 @@ const Header: React.FC = () => {
                                     </div>
                                     <div className="h-px bg-border my-1" />
                                     <DropdownMenuItem asChild className="rounded-lg focus:bg-secondary cursor-pointer">
-                                        <Link to="/profile">Profile Settings</Link>
+                                        <Link to={`/profile/${user?.id}`}>Profile</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild className="rounded-lg focus:bg-secondary cursor-pointer">
+                                        <Link to="/profile">Settings</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         onClick={() => logout()}
