@@ -15,7 +15,7 @@ import PublicOnlyRoute from './components/PublicOnlyRoute';
 import PrivateRoute from './components/PrivateRoute';
 import UserMenu from "./components/UserMenu";
 import GamesPage from './pages/game/GamesPage.tsx';
-import ListsPage from './pages/list/ListsPage.tsx';
+// import ListsPage from './pages/list/ListsPage.tsx'; // Moved below
 import NewsPage from "./pages/news/NewsPage";
 import NewsDetailPage from "./pages/news/NewsDetailPage";
 import CreateNewsPage from "./pages/news/CreateNewsPage";
@@ -29,6 +29,7 @@ import CreateListPage from './pages/list/CreateListPage.tsx';
 import MyListsPage from './pages/list/MyListsPage.tsx';
 import ListDetailPage from './pages/list/ListDetailPage.tsx';
 import EditListPage from './pages/list/EditListPage.tsx';
+import ListsPage from './pages/list/ListsPage.tsx';
 import ChallengesPage from './pages/challenge/ChallengesPage.tsx';
 import ChallengeDetailPage from './pages/challenge/ChallengeDetailPage.tsx';
 import CreateChallengePage from './pages/challenge/CreateChallengePage.tsx';
@@ -178,6 +179,7 @@ const App: React.FC = () => {
                         </PrivateRoute>
                     }
                 />
+
 
                 {/* Games and Lists - Public Navigation */}
                 <Route path="/games" element={<GamesPage />} />

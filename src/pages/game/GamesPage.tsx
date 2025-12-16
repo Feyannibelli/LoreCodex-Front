@@ -70,13 +70,20 @@ const GamesPage: React.FC = () => {
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
                 {/* 1. Header Section */}
+                {/* 1. Header Section */}
                 <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
                     <div className="max-w-3xl space-y-2">
+                        <div className="flex items-center gap-2">
+                            <span className="h-0.5 w-8 bg-primary/60 rounded-full"></span>
+                            <p className="text-sm font-bold uppercase tracking-widest text-primary">
+                                Discovery
+                            </p>
+                        </div>
                         <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
                             Game Library
                         </h1>
                         <p className="text-lg text-muted-foreground">
-                            Explore our collection of games.
+                            Explore and discover new adventures from our vast collection.
                         </p>
                     </div>
                 </div>

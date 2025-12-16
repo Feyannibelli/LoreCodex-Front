@@ -1,6 +1,7 @@
 // src/services/listService.ts
 import apiAuth from './apiAuth';
 import api from './api';
+import { Comment } from './commentService';
 
 export enum ListItemType {
     GAME = 'GAME',
@@ -37,6 +38,7 @@ export interface UserListResponse {
     userId: number;
     username?: string;
     items: ListItemResponse[];
+    comments?: Comment[];
 }
 
 export interface ReorderItemRequest {
@@ -96,8 +98,9 @@ export const listService = {
     },
 
     // Get list by ID
+    // Get list by ID
     getListById: async (listId: number): Promise<UserListResponse> => {
-        const response = await api.get(`/lists/${listId}`);
+        const response = await api.get(`/lists/${listId}/get-list`);
         return response.data;
     },
 
