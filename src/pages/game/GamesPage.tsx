@@ -5,12 +5,10 @@ import { Search, Gamepad2, Star, Users } from "lucide-react";
 import { cn } from "../../lib/utils.ts";
 import gameService, { PagedResponse } from "../../services/gameService.ts";
 import { Game } from "../../interfaces/Game.ts";
-// import { useAuth } from "../../context/AuthContext.tsx"; // Unused
 import { usePaginatedGames } from "../../hook/usePaginatedGames.ts";
 import PaginationControls from "../../components/PaginationControls.tsx";
 
 const GamesPage: React.FC = () => {
-    // const { isAuthenticated } = useAuth(); // Unused
     const [searchParams] = useSearchParams();
     const initialSearch = searchParams.get("search") || "";
 
@@ -18,7 +16,6 @@ const GamesPage: React.FC = () => {
     const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
     const [activeSort, setActiveSort] = useState("releaseDate,desc");
 
-    // Sync URL search param with state (e.g. when navigating from Home)
     useEffect(() => {
         const querySearch = searchParams.get("search") || "";
         if (querySearch && querySearch !== searchTerm) {
@@ -33,9 +30,7 @@ const GamesPage: React.FC = () => {
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
-    // Define the fetch function to pass to the hook
     const fetchGames = useCallback(async (page: number, pageSize: number): Promise<PagedResponse<Game>> => {
-        // Use the Unified Smart Flow from current service
         return await gameService.getGames({
             page,
             size: pageSize,
@@ -56,12 +51,11 @@ const GamesPage: React.FC = () => {
         sort: activeSort
     });
 
-    // Sort options - mapped to backend sort parameters
     const sortOptions = [
         { label: "Newest", value: "releaseDate,desc" },
         { label: "Oldest", value: "releaseDate,asc" },
         { label: "Rating", value: "rating,desc" },
-        { label: "Likes", value: "likes,desc" },
+        { label: "Popular", value: "popular,desc" }, // Basado en cantidad de ratings
         { label: "A-Z", value: "title,asc" },
     ];
 
@@ -69,7 +63,7 @@ const GamesPage: React.FC = () => {
         <div className="min-h-screen bg-background py-8 md:py-12 mb-20 animate-fade-in">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-                {/* 1. Header Section */}
+                {/* Header Section */}
                 <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
                     <div className="max-w-3xl space-y-2">
                         <div className="flex items-center gap-2">
@@ -87,7 +81,7 @@ const GamesPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* 2. Toolbar Section */}
+                {/* Toolbar Section */}
                 <div className="sticky top-20 z-30 mb-8 rounded-2xl border border-white/5 bg-card/80 p-2 shadow-xl shadow-black/20 backdrop-blur-xl">
                     <div className="flex flex-col gap-4 md:flex-row md:items-center p-2">
 
@@ -102,8 +96,6 @@ const GamesPage: React.FC = () => {
                                 className="h-10 w-full rounded-lg border border-white/5 bg-secondary/50 pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                             />
                         </div>
-
-
 
                         {/* Sort Options */}
                         <div className="flex items-center gap-1.5 bg-secondary/20 p-1 rounded-lg border border-white/5 overflow-x-auto scrollbar-hide">
@@ -126,7 +118,7 @@ const GamesPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* 3. Content Grid */}
+                {/* Content Grid */}
                 <div className="space-y-8">
                     {/* Error Alert */}
                     {error && (
@@ -163,12 +155,7 @@ const GamesPage: React.FC = () => {
                         ) : (
                             games.map(game => (
                                 <Link
-                                    // Use local ID if available, otherwise assume it's an IGDB game and maybe route to /games/igdb/:id or just /games/:igdbId if backend handles it
-                                    // Spec 3: GET /igdb/{igdbId} -> dedicated endpoint.
-                                    // So if game.id is present, it's local -> /games/:id
-                                    // If only game.igdbId -> /games/igdb/:igdbId (We need to handle this route or logic in Game.tsx)
                                     to={game.id ? `/games/${game.id}` : `/games/igdb/${game.igdbId}`}
-                                    // Spec: Usa game.id ?? game.igdbId como key único
                                     key={game.id ?? game.igdbId ?? Math.random()}
                                     className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/5 bg-card shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/5 hover:border-primary/20"
                                 >
@@ -206,13 +193,11 @@ const GamesPage: React.FC = () => {
                                     <div className="absolute bottom-0 left-0 right-0 p-6 pt-12 bg-gradient-to-t from-card via-card/95 to-transparent">
                                         {/* Genres & Tags */}
                                         <div className="mb-2 flex flex-wrap gap-1.5 h-6 overflow-hidden">
-                                            {/* Show Tags mainly as they are more specific now */}
                                             {game.tags?.slice(0, 3).map(t => (
                                                 <span key={t} className="text-[10px] font-bold uppercase tracking-wider text-primary truncate bg-primary/10 px-1.5 py-0.5 rounded">
                                                     {t}
                                                 </span>
                                             ))}
-                                            {/* Fallback to Genres if no tags */}
                                             {(!game.tags || game.tags.length === 0) && game.genres?.slice(0, 2).map(g => (
                                                 <span key={g} className="text-[10px] font-bold uppercase tracking-wider text-primary truncate bg-primary/10 px-1.5 py-0.5 rounded">
                                                     {g}
@@ -225,11 +210,11 @@ const GamesPage: React.FC = () => {
                                         </h2>
 
                                         <div className="flex items-center gap-4 text-xs text-muted-foreground/80 mt-2">
-                                            {/* Rating instead of Likes */}
-                                            {game.averageRating !== undefined && (
-                                                <div className="flex items-center gap-1.5 ">
+                                            {/* SOLUCIÓN: Mostrar rating siempre que exista y sea > 0 */}
+                                            {game.averageRating !== null && game.averageRating !== undefined && game.averageRating > 0 && (
+                                                <div className="flex items-center gap-1.5">
                                                     <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500" />
-                                                    <span className="text-xs font-medium text-white">{game.averageRating?.toFixed(1) || "0.0"}</span>
+                                                    <span className="text-xs font-medium text-foreground">{game.averageRating.toFixed(1)}</span>
                                                 </div>
                                             )}
                                             {game.playerCount && game.playerCount.toLowerCase() !== 'active' && (

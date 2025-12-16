@@ -4,7 +4,9 @@ import ReviewItem from './ReviewItem';
 import ReviewForm from './ReviewForm';
 import { useAuth } from '../context/AuthContext';
 import reviewService from '../services/reviewService';
+import ratingService from '../services/ratingService';
 import Button from './Button';
+import { AlertCircle } from 'lucide-react';
 
 interface ReviewListProps {
     gameId: number;
@@ -15,19 +17,18 @@ const ReviewList: React.FC<ReviewListProps> = ({ gameId }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showForm, setShowForm] = useState(false);
+    const [hasUserRated, setHasUserRated] = useState(false);
     const { isAuthenticated, user } = useAuth();
 
-    // Load reviews on component mount
     useEffect(() => {
         loadReviews();
-    }, [gameId]);
+        checkUserRating();
+    }, [gameId, user]);
 
-    // Load all reviews for the current game
     const loadReviews = async () => {
         try {
             setLoading(true);
-            const [reviewsData] = await Promise.all([reviewService.getGameReviews(gameId)]);
-            console.log("Reviews loaded:", reviewsData);
+            const reviewsData = await reviewService.getGameReviews(gameId);
             setReviews(reviewsData);
             setError(null);
         } catch (err) {
@@ -38,27 +39,49 @@ const ReviewList: React.FC<ReviewListProps> = ({ gameId }) => {
         }
     };
 
-    // Handle creating a new review
-    const handleSubmitReview = async (content: string, rating: number) => {
+    const checkUserRating = async () => {
+        if (!isAuthenticated || !user) {
+            setHasUserRated(false);
+            return;
+        }
+
+        try {
+            const summary = await ratingService.getRatingSummary(gameId);
+            setHasUserRated(summary.mine > 0);
+        } catch (err) {
+            console.error('Error checking user rating:', err);
+            setHasUserRated(false);
+        }
+    };
+
+    const handleSubmitReview = async (content: string) => {
         if (!isAuthenticated) {
             setError('You must be logged in to leave a review');
             return;
         }
 
+        if (!hasUserRated) {
+            setError('You must rate this game before writing a review. Please add a rating in the game details section above.');
+            return;
+        }
+
         try {
-            const newReview = await reviewService.createReview(gameId, { content, rating });
+            // El rating se obtiene automáticamente del UserRating en el backend
+            const newReview = await reviewService.createReview(gameId, { content, rating: 0 });
             setReviews([newReview, ...reviews]);
             setShowForm(false);
-        } catch (err) {
+            setError(null);
+        } catch (err: any) {
             console.error('Error submitting review:', err);
-            setError('Failed to submit review. Please try again.');
+            const errorMessage = err.response?.data?.message || err.message || 'Failed to submit review. Please try again.';
+            setError(errorMessage);
         }
     };
 
-    // Handle editing a review
-    const handleEditReview = async (reviewId: number, content: string, rating: number) => {
+    const handleEditReview = async (reviewId: number, content: string) => {
         try {
-            const updatedReview = await reviewService.updateReview(reviewId, { content, rating });
+            // El rating se mantiene desde el UserRating original
+            const updatedReview = await reviewService.updateReview(reviewId, { content, rating: 0 });
             setReviews(reviews.map(review =>
                 review.id === reviewId ? updatedReview : review
             ));
@@ -68,7 +91,6 @@ const ReviewList: React.FC<ReviewListProps> = ({ gameId }) => {
         }
     };
 
-    // Handle deleting a review
     const handleDeleteReview = async (reviewId: number) => {
         try {
             await reviewService.deleteReview(reviewId);
@@ -92,8 +114,9 @@ const ReviewList: React.FC<ReviewListProps> = ({ gameId }) => {
     return (
         <div className="space-y-6">
             {error && (
-                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive font-medium border border-destructive/20">
-                    {error}
+                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive font-medium border border-destructive/20 flex items-start gap-2">
+                    <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <span>{error}</span>
                 </div>
             )}
 
@@ -101,7 +124,15 @@ const ReviewList: React.FC<ReviewListProps> = ({ gameId }) => {
                 <div className="rounded-xl border border-dashed border-border bg-secondary/20 p-8 text-center">
                     <h3 className="text-lg font-semibold text-foreground mb-2">Played this game?</h3>
                     <p className="text-muted-foreground mb-4">Share your experience with the community.</p>
-                    <Button onClick={() => setShowForm(true)}>
+                    {!hasUserRated && (
+                        <p className="text-sm text-muted-foreground/70 mb-4 italic">
+                            ⭐ You must rate this game before writing a review
+                        </p>
+                    )}
+                    <Button
+                        onClick={() => setShowForm(true)}
+                        disabled={!hasUserRated}
+                    >
                         Leave a review
                     </Button>
                 </div>
@@ -111,7 +142,10 @@ const ReviewList: React.FC<ReviewListProps> = ({ gameId }) => {
                 <div className="animate-fade-in-up">
                     <ReviewForm
                         onSubmit={handleSubmitReview}
-                        onCancel={() => setShowForm(false)}
+                        onCancel={() => {
+                            setShowForm(false);
+                            setError(null);
+                        }}
                     />
                 </div>
             )}
@@ -131,8 +165,6 @@ const ReviewList: React.FC<ReviewListProps> = ({ gameId }) => {
                             review={review}
                             onEdit={handleEditReview}
                             onDelete={handleDeleteReview}
-                        //onLike={handleLikeReview}
-                        //onDislike={handleDislikeReview}
                         />
                     ))}
                 </div>

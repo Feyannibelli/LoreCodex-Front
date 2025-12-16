@@ -1,25 +1,21 @@
 import React, { useState } from 'react';
 import Button from './Button';
-import { Star } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface ReviewFormProps {
-    initialRating?: number;
     initialContent?: string;
-    onSubmit: (content: string, rating: number) => void;
+    onSubmit: (content: string) => void;
     onCancel?: () => void;
     isEditing?: boolean;
 }
 
 const ReviewForm: React.FC<ReviewFormProps> = ({
-    initialRating = 0,
-    initialContent = '',
-    onSubmit,
-    onCancel,
-    isEditing = false
-}) => {
+                                                   initialContent = '',
+                                                   onSubmit,
+                                                   onCancel,
+                                                   isEditing = false
+                                               }) => {
     const [content, setContent] = useState(initialContent);
-    const [rating, setRating] = useState(initialRating);
     const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -31,13 +27,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
             return;
         }
 
-        // Validate rating
-        if (rating === 0) {
-            setError('Please select a rating');
-            return;
-        }
-
-        onSubmit(content, rating);
+        onSubmit(content);
     };
 
     return (
@@ -46,27 +36,6 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
                 <h3 className="text-lg font-semibold text-foreground">
                     {isEditing ? 'Edit your review' : 'Write a review'}
                 </h3>
-
-                <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-muted-foreground">Rating</label>
-                    <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map(star => (
-                            <button
-                                key={star}
-                                type="button"
-                                className="group focus:outline-none transition-transform active:scale-95"
-                                onClick={() => setRating(star)}
-                            >
-                                <Star
-                                    className={`h-8 w-8 transition-colors ${star <= rating
-                                            ? "fill-amber-400 text-amber-400"
-                                            : "text-muted-foreground/30 group-hover:text-amber-400/50"
-                                        }`}
-                                />
-                            </button>
-                        ))}
-                    </div>
-                </div>
 
                 <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Review</label>
