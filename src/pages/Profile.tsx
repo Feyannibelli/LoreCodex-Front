@@ -124,7 +124,7 @@ const Profile: React.FC = () => {
 
     return (
         <SettingsLayout
-            title="Profile"
+            title="Settings"
             description="Manage your account settings and preferences"
             actions={
                 <Button
