@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Review } from '../interfaces/Review';
 import { useAuth } from '../context/AuthContext';
 import ReviewForm from './ReviewForm';
@@ -56,12 +57,12 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
     return (
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground font-semibold ring-1 ring-white/10">
+                <Link to={`/profile/${review.userId}`} className="flex items-center gap-3 group hover:opacity-80 transition-opacity">
+                    <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground font-semibold ring-1 ring-white/10 group-hover:ring-primary/50 transition-all">
                         {review.username.charAt(0).toUpperCase()}
                     </div>
-                    <span className="font-medium text-foreground">{review.username}</span>
-                </div>
+                    <span className="font-medium text-foreground group-hover:text-primary transition-colors">{review.username}</span>
+                </Link>
                 <div className="flex items-center gap-1">
                     {Array.from({ length: 5 }).map((_, index) => (
                         <Star

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.tsx";
 import { News } from "../../interfaces/News.ts";
 import newsService from "../../services/newsService.ts";
@@ -83,6 +83,17 @@ const NewsDetailPage: React.FC = () => {
                     <div className="flex items-center gap-2">
                         <Calendar size={16} />
                         <span>{new Date(news.createdAt).toLocaleDateString()}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">By</span>
+                        {news.authorId ? (
+                            <Link to={`/profile/${news.authorId}`} className="font-medium hover:text-primary transition-colors text-foreground">
+                                {news.authorUsername}
+                            </Link>
+                        ) : (
+                            <span className="font-medium text-foreground">{news.authorUsername || "LoreCodex Team"}</span>
+                        )}
                     </div>
 
                     {!news.published && (

@@ -57,9 +57,7 @@ export const useMentionSuggestions = () => {
                         id: challenge.id,
                         name: challenge.title,
                         type: 'challenges' as const,
-                        thumbnailUrl: challenge.mediaUrl && challenge.mediaType === 'image'
-                            ? challenge.mediaUrl
-                            : undefined
+                        // No media for challenges anymore
                     }));
                     break;
                 }

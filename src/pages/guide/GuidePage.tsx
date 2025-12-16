@@ -245,10 +245,20 @@ const GuidePage: React.FC = () => {
 
                                         <div className="flex items-center justify-between pt-4 border-t border-dashed border-white/10 mt-auto">
                                             <div className="flex items-center gap-2">
-                                                <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center ring-1 ring-white/10">
+                                                <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center ring-1 ring-white/10 overflow-hidden">
                                                     <User className="h-3 w-3 text-muted-foreground" />
                                                 </div>
-                                                <span className="text-xs font-medium text-muted-foreground">Community</span>
+                                                {g.authorId ? (
+                                                    <Link
+                                                        to={`/profile/${g.authorId}`}
+                                                        className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        {g.authorUsername || "Unknown"}
+                                                    </Link>
+                                                ) : (
+                                                    <span className="text-xs font-medium text-muted-foreground">Community</span>
+                                                )}
                                             </div>
                                             <span className="text-xs text-muted-foreground/60 font-mono flex items-center gap-1">
                                                 <Calendar className="h-3 w-3" />

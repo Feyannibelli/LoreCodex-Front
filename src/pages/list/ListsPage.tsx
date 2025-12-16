@@ -239,12 +239,22 @@ const ListsPage: React.FC = () => {
 
                                         <div className="flex items-center justify-between pt-4 border-t border-dashed border-white/5 mt-auto">
                                             <div className="flex items-center gap-2">
-                                                <div className="h-6 w-6 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center ring-1 ring-white/10">
+                                                <div className="h-6 w-6 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center ring-1 ring-white/10 overflow-hidden">
                                                     <User className="h-3 w-3 text-primary" />
                                                 </div>
-                                                <span className="text-xs font-medium text-muted-foreground">
-                                                    {list.username || 'Anonymous'}
-                                                </span>
+                                                {list.userId ? (
+                                                    <Link
+                                                        to={`/profile/${list.userId}`}
+                                                        className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        {list.username || 'Anonymous'}
+                                                    </Link>
+                                                ) : (
+                                                    <span className="text-xs font-medium text-muted-foreground">
+                                                        {list.username || 'Anonymous'}
+                                                    </span>
+                                                )}
                                             </div>
 
                                             {list.createdAt && (

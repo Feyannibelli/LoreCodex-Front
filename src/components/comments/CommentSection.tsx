@@ -14,10 +14,10 @@ interface CommentSectionProps {
 }
 
 const CommentSection: React.FC<CommentSectionProps> = ({
-                                                           entityType,
-                                                           entityId,
-                                                           currentUser
-                                                       }) => {
+    entityType,
+    entityId,
+    currentUser
+}) => {
     const [comments, setComments] = useState<Comment[]>([]);
     const [loading, setLoading] = useState(true);
     const [newComment, setNewComment] = useState('');
@@ -89,79 +89,90 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     };
 
     return (
-        <div className="bg-white dark:bg-[#313E3F] rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-card rounded-2xl shadow-sm border border-white/5 p-6 md:p-8">
             {/* Header */}
-            <div className="flex items-center gap-2 mb-6">
-                <MessageCircle className="text-orange-500" size={24} />
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                    Comentarios ({comments.length})
+            <div className="flex items-center gap-2 mb-6 pb-4 border-b border-white/5">
+                <MessageCircle className="text-primary" size={24} />
+                <h2 className="text-xl font-bold text-foreground">
+                    Comments ({comments.length})
                 </h2>
             </div>
 
             {/* Formulario para nuevo comentario */}
             {currentUser ? (
-                <div className="mb-6">
-          <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Escribe un comentario..."
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
-              rows={4}
-          />
+                <div className="mb-8">
+                    <div className="relative">
+                        <textarea
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            placeholder="Share your thoughts..."
+                            className="w-full px-4 py-3 bg-secondary/30 border border-white/5 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary/50 text-foreground placeholder:text-muted-foreground resize-none transition-all"
+                            rows={3}
+                        />
+                        <div className="absolute right-2 bottom-2">
+                            {/* Optional: Character count or similar */}
+                        </div>
+                    </div>
                     <div className="flex justify-end mt-2">
                         <button
                             onClick={handleAddComment}
                             disabled={!newComment.trim() || isSubmitting}
-                            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="flex items-center gap-2 px-6 py-2 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary/20"
                         >
                             <Send size={16} />
-                            {isSubmitting ? 'Enviando...' : 'Comentar'}
+                            {isSubmitting ? 'Posting...' : 'Post Comment'}
                         </button>
                     </div>
                 </div>
             ) : (
-                <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg text-center">
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Inicia sesión para comentar
+                <div className="mb-8 p-6 bg-secondary/20 rounded-xl border border-white/5 text-center">
+                    <p className="text-muted-foreground mb-3">
+                        Join the conversation
+                    </p>
+                    {/* Assuming there's a way to trigger login or link to it, strictly text for now per original */}
+                    <p className="text-sm font-medium text-foreground">
+                        Please log in to leave a comment.
                     </p>
                 </div>
             )}
 
             {/* Lista de comentarios */}
-            <div className="space-y-4">
+            <div className="space-y-6">
                 {loading && comments.length === 0 ? (
-                    <div className="text-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-                        <p className="text-gray-500 dark:text-gray-400 mt-2">Cargando comentarios...</p>
+                    <div className="text-center py-12">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mx-auto"></div>
+                        <p className="text-muted-foreground mt-4">Loading comments...</p>
                     </div>
                 ) : comments.length === 0 ? (
-                    <div className="text-center py-8">
-                        <MessageCircle className="mx-auto text-gray-400 mb-2" size={48} />
-                        <p className="text-gray-500 dark:text-gray-400">No hay comentarios aún</p>
-                        <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Sé el primero en comentar</p>
+                    <div className="text-center py-12 bg-secondary/10 rounded-xl border border-dashed border-white/5">
+                        <MessageCircle className="mx-auto text-muted-foreground/30 mb-3" size={48} />
+                        <p className="text-muted-foreground font-medium">No comments yet</p>
+                        <p className="text-xs text-muted-foreground/60 mt-1">Be the first to share your thoughts!</p>
                     </div>
                 ) : (
                     <>
-                        {comments.map((comment) => (
-                            <CommentItem
-                                key={comment.id}
-                                comment={comment}
-                                currentUser={currentUser}
-                                onReply={handleReply}
-                                onDelete={handleDelete}
-                                level={0}
-                            />
-                        ))}
+                        <div className="space-y-6">
+                            {comments.map((comment) => (
+                                <CommentItem
+                                    key={comment.id}
+                                    comment={comment}
+                                    currentUser={currentUser}
+                                    onReply={handleReply}
+                                    onDelete={handleDelete}
+                                    level={0}
+                                />
+                            ))}
+                        </div>
 
                         {/* Botón cargar más */}
                         {hasMore && (
-                            <div className="text-center pt-4">
+                            <div className="text-center pt-6 border-t border-white/5 mt-6">
                                 <button
                                     onClick={loadMore}
                                     disabled={loading}
-                                    className="px-4 py-2 text-indigo-600 hover:text-indigo-700 font-medium disabled:opacity-50"
+                                    className="px-6 py-2 text-primary hover:text-primary/80 font-medium disabled:opacity-50 text-sm hover:bg-primary/5 rounded-lg transition-colors"
                                 >
-                                    {loading ? 'Cargando...' : 'Cargar más comentarios'}
+                                    {loading ? 'Loading...' : 'Load more comments'}
                                 </button>
                             </div>
                         )}

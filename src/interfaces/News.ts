@@ -10,6 +10,7 @@ export interface News {
     published: boolean;
     likes: number;
     authorUsername: string;
+    authorId?: number;
 }
 
 export interface NewsForm {
