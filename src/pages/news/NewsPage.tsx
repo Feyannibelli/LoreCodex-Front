@@ -215,9 +215,18 @@ const NewsPage: React.FC = () => {
                                         </p>
 
                                         <div className="flex items-center justify-between pt-4 border-t border-dashed border-white/5 mt-auto">
-                                            <span className="text-xs text-muted-foreground">
-                                                By LoreCodex Team
-                                            </span>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-xs text-muted-foreground">By</span>
+                                                {item.authorId ? (
+                                                    <Link to={`/profile/${item.authorId}`} className="text-xs font-medium text-foreground hover:text-primary transition-colors">
+                                                        {item.authorUsername}
+                                                    </Link>
+                                                ) : (
+                                                    <span className="text-xs font-medium text-foreground">
+                                                        {item.authorUsername || "LoreCodex Team"}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </Link>

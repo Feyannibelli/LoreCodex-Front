@@ -40,10 +40,8 @@ const ChallengeForm: React.FC<ChallengeFormProps> = ({
     // Form State
     const [title, setTitle] = useState(initialData?.title || '');
     const [description, setDescription] = useState(initialData?.description || '');
-    const [difficulty, setDifficulty] = useState(initialData?.difficulty || 3);
+    // difficulty removed
     const [items, setItems] = useState<string[]>(initialData?.items || ['']);
-    const [mediaUrl, setMediaUrl] = useState(initialData?.mediaUrl || '');
-    // const [mediaType, setMediaType] = useState<'image' | 'video' | 'none'>(initialData?.mediaType || 'none'); // Simplified for now
 
     // Game Selection State
     const [selectedGame, setSelectedGame] = useState<Game | null>(initialGame);
@@ -123,13 +121,10 @@ const ChallengeForm: React.FC<ChallengeFormProps> = ({
         await onSubmit({
             title,
             description,
-            difficulty,
+            // difficulty removed
             // itemType: 'checklist', // Default - Removed as not in interface
             items: items.filter(i => i.trim() !== ''),
             // gameId: selectedGame?.id // If backend supports gameId direct link
-            // For now, mapping broadly
-            mediaUrl,
-            mediaType: mediaUrl ? 'image' : 'none',
             // targetGameId: selectedGame?.id
         });
         setStatus('saved');
@@ -232,31 +227,9 @@ const ChallengeForm: React.FC<ChallengeFormProps> = ({
                             )}
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80 ml-1">
-                                Difficulty (1-5)
-                            </label>
-                            <input
-                                type="range"
-                                min="1"
-                                max="5"
-                                value={difficulty}
-                                onChange={(e) => setDifficulty(parseInt(e.target.value))}
-                                className="w-full accent-primary"
-                            />
-                            <div className="flex justify-between text-[10px] text-muted-foreground uppercase font-bold">
-                                <span>Easy</span>
-                                <span>Hardcore</span>
-                            </div>
-                        </div>
+                        {/* Difficulty Input Removed */}
 
-                        <ProInput
-                            label="Cover Image URL (Optional)"
-                            value={mediaUrl}
-                            onChange={(e) => setMediaUrl(e.target.value)}
-                            placeholder="https://..."
-                            icon={Target} // Placeholder icon
-                        />
+
                     </div>
                 </div>
 
