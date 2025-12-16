@@ -73,7 +73,7 @@ const NewsPage: React.FC = () => {
                             Latest News
                         </h1>
                         <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
-                            Stay informed with the latest updates, patches, and announcements from the LoreCodex team.
+                            Stay informed with the latest updates, patches, and announcements from our team.
                         </p>
                     </div>
 

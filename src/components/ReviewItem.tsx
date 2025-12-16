@@ -9,15 +9,15 @@ import Button from './Button';
 
 interface ReviewItemProps {
     review: Review;
-    onEdit: (reviewId: number, content: string) => void;
+    onEdit: (reviewId: number, content: string, rating: number) => void;
     onDelete: (reviewId: number) => void;
 }
 
 const ReviewItem: React.FC<ReviewItemProps> = ({
-                                                   review,
-                                                   onEdit,
-                                                   onDelete
-                                               }) => {
+    review,
+    onEdit,
+    onDelete
+}) => {
     const { user, isAuthenticated, isAdmin } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -28,8 +28,8 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
 
     const formattedDate = new Date(review.createdAt).toLocaleDateString();
 
-    const handleEditSubmit = (content: string, rating: number) => {
-        onEdit(review.id, content, rating);
+    const handleEditSubmit = (content: string) => {
+        onEdit(review.id, content, review.rating);
         setIsEditing(false);
     };
 
@@ -70,11 +70,10 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
                     {Array.from({ length: 5 }).map((_, index) => (
                         <Star
                             key={index}
-                            className={`h-4 w-4 ${
-                                index < review.rating
-                                    ? "fill-amber-400 text-amber-400"
-                                    : "text-muted-foreground/30"
-                            }`}
+                            className={`h-4 w-4 ${index < review.rating
+                                ? "fill-amber-400 text-amber-400"
+                                : "text-muted-foreground/30"
+                                }`}
                         />
                     ))}
                 </div>

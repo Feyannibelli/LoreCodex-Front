@@ -104,7 +104,7 @@ const Game: React.FC = () => {
             } catch (err) {
                 console.error('Error saving rating:', err);
                 // Optimistically update
-                setSummary(prev => prev ? { ...prev, mine: newRating } : { average: 0, mine: newRating });
+                setSummary(prev => prev ? { ...prev, mine: newRating } : { average: 0, mine: newRating, count: 1 });
             }
         }
     };

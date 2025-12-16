@@ -111,7 +111,7 @@ const ListsPage: React.FC = () => {
                         {isAuthenticated && (
                             <>
                                 <Link to="/my-lists">
-                                    <Button variant="secondary" className="font-semibold px-6 gap-2">
+                                    <Button variant="outline" className="border-primary/20 hover:bg-primary/5 text-primary font-semibold px-6 gap-2">
                                         <ListChecks className="h-4 w-4" />
                                         My Lists
                                     </Button>

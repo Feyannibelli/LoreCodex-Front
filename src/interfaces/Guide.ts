@@ -18,13 +18,14 @@ export interface Guide {
     published: boolean;      // mapea isPublished
     draft: boolean;          // mapea isDraft
     tags: string[];
-    authorId: number;
-    authorUsername?: string; // opcional, si se quiere mostrar el nombre de usuario
+    authorId: number;        // maps from userId
+    authorUsername: string;  // maps from creatorUsername
     likeCount: number;
     comments: Comment[];
     images: GuideImage[];
     createdAt: string;
     updatedAt: string;
+    gameId?: number | null;
 }
 
 /* dto para crear/editar */
@@ -36,4 +37,5 @@ export interface GuideForm {
     draft?: boolean;       // true = guardar como draft
     tags?: string[];
     images?: { url: string }[];
+    gameId?: number;
 }

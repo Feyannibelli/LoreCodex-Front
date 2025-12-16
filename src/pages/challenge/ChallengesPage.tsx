@@ -100,13 +100,7 @@ const ChallengesPage: React.FC = () => {
                             />
                         </div>
 
-                        {/* Divider on desktop */}
-                        <div className="hidden h-6 w-px bg-white/5 md:block"></div>
 
-                        {/* Controls */}
-                        <div className="flex items-center gap-3 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-                            {/* Difficulty options removed */}
-                        </div>
                     </div>
                 </div>
 
