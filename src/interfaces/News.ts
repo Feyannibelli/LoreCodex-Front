@@ -1,9 +1,10 @@
+// src/interfaces/News.ts
 export interface News {
     id: number;
     title: string;
     content: string;
-    summary?: string;
-    coverImage: string | null;
+    summary?: string;  // ✅ AGREGAR summary
+    coverImage: string | null;  // ✅ YA está correcto
     tags: string[];
     publishedAt?: string;
     createdAt: string;
@@ -16,8 +17,8 @@ export interface News {
 export interface NewsForm {
     title: string;
     content: string;
-    summary?: string;
-    coverImage?: string;
+    summary?: string;  // ✅ AGREGAR summary
+    coverImage?: string;  // ✅ YA está correcto
     publishedAt?: string;
     tags?: string[];
 }
