@@ -219,11 +219,18 @@ const GamesPage: React.FC = () => {
                                         </h2>
 
                                         <div className="flex items-center gap-4 text-xs text-muted-foreground/80 mt-2">
-                                            {/* Rating instead of Likes */}
-                                            {game.averageRating !== undefined && (
-                                                <div className="flex items-center gap-1.5 ">
+                                            {/* Rating with count */}
+                                            {game.averageRating !== undefined && game.averageRating > 0 && (
+                                                <div className="flex items-center gap-1.5">
                                                     <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500" />
-                                                    <span className="text-xs font-medium text-white">{game.averageRating?.toFixed(1) || "0.0"}</span>
+                                                    <span className="text-xs font-medium text-white">
+                                                        {game.averageRating.toFixed(1)}
+                                                        {game.ratingCount && game.ratingCount > 0 && (
+                                                            <span className="text-muted-foreground/60 ml-1">
+                                                                ({game.ratingCount})
+                                                            </span>
+                                                        )}
+                                                    </span>
                                                 </div>
                                             )}
                                             {game.playerCount && game.playerCount.toLowerCase() !== 'active' && (

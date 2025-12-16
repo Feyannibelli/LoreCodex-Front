@@ -131,64 +131,6 @@ const Game: React.FC = () => {
         }
     };
 
-
-    /*
-    const handleLike = async () => {
-        if (!isAuthenticated) {
-            setError("You must be logged in to like");
-            return;
-        }
-
-        try {
-            if (id) {
-                const updatedGame = await gameService.likeGame(parseInt(id));
-                setGame(updatedGame);
-                setLikeSuccess(true);
-                setTimeout(() => setLikeSuccess(false), 3000);
-            }
-        } catch (err) {
-            console.error("Error liking game:", err);
-            setError("Error liking the game. Please try again later.");
-        }
-    };
-
-    const handleRatingChange = (value: number) => {
-        setUserRating(value);
-    };
-
-    const fetchAverageRating = async () => {
-        if (id) {
-            try {
-                const rating = await gameService.getAverageRating(parseInt(id));
-                setAverageRating(rating);
-            } catch (err) {
-                console.error("Error fetching average rating:", err);
-            }
-        }
-    };
-
-    const submitRating = async () => {
-        if (!isAuthenticated) {
-            setError("You must be logged in to rate");
-            return;
-        }
-
-        try {
-            if (id && userRating > 0) {
-                const updatedGame = await gameService.rateGame(parseInt(id), userRating);
-                setGame(updatedGame);
-                await fetchAverageRating(); //actualizar el promedio
-                setRatingSuccess(true);
-                setTimeout(() => setRatingSuccess(false), 3000);
-            }
-        } catch (err) {
-            console.error("Error rating game:", err);
-            setError("Error rating the game. Please try again later.");
-        }
-    };
-    */
-
-
     // Show loading indicator while checking auth and loading game
     if (authLoading || loading) return (
         <div className="min-h-screen pt-24 pb-12 flex justify-center items-start bg-background">

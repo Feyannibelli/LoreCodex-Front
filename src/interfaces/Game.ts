@@ -7,7 +7,7 @@ export interface Game {
     coverImage: string;
     awards?: string[];
     averageRating: number | null;
-    likes: number | null;
+    ratingCount: number | null; // Changed from likes
     playerCount: string | null;
     tags: string[];
     igdbId?: number;

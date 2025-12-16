@@ -5,6 +5,7 @@ import ReviewForm from './ReviewForm';
 import Modal from './Modal';
 import { Star, Pencil, Trash2 } from 'lucide-react';
 import Button from './Button';
+import {Link} from "react-router-dom";
 
 interface ReviewItemProps {
     review: Review;
@@ -57,18 +58,29 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground font-semibold ring-1 ring-white/10">
+                    <Link
+                        to={`/profile/${review.userId}`}
+                        className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground font-semibold ring-1 ring-white/10 hover:ring-primary/50 transition-all"
+                    >
                         {review.username.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="font-medium text-foreground">{review.username}</span>
+                    </Link>
+                    <Link
+                        to={`/profile/${review.userId}`}
+                        className="font-medium text-foreground hover:text-primary transition-colors"
+                    >
+                        {review.username}
+                    </Link>
                 </div>
-                <div className="flex items-center gap-1">
-                    {Array.from({ length: 5 }).map((_, index) => (
-                        <Star
-                            key={index}
-                            className={`h-4 w-4 ${index < review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
-                        />
-                    ))}
+                <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                        {Array.from({ length: 5 }).map((_, index) => (
+                            <Star
+                                key={index}
+                                className={`h-4 w-4 ${index < review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
+                            />
+                        ))}
+                    </div>
+                    <span className="text-sm font-bold text-amber-400">{review.rating.toFixed(1)}</span>
                 </div>
             </div>
 
