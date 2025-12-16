@@ -10,7 +10,7 @@ const EditListPage: React.FC = () => {
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
-    const [initialData, setInitialData] = useState<any>(null); // Using any temporarily for ease, or specific type
+    const [initialData, setInitialData] = useState<any>(null);
     const [displayNames, setDisplayNames] = useState<{ [key: string]: string }>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -65,15 +65,57 @@ const EditListPage: React.FC = () => {
         if (!id || !user) return;
         setIsSubmitting(true);
         try {
-            const updatedItems = data.items.map((item, index) => ({
-                ...item,
-                position: index + 1
-            }));
+            const listId = parseInt(id);
 
-            await listService.updateList(parseInt(id), {
-                ...data,
-                items: updatedItems
+            // 1. Update Meta
+            await listService.updateList(listId, {
+                title: data.title,
+                description: data.description,
             });
+
+            // 2. Sync Items logic
+            // Fetch fresh state for accurate diffing
+            const currentList = await listService.getListById(listId);
+            const currentItems = currentList.items;
+
+            const newItemsHash = new Set(data.items.map(i => `${i.type}-${i.referenceId}`));
+            const currentItemsHash = new Set(currentItems.map(i => `${i.type}-${i.referenceId}`));
+
+            // A. REMOVE deleted items
+            const itemsToRemove = currentItems.filter(i => !newItemsHash.has(`${i.type}-${i.referenceId}`));
+            for (const item of itemsToRemove) {
+                await listService.removeItemFromList(listId, item.id);
+            }
+
+            // B. ADD new items
+            const itemsToAdd = data.items.filter(i => !currentItemsHash.has(`${i.type}-${i.referenceId}`));
+            for (const item of itemsToAdd) {
+                // Add with temporary position, reorder will fix it
+                await listService.addItemToList(listId, { ...item, position: 9999 });
+            }
+
+            // C. REORDER (Update positions for ALL items to match form order)
+            // Fetch updated list to get IDs of newly added items
+            const updatedList = await listService.getListById(listId);
+
+            const reorderPayload: { itemId: number; newPosition: number }[] = [];
+
+            data.items.forEach((desiredItem, index) => {
+                const match = updatedList.items.find(serverItem =>
+                    serverItem.type === desiredItem.type && serverItem.referenceId === desiredItem.referenceId
+                );
+                if (match) {
+                    reorderPayload.push({
+                        itemId: match.id,
+                        newPosition: index // 0-based index
+                    });
+                }
+            });
+
+            if (reorderPayload.length > 0) {
+                await listService.reorderItems(listId, reorderPayload);
+            }
+
             navigate(`/lists/${id}`);
         } catch (error) {
             console.error('Error updating list:', error);
@@ -83,7 +125,11 @@ const EditListPage: React.FC = () => {
     };
 
     if (loading) {
-        return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Loading list...</p></div>;
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <p className="text-muted-foreground">Loading list...</p>
+            </div>
+        );
     }
 
     if (!initialData) return null;

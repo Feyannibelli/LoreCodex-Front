@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { listService, UserListResponse, ListItemType } from '@/services/listService.ts';
+import { listService, UserListResponse } from '@/services/listService.ts';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/Button';
 import { Search, ArrowUpDown, ListChecks, Plus, User, Calendar, Layers, Gamepad2, BookOpen, Trophy } from "lucide-react";

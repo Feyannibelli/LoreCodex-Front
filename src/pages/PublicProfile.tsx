@@ -23,7 +23,7 @@ import {
 interface PublicProfileData {
     userId: number;
     username: string;
-    avatarUrl?: string;
+    profilePicture?: string;
     bio?: string;
     followersCount: number;
     followingCount: number;
@@ -47,8 +47,8 @@ const ProfileHeaderCard: React.FC<{
             <div className="relative p-8 md:p-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
                 <div className="flex-shrink-0 relative group">
                     <div className="h-28 w-28 md:h-32 md:w-32 rounded-full ring-4 ring-card bg-neutral-800 flex items-center justify-center text-5xl font-bold text-white uppercase shadow-xl relative z-10 overflow-hidden">
-                        {profile.avatarUrl ? (
-                            <img src={profile.avatarUrl} alt={profile.username} className="w-full h-full object-cover" />
+                        {profile.profilePicture ? (
+                            <img src={profile.profilePicture} alt={profile.username} className="w-full h-full object-cover" />
                         ) : (
                             <span>{profile.username.charAt(0)}</span>
                         )}
@@ -85,7 +85,7 @@ const ProfileHeaderCard: React.FC<{
                             className={`group md:min-w-[140px] px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 ${isFollowing
                                 ? 'bg-secondary/50 text-foreground hover:bg-destructive/10 hover:text-destructive border border-white/10'
                                 : 'bg-primary text-primary-foreground hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5'
-                            }`}
+                                }`}
                         >
                             {isFollowing ? (
                                 <>
@@ -230,7 +230,7 @@ const PublicProfile: React.FC = () => {
                 const prof = await getUserProfileById(+userId);
                 const mappedProfile: PublicProfileData = {
                     ...prof,
-                    avatarUrl: (prof as any).profilePicture || prof.avatarUrl
+                    profilePicture: (prof as any).profilePicture || (prof as any).avatarUrl
                 };
 
                 setProfile(mappedProfile);
@@ -319,7 +319,7 @@ const PublicProfile: React.FC = () => {
                                 className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${isActive
                                     ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 translate-y-[-1px]"
                                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                                }`}
+                                    }`}
                             >
                                 <Icon size={16} />
                                 {tab.label}

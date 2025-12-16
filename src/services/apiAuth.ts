@@ -22,11 +22,11 @@ apiAuth.interceptors.request.use(
 // manejo de errores 401/403
 apiAuth.interceptors.response.use(
     (response) => response,
-    (error) => {
-        if (
-            error.response &&
-            (error.response.status === 401 || error.response.status === 403)
-        ) {
+    (error: any) => {
+        if (error.response && error.response.status === 401) {
+            // Only redirect on 401 (Unauthorized - Token invalid/expired)
+            // 403 (Forbidden) means token is valid but permission denied, 
+            // so we should let the UI handle it (e.g. show error message instead of kicking user out)
             const isSecureEndpoint =
                 error.config?.url?.includes('/user') ||
                 error.config?.url?.includes('/admin') ||
@@ -36,6 +36,8 @@ apiAuth.interceptors.response.use(
                         error.config?.method !== 'get'));
 
             if (isSecureEndpoint) {
+                // Determine if we should redirect or just let the app handle it
+                // For now, redirecting on 401 is standard
                 window.location.href = '/login';
             }
         }
