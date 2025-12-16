@@ -25,8 +25,6 @@ const NewsDetailPage: React.FC = () => {
         }
     }, [id]);
 
-
-
     if (loading) {
         return (
             <div className="container mx-auto px-4 py-8">
@@ -45,6 +43,7 @@ const NewsDetailPage: React.FC = () => {
                         Noticia no encontrada
                     </h2>
                     <Button onClick={() => navigate('/news')}>
+                        Volver a noticias
                     </Button>
                 </div>
             </div>
@@ -59,15 +58,17 @@ const NewsDetailPage: React.FC = () => {
                     onClick={() => navigate('/news')}
                     className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
                 >
+                    ← Volver
                 </button>
 
-                {/* Cover Image */}
+                {/* Cover Image - FIXED: Better aspect ratio handling */}
                 {news.coverImage && (
-                    <div className="mb-6">
+                    <div className="mb-6 rounded-xl overflow-hidden bg-muted">
                         <img
                             src={news.coverImage}
                             alt={news.title}
-                            className="w-full h-auto rounded-lg shadow-lg max-h-96 object-cover"
+                            className="w-full h-auto max-h-[600px] object-contain"
+                            style={{ objectFit: 'contain' }}
                         />
                     </div>
                 )}
@@ -113,8 +114,6 @@ const NewsDetailPage: React.FC = () => {
                     <UnifiedContentRenderer content={news.content} />
                 </div>
             </article>
-
-
 
             {/* Admin Panel */}
             {isAdmin && (
@@ -165,7 +164,7 @@ const NewsDetailPage: React.FC = () => {
                 </div>
             )}
 
-            {/* ========== COMENTARIOS ========== */}
+            {/* Comments */}
             <CommentSection
                 entityType="news"
                 entityId={news.id}
