@@ -1,4 +1,3 @@
-// src/services/listService.ts
 import apiAuth from './apiAuth';
 import api from './api';
 
@@ -29,14 +28,24 @@ export interface UserListRequest {
     items: ListItemRequest[];
 }
 
+export interface CommentResponse {
+    id: number;
+    content: string;
+    userId: number;
+    username: string;
+    createdAt: string;
+    replies: CommentResponse[];
+}
+
 export interface UserListResponse {
     id: number;
     title: string;
     description: string;
     createdAt: string;
     userId: number;
-    username?: string;
+    username: string;
     items: ListItemResponse[];
+    comments?: CommentResponse[];
 }
 
 export interface ReorderItemRequest {
@@ -59,7 +68,7 @@ export const listService = {
 
     // Get all public lists
     getAllLists: async (): Promise<UserListResponse[]> => {
-        const response = await api.get('/lists/get-all'); // The 1 is a placeholder, backend ignores this parameter
+        const response = await api.get('/lists/get-all');
         return response.data;
     },
 
