@@ -321,17 +321,7 @@ const Game: React.FC = () => {
                                         {game.releaseDate ? new Date(game.releaseDate).toLocaleDateString('en-US', { dateStyle: 'long' }) : 'TBA'}
                                     </p>
                                 </div>
-                                <div className="h-px bg-white/5"></div>
-                                <div>
-                                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Tags</h4>
-                                    <div className="flex flex-wrap gap-1.5">
-                                        {game.tags?.map((t) => (
-                                            <span key={t} className="text-xs text-muted-foreground bg-black/20 px-2 py-1 rounded-md border border-white/5">
-                                                #{t}
-                                            </span>
-                                        )) || <span className="text-xs text-muted-foreground">No tags</span>}
-                                    </div>
-                                </div>
+
                             </div>
                         </div>
                     </div>

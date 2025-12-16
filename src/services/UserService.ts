@@ -11,19 +11,38 @@ export const getUserProfileById = async (userId: number): Promise<UserProfileRes
 // Public endpoint to resolve ID from username
 export const getIdByUsername = async (username: string): Promise<number | null> => {
     try {
-        // Dynamically import token getter to avoid circular dependencies with apiAuth if any
-        const { getAccessToken } = await import('../auth/token');
-        const token = await getAccessToken();
-
-        const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-
-        // Use 'api' instance but manually attach token if available
-        // This avoids apiAuth's aggressive interceptors that redirect on 401/403
-        const res = await api.get(`/user/id-by-username/${encodeURIComponent(username)}`, config);
-        return res.data;
+        // Public endpoint to find user ID by username
+        const response = await api.get(`/user/find/${username}`);
+        return response.data.id;
     } catch (error) {
-        console.error(`Error resolving ID for username ${username}:`, error);
+        console.error('Error fetching user ID by username:', error);
         return null;
+    }
+};
+
+export const updateUsername = async (userId: number, username: string): Promise<any> => {
+    // PATCH /user/{userId}/username
+    // Auth required
+    const response = await apiAuth.patch(`/user/${userId}/username`, { username });
+    return response.data;
+};
+
+export const updateProfilePicture = async (userId: number, profilePicture: string): Promise<any> => {
+    // PATCH /user/{userId}/profile-picture
+    // Auth required
+    const response = await apiAuth.patch(`/user/${userId}/profile-picture`, { profilePicture });
+    return response.data;
+};
+
+export const isUsernameAvailable = async (candidate: string): Promise<boolean> => {
+    // GET /user/username-available/{candidate}
+    // Public
+    try {
+        const response = await api.get(`/user/username-available/${candidate}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error checking availability:', error);
+        return false;
     }
 };
 
