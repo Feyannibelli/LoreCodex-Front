@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Game as GameType } from "../../interfaces/Game.ts";
+import { Guide } from "../../interfaces/Guide.ts";
 import gameService from "../../services/gameService.ts";
 import { useAuth } from "../../context/AuthContext.tsx";
 import ReviewList from "../../components/ReviewList.tsx";
@@ -8,7 +9,6 @@ import GameNotesSection from "../../components/GameNotesSection.tsx";
 import ratingService, { RatingSummaryDto } from "../../services/ratingService.ts";
 import { Calendar, Star, Tag, FileText, User } from "lucide-react";
 import RatingPopover from "../../components/game/RatingPopover";
-import { Guide } from "../../interfaces/Guide.ts";
 import guideService from "../../services/guideService.ts";
 import Button from "../../components/Button.tsx";
 
@@ -49,7 +49,7 @@ const Game: React.FC = () => {
                 setGuidesLoading(true);
                 try {
                     const allGuides = await guideService.getPublishedGuides();
-                    const filtered = allGuides.filter(guide => guide.gameId === parseInt(id));
+                    const filtered = allGuides.filter((guide: Guide) => guide.gameId === parseInt(id));
                     setRelatedGuides(filtered);
                 } catch (err) {
                     console.error("Error fetching related guides:", err);
@@ -276,7 +276,7 @@ const Game: React.FC = () => {
                                     className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === tab.id
                                         ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 translate-y-[-1px]"
                                         : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                                    }`}
+                                        }`}
                                 >
                                     {tab.label}
                                 </button>
