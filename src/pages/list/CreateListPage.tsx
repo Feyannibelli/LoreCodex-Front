@@ -13,8 +13,31 @@ const CreateListPage: React.FC = () => {
         if (!user) return;
         setIsSubmitting(true);
         try {
-            await listService.createList(user.id, data);
-            navigate('/my-lists');
+            // 1. Create Shell
+            const listShell = await listService.createList(user.id, {
+                title: data.title,
+                description: data.description,
+            });
+
+            // 2. Add Items loop (Sequential to preserve order/simplicity or Promise.all if supported)
+            if (data.items && data.items.length > 0) {
+                // Ensure positions are correct
+                const itemsToAdd = data.items.map((item, index) => ({
+                    ...item,
+                    position: index // 0-based or 1-based, backend spec says 'int' but typically reorder handles it.
+                }));
+
+                for (const item of itemsToAdd) {
+                    try {
+                        await listService.addItemToList(listShell.id, item);
+                    } catch (err) {
+                        console.error(`Failed to add item ${item.referenceId}`, err);
+                        // Optional: Continue or abort? We'll continue to try adding the rest.
+                    }
+                }
+            }
+
+            navigate(`/lists/${listShell.id}`);
         } catch (error) {
             console.error('Error creating list:', error);
             // Could add toast here
@@ -31,16 +54,10 @@ const CreateListPage: React.FC = () => {
         );
     }
 
-    const breadcrumbs = [
-        { label: 'Home', href: '/' },
-        { label: 'Lists', href: '/lists' },
-        { label: 'Create New List' },
-    ];
-
     return (
         <ListForm
             pageTitle="Create New List"
-            breadcrumbs={breadcrumbs}
+            breadcrumbs={[]}
             submitLabel="Create List"
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}

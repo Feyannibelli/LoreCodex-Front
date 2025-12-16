@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import challengeService, { Challenge, ChallengeProgress } from '../../services/challengeService';
 import { useAuth } from '../../context/AuthContext';
-import { Crown, User, Play, Circle, Trash2 } from 'lucide-react';
+import { Crown, User, Play, Circle, Trash2, Gamepad2 } from 'lucide-react';
 import Button from '../../components/Button';
 import UnifiedContentRenderer from '../../components/UnifiedContentRenderer';
 import PrettyCheckbox from '../../components/PrettyCheckbox';
@@ -277,6 +277,19 @@ const ChallengeDetailPage: React.FC = () => {
                                             </p>
                                         )}
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* Related Game Placeholder (Since backend doesn't provide game yet) */}
+                            <div className="mb-6 p-4 rounded-xl bg-background/50 border border-white/5 flex items-center gap-4">
+                                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0">
+                                    <Gamepad2 className="h-6 w-6 text-primary" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="text-sm font-bold text-white truncate">Target Game</h4>
+                                    <p className="text-xs text-muted-foreground truncate">
+                                        Unknown Title
+                                    </p>
                                 </div>
                             </div>
 

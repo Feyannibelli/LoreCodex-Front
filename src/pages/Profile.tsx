@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Mail, Bell, LogOut } from 'lucide-react';
+import { Mail, Bell, LogOut, Pencil, Check, X, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useAuth0 } from '@auth0/auth0-react';
 import emailService from '../services/emailService';
+import * as userService from '../services/UserService';
 import Button from '../components/Button';
 import SettingsLayout from '../components/settings/SettingsLayout';
 import SettingsSectionCard from '../components/settings/SettingsSectionCard';
+
 
 type ClaimRecord = Record<string, unknown> | null;
 
@@ -25,6 +27,21 @@ const Profile: React.FC = () => {
     const [sendingTestEmail, setSendingTestEmail] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+
+    // Username Edit State
+    const [isEditingUsername, setIsEditingUsername] = useState(false);
+    const [newUsername, setNewUsername] = useState('');
+    const [originalUsername, setOriginalUsername] = useState('');
+    const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+    const [usernameError, setUsernameError] = useState('');
+    const [isSavingUsername, setIsSavingUsername] = useState(false);
+
+    useEffect(() => {
+        if (backendUser?.username) {
+            setOriginalUsername(backendUser.username);
+            setNewUsername(backendUser.username);
+        }
+    }, [backendUser]);
 
     useEffect(() => {
         setEmailNotificationsEnabled(backendUser?.emailNotificationsEnabled || false);
@@ -49,6 +66,27 @@ const Profile: React.FC = () => {
             cancelled = true;
         };
     }, [auth0User, getIdTokenClaims]);
+
+    // Auto-Sync Profile Picture
+    useEffect(() => {
+        const syncPicture = async () => {
+            if (backendUser && auth0User?.picture && !backendUser.profilePicture) {
+                // If Auth0 has picture but Backend doesn't -> Sync it
+                try {
+                    await userService.updateProfilePicture(backendUser.id, auth0User.picture);
+                    console.log('Synced profile picture from Auth0');
+                    // Reload to update context? Ideally yes.
+                    // window.location.reload(); 
+                    // Reloading might be too aggressive if it happens on every page load.
+                    // But this effect only runs if !backendUser.profilePicture.
+                    // After reload, it should have it (if backend handles it correctly).
+                } catch (err) {
+                    console.error('Failed to sync profile picture', err);
+                }
+            }
+        };
+        syncPicture();
+    }, [backendUser, auth0User]);
 
     const handleEmailNotificationToggle = async (enabled: boolean) => {
         setUpdatingNotifications(true);
@@ -91,6 +129,74 @@ const Profile: React.FC = () => {
             return () => clearTimeout(timer);
         }
     }, [successMessage, errorMessage]);
+
+    const handleUsernameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setNewUsername(val);
+        setUsernameError('');
+
+        // Basic Regex/Length Validation
+        const validRegex = /^[a-zA-Z0-9.\-_]+$/;
+        if (val.length < 3) {
+            setUsernameError('Username must be at least 3 characters');
+            return;
+        }
+        if (val.length > 15) {
+            setUsernameError('Username must be at most 15 characters');
+            return;
+        }
+        if (!validRegex.test(val)) {
+            setUsernameError('Invalid characters (only letters, numbers, ., -, _)');
+            return;
+        }
+
+        // Availability Check (Debounced ideally, but simple async check here)
+        // If current username is same as original, no check needed
+        if (val === originalUsername) return;
+
+        setIsCheckingAvailability(true);
+        try {
+            const available = await userService.isUsernameAvailable(val);
+            if (!available) {
+                setUsernameError('This username is already taken.');
+            }
+        } finally {
+            setIsCheckingAvailability(false);
+        }
+    };
+
+    const saveUsername = async () => {
+        if (usernameError || !newUsername || isCheckingAvailability) return;
+        if (newUsername === originalUsername) {
+            setIsEditingUsername(false);
+            return;
+        }
+
+        setIsSavingUsername(true);
+        setErrorMessage('');
+        try {
+            // Assuming backendUser.id is available
+            if (!backendUser?.id) return;
+            await userService.updateUsername(backendUser.id, newUsername);
+            setSuccessMessage('Username updated successfully!');
+            setIsEditingUsername(false);
+            setOriginalUsername(newUsername);
+            // Verify if context updates automatically or needs a reload/refetch. 
+            // AuthContext typically listens to changes or needs a refresh. 
+            // Ideally we trigger a profile refresh here.
+            window.location.reload(); // Simple brute force update for full app context sync
+        } catch (err: any) {
+            if (err.response?.status === 409) {
+                setUsernameError('This username is already taken.');
+            } else if (err.response?.status === 400) {
+                setUsernameError(err.response.data?.message || 'Invalid username request');
+            } else {
+                setErrorMessage('Failed to update username. Try again.');
+            }
+        } finally {
+            setIsSavingUsername(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -160,7 +266,7 @@ const Profile: React.FC = () => {
                     <div className="flex items-center gap-4">
                         {/* Avatar */}
                         <div className="relative">
-                            <div className="h-20 w-20 rounded-2xl border-2 border-white/10 bg-secondary/50 flex items-center justify-center text-2xl font-bold text-foreground overflow-hidden">
+                            <div className="h-20 w-20 rounded-full border-2 border-white/10 bg-secondary/50 flex items-center justify-center text-2xl font-bold text-foreground overflow-hidden">
                                 {profilePicture ? (
                                     <img
                                         src={profilePicture}
@@ -201,9 +307,74 @@ const Profile: React.FC = () => {
             >
                 <div className="space-y-1">
                     {/* Username Row */}
-                    <div className="flex items-center justify-between py-3 border-b border-white/5">
-                        <span className="text-sm text-muted-foreground">Username</span>
-                        <span className="font-medium text-foreground">{displayName}</span>
+                    {/* Username Row */}
+                    <div className="flex items-center justify-between py-3 border-b border-white/5 min-h-[60px]">
+                        <span className="text-sm text-muted-foreground w-1/4">Username</span>
+                        <div className="flex items-center justify-end flex-1 gap-3">
+                            {isEditingUsername ? (
+                                <div className="flex items-center gap-2 w-full max-w-xs relative animate-in fade-in slide-in-from-right-4 duration-300">
+                                    <div className="relative w-full">
+                                        <input
+                                            type="text"
+                                            value={newUsername}
+                                            onChange={handleUsernameChange}
+                                            className={`w-full rounded-lg border bg-secondary/30 px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 transition-all ${usernameError
+                                                ? 'border-red-500/50 focus:ring-red-500/20'
+                                                : 'border-white/10 focus:ring-primary/20 focus:border-primary/50'
+                                                }`}
+                                            autoFocus
+                                        />
+                                        {isCheckingAvailability && (
+                                            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-3 w-3 animate-spin text-muted-foreground" />
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center gap-1 shrink-0">
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            className="h-8 w-8 text-green-400 hover:text-green-300 hover:bg-green-500/10"
+                                            onClick={saveUsername}
+                                            disabled={!!usernameError || isCheckingAvailability || isSavingUsername || !newUsername}
+                                        >
+                                            {isSavingUsername ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                                        </Button>
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                            onClick={() => {
+                                                setIsEditingUsername(false);
+                                                setNewUsername(originalUsername);
+                                                setUsernameError('');
+                                            }}
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+
+                                    {/* Error tooltip/message below absolute */}
+                                    {usernameError && (
+                                        <span className="absolute -bottom-5 left-0 text-[10px] text-red-400 font-medium">
+                                            {usernameError}
+                                        </span>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-3 group">
+                                    <span className="font-medium text-foreground">{originalUsername || displayName}</span>
+                                    <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="h-6 w-6 text-muted-foreground opacity-60 group-hover:opacity-100 hover:text-primary transition-all"
+                                        onClick={() => setIsEditingUsername(true)}
+                                        title="Change Username"
+                                    >
+                                        <Pencil className="h-3 w-3" />
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Email Row */}

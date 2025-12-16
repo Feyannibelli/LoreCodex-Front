@@ -25,7 +25,7 @@ export interface ListItemResponse {
 export interface UserListRequest {
     title: string;
     description: string;
-    items: ListItemRequest[];
+    // Items are now managed atomically, not via the list payload
 }
 
 export interface CommentResponse {
@@ -85,6 +85,7 @@ export const listService = {
 
     // Add an item to a list
     addItemToList: async (listId: number, item: ListItemRequest): Promise<void> => {
+        // Spec says POST /lists/{listId}/items/add
         await apiAuth.post(`/lists/${listId}/items/add`, item);
     },
 
