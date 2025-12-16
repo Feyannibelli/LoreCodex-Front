@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Button from "../../components/Button";
-import { Search, Gamepad2, Star, Users, Heart } from "lucide-react";
+import { Search, Gamepad2, Star, Users } from "lucide-react";
 import { cn } from "../../lib/utils.ts";
 import gameService, { PagedResponse } from "../../services/gameService.ts";
 import { Game } from "../../interfaces/Game.ts";
@@ -219,10 +219,11 @@ const GamesPage: React.FC = () => {
                                         </h2>
 
                                         <div className="flex items-center gap-4 text-xs text-muted-foreground/80 mt-2">
-                                            {game.likes !== undefined && (
-                                                <div className="flex items-center gap-1.5">
-                                                    <Heart className="h-3.5 w-3.5" />
-                                                    {game.likes}
+                                            {/* Rating instead of Likes */}
+                                            {game.averageRating !== undefined && (
+                                                <div className="flex items-center gap-1.5 ">
+                                                    <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500" />
+                                                    <span className="text-xs font-medium text-white">{game.averageRating?.toFixed(1) || "0.0"}</span>
                                                 </div>
                                             )}
                                             {game.playerCount && game.playerCount.toLowerCase() !== 'active' && (

@@ -7,7 +7,7 @@ import ReviewList from "../../components/ReviewList.tsx";
 // import "../../css/Game.css";
 import GameNotesSection from "../../components/GameNotesSection.tsx";
 import ratingService, { RatingSummaryDto } from "../../services/ratingService.ts";
-import { Calendar, Heart, Star, Tag, ListPlus } from "lucide-react";
+import { Calendar, Star, Tag } from "lucide-react";
 import RatingPopover from "../../components/game/RatingPopover";
 
 const Game: React.FC = () => {
@@ -237,17 +237,7 @@ const Game: React.FC = () => {
                             <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         </div>
 
-                        {/* Quick Actions Bar */}
-                        <div className="mt-6 flex gap-3">
-                            <button className="flex-1 bg-white/5 hover:bg-white/10 text-foreground py-3 rounded-xl backdrop-blur-md border border-white/5 font-medium transition-all flex items-center justify-center gap-2 group">
-                                <Heart className="h-5 w-5 text-red-500 group-hover:fill-red-500 transition-all" />
-                                <span>Like</span>
-                            </button>
-                            <button className="flex-1 bg-white/5 hover:bg-white/10 text-foreground py-3 rounded-xl backdrop-blur-md border border-white/5 font-medium transition-all flex items-center justify-center gap-2">
-                                <ListPlus className="h-5 w-5" />
-                                <span>Add to List</span>
-                            </button>
-                        </div>
+
                     </div>
 
                     {/* Right: Metadata & Info */}

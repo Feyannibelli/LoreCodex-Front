@@ -5,13 +5,13 @@ import { News } from "../../interfaces/News.ts";
 import newsService from "../../services/newsService.ts";
 import UnifiedContentRenderer from "../../components/UnifiedContentRenderer";
 import CommentSection from "../../components/comments/CommentSection";
-import { ArrowLeft, Calendar, Heart, Tag } from "lucide-react";
+import { ArrowLeft, Calendar, Tag } from "lucide-react";
 import Button from "../../components/Button";
 
 const NewsDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { isAuthenticated, isAdmin } = useAuth();
+    const { isAdmin } = useAuth();
 
     const [news, setNews] = useState<News | null>(null);
     const [loading, setLoading] = useState(true);
@@ -25,10 +25,7 @@ const NewsDetailPage: React.FC = () => {
         }
     }, [id]);
 
-    const toggleLike = () => {
-        if (!news) return;
-        newsService.toggleLike(news.id).then(res => setNews(res.data));
-    };
+
 
     if (loading) {
         return (
@@ -89,10 +86,7 @@ const NewsDetailPage: React.FC = () => {
                         <Calendar size={16} />
                         <span>{new Date(news.createdAt).toLocaleDateString()}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <Heart size={16} />
-                        <span>{news.likes} likes</span>
-                    </div>
+
                     {!news.published && (
                         <span className="bg-yellow-500/10 text-yellow-600 px-2 py-1 rounded-full text-xs font-medium border border-yellow-500/20">
                             🔒 Borrador
@@ -123,19 +117,7 @@ const NewsDetailPage: React.FC = () => {
                 </div>
             </article>
 
-            {/* Like Button */}
-            {isAuthenticated && (
-                <div className="mb-6">
-                    <Button
-                        onClick={toggleLike}
-                        className="flex items-center gap-2"
-                        variant="default"
-                    >
-                        <Heart size={20} className={news.likes > 0 ? "fill-current" : ""} />
-                        {news.likes > 0 ? 'Liked' : 'Like'}
-                    </Button>
-                </div>
-            )}
+
 
             {/* Admin Panel */}
             {isAdmin && (

@@ -6,7 +6,7 @@ import CommentSection from "../../components/comments/CommentSection";
 import guideService from "../../services/guideService";
 import { useAuth } from "../../context/AuthContext";
 import Button from "../../components/Button";
-import { ArrowLeft, Calendar, Heart, Share2, Edit, Trash2, Upload, Lock } from "lucide-react";
+import { ArrowLeft, Calendar, Share2, Edit, Trash2, Upload, Lock } from "lucide-react";
 
 const GuideDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -158,15 +158,7 @@ const GuideDetailPage: React.FC = () => {
             {/* Action Buttons */}
             {isAuthenticated && (
                 <div className="flex flex-wrap items-center gap-3 mb-6 pb-6 border-b border-border">
-                    <Button
-                        onClick={() => guideService.like(guide.id).then(() =>
-                            guideService.getById(guide.id).then(setGuide)
-                        )}
-                        className="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white border-none"
-                    >
-                        <Heart size={20} />
-                        Like ({guide.likeCount || 0})
-                    </Button>
+
 
                     <Button
                         onClick={handleShare}

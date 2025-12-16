@@ -6,7 +6,7 @@ import { useInfiniteScroll } from "../../hook/useInfiniteScroll.ts";
 import InfiniteScrollTrigger from "../../components/InfiniteScrollTrigger.tsx";
 import Button from "../../components/Button";
 import { useAuth } from "../../context/AuthContext";
-import { Search, ArrowUpDown, Plus, Calendar, Newspaper, Heart } from "lucide-react";
+import { Search, ArrowUpDown, Plus, Calendar, Newspaper } from "lucide-react";
 
 const NewsPage: React.FC = () => {
     const { isAdmin } = useAuth();
@@ -190,12 +190,7 @@ const NewsPage: React.FC = () => {
                                                 By <span className="text-foreground font-medium">LoreCodex Team</span>
                                             </div>
 
-                                            <div className="flex items-center gap-4 text-xs text-muted-foreground/60">
-                                                <div className="flex items-center gap-1.5">
-                                                    <Heart className="h-3.5 w-3.5" />
-                                                    {item.likes || 0}
-                                                </div>
-                                            </div>
+
                                         </div>
                                     </div>
                                 </Link>
