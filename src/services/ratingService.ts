@@ -11,10 +11,9 @@ export interface UserRatingResponse {
 export interface RatingSummaryDto {
     average: number;
     mine: number;
-    count?: number;
+    count: number; // Cantidad total de ratings - ya no es opcional
 }
 
-// El body que envías al back
 export interface RatingRequest {
     rating: number;
 }
@@ -51,7 +50,8 @@ const ratingService = {
     },
 
     /**
-     * Trae { average, mine } en un solo request
+     * Trae { average, mine, count } en un solo request
+     * ACTUALIZADO: Ahora incluye count (cantidad de ratings)
      */
     async getRatingSummary(gameId: number): Promise<RatingSummaryDto> {
         const res = await apiAuth.get<RatingSummaryDto>(`/rating/${gameId}/rating-summary`);
@@ -67,33 +67,3 @@ const ratingService = {
 };
 
 export default ratingService;
-
-
-/*const ratingService = {
-    setRating: async (gameId: number, rating: number) => {
-        return apiAuth.post(`/rating/setRating/${gameId}`, { rating });
-    },
-
-    getMyRating: async (gameId: number) => {
-        return apiAuth.get(`/rating/my/${gameId}`);
-    },
-
-    getAllRatingsForGame: async (gameId: number) => {
-        return api.get(`/rating/all/game/${gameId}`);
-    },
-
-    getAllMyRatings: async () => {
-        return api.get(`/rating/my`);
-    },
-
-    deleteMyRating: async (gameId: number) => {
-        return apiAuth.delete(`/rating/delete/${gameId}`);
-    },
-
-    getAverageRating: async (gameId: number) => {
-        const response = await api.get(`/rating/average-rating/${gameId}`);
-        return response.data;
-    }
-};
-
-export default ratingService;*/
