@@ -8,34 +8,22 @@ const CreateGuidePage: React.FC = () => {
     const navigate = useNavigate();
 
     /* ------ callbacks ------ */
-    const saveDraft = (data: Form) => {
+    const handleCreate = (data: Form) => {
+        // Backend forces draft=true, published=false on create regardless of what we send, 
+        // but we send explicit draft flags for clarity/consistency.
         const payload = { ...data, published: false, draft: true };
         guideService.create(payload).then(g =>
             navigate(`/guides/edit/${g.id}`)
         );
     };
 
-    const publishGuide = (data: Form) => {
-        const payload = { ...data, published: true, draft: false };
-        guideService.create(payload).then(g =>
-            navigate(`/guides/${g.id}`)
-        );
-    };
-
-    const breadcrumbs = [
-        { label: "Home", href: "/" },
-        { label: "Guides", href: "/guides" },
-        { label: "Create New Guide" }
-    ];
-
     return (
         <GuideForm
             pageTitle="Create New Guide"
-            breadcrumbs={breadcrumbs}
-            submitLabel="Save Draft"
-            onSubmit={saveDraft}
-            onPublish={publishGuide}
-            publishLabel="Publish Guide"
+            breadcrumbs={[]}
+            submitLabel="Create Guide"
+            onSubmit={handleCreate}
+        // Removed onPublish since all new guides start as drafts
         />
     );
 };

@@ -39,16 +39,10 @@ const CreateChallengePage: React.FC = () => {
         }
     };
 
-    const breadcrumbs = [
-        { label: 'Home', href: '/' },
-        { label: 'Challenges', href: '/challenges' },
-        { label: 'Create New Challenge' },
-    ];
-
     return (
         <ChallengeForm
             pageTitle="Create New Challenge"
-            breadcrumbs={breadcrumbs}
+            breadcrumbs={[]}
             onSubmit={handleSubmit}
             submitLabel="Publish Challenge"
             isSubmitting={isSubmitting}

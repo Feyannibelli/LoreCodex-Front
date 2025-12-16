@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import challengeService, { ChallengeFormData } from '../../services/challengeService';
 
-import { Game } from '../../interfaces/Game';
+
 import ChallengeForm from '../../components/challenge/ChallengeForm';
 
 const EditChallengePage: React.FC = () => {
@@ -13,7 +13,7 @@ const EditChallengePage: React.FC = () => {
 
     const [loading, setLoading] = useState(true);
     const [initialData, setInitialData] = useState<ChallengeFormData | null>(null);
-    const [initialGame] = useState<Game | null>(null);
+
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -81,7 +81,6 @@ const EditChallengePage: React.FC = () => {
             onSubmit={handleSubmit}
             submitLabel="Save Changes"
             initialData={initialData}
-            initialGame={initialGame}
             isSubmitting={isSubmitting}
         />
     );

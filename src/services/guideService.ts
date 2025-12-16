@@ -1,4 +1,4 @@
-import api     from "./api";
+import api from "./api";
 import apiAuth from "./apiAuth";
 import { Guide, GuideForm } from "../interfaces/Guide";
 
@@ -11,28 +11,28 @@ const toFrontend = (b: any): Guide => ({
     published: b.isPublished,
     draft: b.isDraft,
     tags: b.tags,
-    authorId: b.authorId,
+    authorId: b.userId, // Mapped from backend 'userId'
+    authorUsername: b.creatorUsername || 'Unknown', // Mapped from backend 'creatorUsername'
     likeCount: b.likeCount,
     comments: b.comments ?? [],
     images: b.images ?? [],
     createdAt: b.createdAt,
     updatedAt: b.updatedAt,
+    gameId: b.gameId
 });
 
-// guideService.ts  – mapper a backend
-// guideService.ts – mapper a backend
+// mapper to backend (GuideForm -> GuideRequest)
 const toBackend = (f: GuideForm) => ({
-    title:         f.title,
-    content:       f.content,
+    title: f.title,
+    content: f.content,
     coverImageUrl: f.coverImageUrl,
-    /* ¡los nombres deben coincidir con GuideRequest! */
-    isPublished:   f.published,
-    isDraft:       f.draft,
-    tags:          f.tags,
-    images:        f.images,
+    /* Backend ignores these on create, but we send them for update */
+    isPublished: f.published,
+    isDraft: f.draft,
+    tags: f.tags,
+    images: f.images,
+    gameId: f.gameId
 });
-
-
 
 /* ---- service ---- */
 const guideService = {
@@ -52,15 +52,19 @@ const guideService = {
             params: { page, size: pageSize }
         }).then(r => r.data.map(toFrontend)),
 
-    /* Drafts del usuario (nuevo endpoint) */
+    /* Drafts del usuario (por ID - público si se quisiera ver perfil, pero enfocado en 'mis drafts') */
     getDraftsByUser: (userId: number) =>
         apiAuth
             .get(`/guides/user/${userId}/drafts`)
             .then(r => r.data.map(toFrontend)),
 
-    /*guías por titulo (search) */
+    /* Shortcut: Mis borradores (requiere token) */
+    getMyDrafts: () =>
+        apiAuth.get('/user/my-drafts').then(r => r.data.map(toFrontend)),
+
+    /* search general */
     search: (query: string) =>
-        api.get(`/guides/search?query=${encodeURIComponent(query)}`)
+        api.get(`/guides/search?title=${encodeURIComponent(query)}`) // Adjusted param name to 'title' per spec
             .then(r => r.data.map(toFrontend)),
 
     /* admin o listados completos */
@@ -68,15 +72,8 @@ const guideService = {
         apiAuth.get(`/guides/all`).then(r => r.data.map(toFrontend)),
 
     /* CRUD */
-    /*@PostMapping("/create")
-    public ResponseEntity<GuideResponse> createGuide(
-            @RequestBody GuideRequest request,
-            @AuthenticationPrincipal User user
-    ) {
-        GuideResponse response = guideService.createGuide(request, user.getUsername(), null);
-        return ResponseEntity.ok(response);
-    }*/
     create: (data: GuideForm) =>
+        // Backend forces draft=true, published=false on create
         apiAuth.post(`/guides/create`, toBackend(data)).then(r => toFrontend(r.data)),
 
     update: (id: number, data: GuideForm) =>
@@ -85,14 +82,14 @@ const guideService = {
     delete: (id: number) =>
         apiAuth.delete(`/guides/deleteGuide/${id}`),
 
-    /* acciones */
-    publish:   (id: number) => apiAuth.post(`/guides/${id}/publish`).then(r => toFrontend(r.data)),
-    unpublish: (id: number) => apiAuth.post(`/guides/${id}/unpublish`).then(r => toFrontend(r.data)),
-    like:      (id: number) => apiAuth.post(`/guides/${id}/like`),
+    /* acciones de estado */
+    publish: (id: number) => apiAuth.post(`/guides/${id}/publish`, {}).then(r => toFrontend(r.data)),
+    unpublish: (id: number) => apiAuth.post(`/guides/${id}/unpublish`, {}).then(r => toFrontend(r.data)),
+    like: (id: number) => apiAuth.post(`/guides/${id}/like`, {}),
+
+    // Deprecated: author info is now in the guide response, but keeping just in case
     getAuthor: (id: number) =>
         api.get(`/guides/${id}/author`).then(r => r.data),
-
-    searchGuidesByTitle: (title:string) => apiAuth.get(`/guides/search?title=${encodeURIComponent(title)}`)
 };
 
 export default guideService;

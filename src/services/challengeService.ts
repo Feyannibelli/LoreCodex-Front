@@ -88,7 +88,8 @@ const adaptBackendChallengeToFrontend = (backendChallenge: BackendChallenge): Ch
     const gameData = backendChallenge.game;
 
     // Attempt to resolve creatorId from multiple redundant sources/formats
-    let resolvedCreatorId = backendChallenge.creatorId
+    let resolvedCreatorId = (backendChallenge as any).creatorUserId
+        ?? backendChallenge.creatorId
         ?? backendChallenge.creator_id
         ?? (backendChallenge as any).creator?.id
         ?? (backendChallenge as any).user?.id

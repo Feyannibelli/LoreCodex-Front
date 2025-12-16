@@ -104,30 +104,6 @@ const ChallengeDetailPage: React.FC = () => {
         fetchChallenge();
     }, [id, isAuthenticated]);
 
-    // Admin Fallback: If we are admin and still missing the creatorId, try to find it in the full user list
-    useEffect(() => {
-        const resolveMissingId = async () => {
-            if (isAdmin && challenge && !challenge.creatorId && challenge.creatorUsername && challenge.creatorUsername !== 'Unknown') {
-                try {
-                    console.log('[AdminFallback] Attempting to resolve missing creatorId via Admin API...');
-                    // Dynamically import authService to avoid circular deps if any (though standard import is fine here)
-                    const { default: authService } = await import('../../services/authService');
-                    const allUsers = await authService.getAllUsers();
-
-                    const foundUser = allUsers.find(u => u.username === challenge.creatorUsername);
-                    if (foundUser) {
-                        console.log(`[AdminFallback] Found user ${foundUser.username} with ID ${foundUser.id}`);
-                        setChallenge(prev => prev ? { ...prev, creatorId: foundUser.id } : null);
-                    }
-                } catch (err) {
-                    console.error('[AdminFallback] Failed to resolve user ID:', err);
-                }
-            }
-        };
-
-        resolveMissingId();
-    }, [challenge?.id, isAdmin, challenge?.creatorId]); // specific deps to avoid loop
-
     const handleJoin = async () => {
         if (!challenge || !isAuthenticated) return;
         try {
