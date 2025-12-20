@@ -28,7 +28,8 @@ const NewsForm: React.FC<NewsFormProps> = ({
     const [content, setContent] = useState(initialData?.content || '');
     const [coverImage, setCoverImage] = useState(initialData?.coverImage || '');
     const [publishedAt, setPublishedAt] = useState(initialData?.publishedAt || '');
-    const [tags, setTags] = useState(initialData?.tags?.join(', ') || '');
+    // Tag Input State (Local to allow typing commas without immediate format/wipe)
+    const [tagInput, setTagInput] = useState(initialData?.tags?.join(", ") || "");
 
     // Status for Layout
     const [status, setStatus] = useState<'saved' | 'unsaved' | 'saving'>('saved');
@@ -40,11 +41,11 @@ const NewsForm: React.FC<NewsFormProps> = ({
             content !== (initialData?.content || '') ||
             coverImage !== (initialData?.coverImage || '') ||
             publishedAt !== (initialData?.publishedAt || '') ||
-            tags !== (initialData?.tags?.join(', ') || '')
+            tagInput !== (initialData?.tags?.join(', ') || '') // compare with initial formatted string
         ) {
             setStatus('unsaved');
         }
-    }, [title, summary, content, coverImage, publishedAt, tags, initialData]);
+    }, [title, summary, content, coverImage, publishedAt, tagInput, initialData]);
 
     const handleSubmit = async () => {
         if (!title.trim() || !content.trim()) {
@@ -58,7 +59,7 @@ const NewsForm: React.FC<NewsFormProps> = ({
             content,
             coverImage: coverImage.trim() || undefined,
             publishedAt: publishedAt || undefined,
-            tags: tags.split(',').map(t => t.trim()).filter(Boolean)
+            tags: tagInput.split(',').map(t => t.trim()).filter(Boolean)
         });
         setStatus('saved');
     };
@@ -134,12 +135,24 @@ const NewsForm: React.FC<NewsFormProps> = ({
 
                         <ProInput
                             label="Tags"
-                            value={tags}
-                            onChange={(e) => setTags(e.target.value)}
+                            value={tagInput}
+                            onChange={(e) => {
+                                setTagInput(e.target.value);
+                            }}
                             placeholder="news, update, event"
                             helperText="Comma separated"
                             icon={Hash}
                         />
+                        {/* Tags Preview Pills */}
+                        {tagInput.split(',').map(t => t.trim()).filter(Boolean).length > 0 && (
+                            <div className="flex flex-wrap gap-2 pt-2">
+                                {tagInput.split(',').map(t => t.trim()).filter(Boolean).map((tag, i) => (
+                                    <span key={i} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary border border-primary/20">
+                                        #{tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 

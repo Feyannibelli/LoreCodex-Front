@@ -1,18 +1,29 @@
 /// <reference types="vite/client" />
 
-declare module '*.css';
+declare module 'react-confetti' {
+  import { Component } from 'react';
 
-interface ImportMetaEnv {
-  readonly VITE_API_URL?: string;
+  export interface ConfettiProps {
+    width?: number;
+    height?: number;
+    numberOfPieces?: number;
+    recycle?: boolean;
+    run?: boolean;
+    colors?: string[];
+    opacity?: number;
+    initialVelocityX?: number;
+    initialVelocityY?: number;
+    tweenDuration?: number;
+    confettiSource?: {
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+    };
+    drawShape?: (ctx: CanvasRenderingContext2D) => void;
+    onConfettiComplete?: (confetti: any) => void;
+    className?: string;
+  }
 
-  readonly VITE_AUTH0_DOMAIN?: string;
-  readonly VITE_AUTH0_CLIENT_ID?: string;
-  readonly VITE_AUTH0_AUDIENCE?: string;
-  readonly VITE_AUTH0_SCOPE?: string;
-  readonly VITE_AUTH0_REDIRECT_URI?: string;
-  readonly VITE_AUTH0_ROLES_CLAIM?: string;
-}
-
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
+  export default class ReactConfetti extends Component<ConfettiProps> { }
 }

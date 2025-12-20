@@ -17,28 +17,31 @@ export interface Challenge {
     creatorUsername: string;
     creatorId?: number;
     items: ChallengeItem[];
-    difficulty?: number; // 1-6
-    mediaUrl?: string;
-    mediaType?: 'image' | 'video' | 'none';
+    // difficulty excluded
+    // media excluded
+    createdAt?: string; // Optional if not in backend response strictly, but good to have
+    isTemporary?: boolean;
+    // UI-only properties (for now, or future backend support)
+    gameTitle?: string;
+    gameCoverUrl?: string;
 }
 
 export interface ChallengeFormData {
     title: string;
     description: string;
     items: string[];
-    difficulty: number;
-    mediaUrl?: string;
-    mediaType: 'image' | 'video' | 'none';
+    // difficulty excluded
+    // media excluded
 }
 
+// ... (ChallengeProgress stays same)
 export interface ChallengeProgress {
     challengeId: number;
     progress: number;
     completed: number;
     total: number;
-    completedItems: number[];    // ahora siempre existe
+    completedItemIds: number[];    // updated to match backend DTO
 }
-
 
 // Interfaces para adaptar el backend
 interface BackendChallenge {
@@ -47,19 +50,27 @@ interface BackendChallenge {
     description: string;
     creatorUsername: string;
     creatorId?: number;
+    creator_id?: number; // Fallback for snake_case
+    game?: {
+        id: number;
+        title: string;
+        coverUrl?: string; // or cover_url
+        cover_url?: string;
+    };
+    gameId?: number; // Fallback if just ID
+    game_id?: number;
     items: {
         id: number;
         description: string;
         order: number;
+        completed?: boolean;
     }[];
 }
 
-// Agrega difficulty a la request
 interface BackendChallengeRequest {
     title: string;
     description: string;
     items: string[];
-    difficulty: number; // <--- agrega esto
 }
 
 const adaptFrontendChallengeToBackend = (frontendChallenge: ChallengeFormData): BackendChallengeRequest => {
@@ -67,7 +78,6 @@ const adaptFrontendChallengeToBackend = (frontendChallenge: ChallengeFormData): 
         title: frontendChallenge.title,
         description: frontendChallenge.description,
         items: frontendChallenge.items,
-        difficulty: frontendChallenge.difficulty // <--- agrega esto
     };
 };
 
@@ -75,18 +85,43 @@ const adaptBackendChallengeToFrontend = (backendChallenge: BackendChallenge): Ch
     // Add logging to debug what's coming from backend
     console.log('Backend challenge data:', backendChallenge);
 
+    const gameData = backendChallenge.game;
+
+    // Attempt to resolve creatorId from multiple redundant sources/formats
+    let resolvedCreatorId = (backendChallenge as any).creatorUserId
+        ?? backendChallenge.creatorId
+        ?? backendChallenge.creator_id
+        ?? (backendChallenge as any).creator?.id
+        ?? (backendChallenge as any).user?.id
+        ?? (backendChallenge as any).userId
+        ?? (backendChallenge as any).user_id;
+
+    // Fallback: If ID is still missing, try to find it in the included comments (if the creator commented)
+    if (!resolvedCreatorId && (backendChallenge as any).comments && Array.isArray((backendChallenge as any).comments)) {
+        const creatorComment = (backendChallenge as any).comments.find((c: any) =>
+            c.username === (backendChallenge.creatorUsername || (backendChallenge as any).creator?.username)
+        );
+        if (creatorComment) {
+            resolvedCreatorId = creatorComment.userId;
+            console.log(`[ChallengeService] Recovered creatorId ${resolvedCreatorId} from comments for ${backendChallenge.creatorUsername}`);
+        }
+    }
+
     return {
         id: backendChallenge.id,
         title: backendChallenge.title,
         description: backendChallenge.description,
-        creatorUsername: backendChallenge.creatorUsername,
-        creatorId: backendChallenge.creatorId,
-        // Add null check for items array
+        creatorUsername: backendChallenge.creatorUsername || (backendChallenge as any).creator?.username || (backendChallenge as any).user?.username || 'Unknown',
+        creatorId: resolvedCreatorId,
         items: (backendChallenge.items || []).map(item => ({
             id: item.id,
             description: item.description,
-            order: item.order
-        }))
+            order: item.order,
+            completed: item.completed
+        })),
+        // Map Game Info if present
+        gameTitle: gameData?.title,
+        gameCoverUrl: gameData?.coverUrl ?? gameData?.cover_url
     };
 };
 
@@ -95,7 +130,7 @@ const challengeService = {
     getAllChallenges: async (): Promise<Challenge[]> => {
         try {
             const response = await api.get('/challenges');
-            return response.data.map(adaptBackendChallengeToFrontend);
+            return response.data.map((c: any) => adaptBackendChallengeToFrontend(c));
         } catch (error) {
             console.error('Error fetching challenges:', error);
             return [];
@@ -117,7 +152,7 @@ const challengeService = {
     searchChallengesByTitle: async (title: string): Promise<Challenge[]> => {
         try {
             const response = await api.get(`/challenges/search?title=${title}`);
-            return response.data.map(adaptBackendChallengeToFrontend);
+            return response.data.map((c: any) => adaptBackendChallengeToFrontend(c));
         } catch (error) {
             console.error('Error searching challenges:', error);
             return [];
@@ -128,40 +163,53 @@ const challengeService = {
     createChallenge: async (challengeData: ChallengeFormData): Promise<Challenge> => {
         try {
             const backendChallenge = adaptFrontendChallengeToBackend(challengeData);
-            console.log('Sending to backend:', backendChallenge);
+            console.log('Sending to backend (JSON):', backendChallenge);
 
             const response = await apiAuth.post('/challenges', backendChallenge);
-            console.log('Backend response:', response.data);
-            console.log('Response status:', response.status);
+            console.log('Backend response:', response);
 
-            // Check if response.data exists and has expected structure
-            if (!response.data) {
-                // If backend doesn't return data but request was successful,
-                // create a temporary challenge object for the frontend
-                if (response.status === 200 || response.status === 201) {
-                    console.warn('Backend created challenge but returned empty response. Creating temporary object.');
+            // 1. Try to get ID from Location header
+            const locationHeader = response.headers['location'];
+            if (locationHeader) {
+                const idPart = locationHeader.split('/').pop();
+                if (idPart && !isNaN(parseInt(idPart))) {
                     return {
-                        id: Date.now(), // Temporary ID
+                        id: parseInt(idPart),
                         title: challengeData.title,
                         description: challengeData.description,
-                        creatorUsername: 'Unknown', // Will be updated when you reload
+                        creatorUsername: 'Me', // Temporary
                         items: challengeData.items.map((item, index) => ({
-                            id: index + 1,
+                            id: index, // Temp
                             description: item,
-                            order: index + 1
+                            order: index
                         }))
                     };
                 }
-                throw new Error('No data received from backend');
             }
 
-            return adaptBackendChallengeToFrontend(response.data);
+            // 2. Fallback if no Location header or parsing failed (e.g. strict CORS hiding headers)
+            // Check if response.data exists and has ID (unlikely per spec)
+            if (response.data && response.data.id) {
+                return adaptBackendChallengeToFrontend(response.data);
+            }
+
+            // 3. Last resort fallback: Temporary ID (will redirect to list)
+            console.warn('Backend created challenge but returned empty response and no accessible Location header.');
+            return {
+                id: Date.now(), // Temporary ID
+                title: challengeData.title,
+                description: challengeData.description,
+                creatorUsername: 'Me',
+                items: challengeData.items.map((item, index) => ({
+                    id: index + 1,
+                    description: item,
+                    order: index + 1
+                })),
+                isTemporary: true
+            } as Challenge & { isTemporary?: boolean };
+
         } catch (error) {
             console.error('Error creating challenge:', error);
-            if (axios.isAxiosError(error) && error.response) {
-                console.error('API response error:', error.response.data);
-                console.error('API response status:', error.response.status);
-            }
             throw error;
         }
     },
@@ -171,7 +219,7 @@ const challengeService = {
             const response = await api.get('/challenges', {
                 params: { page, size: pageSize }
             });
-            return response.data.map(adaptBackendChallengeToFrontend);
+            return response.data.map((c: any) => adaptBackendChallengeToFrontend(c));
         } catch (error) {
             console.error('Error fetching paginated challenges:', error);
             return [];
@@ -186,9 +234,6 @@ const challengeService = {
             return adaptBackendChallengeToFrontend(response.data);
         } catch (error) {
             console.error(`Error updating challenge with id ${id}:`, error);
-            if (axios.isAxiosError(error) && error.response) {
-                console.error('API response error:', error.response.data);
-            }
             throw error;
         }
     },
@@ -231,7 +276,7 @@ const challengeService = {
         }
     },
 
-// Desmarcar un ítem como completado y necesito que actualice el progreso del challenge
+    // Desmarcar un ítem como completado y necesito que actualice el progreso del challenge
     uncompleteItem: async (challengeId: number, itemId: number): Promise<ChallengeProgress> => {
         try {
             const response = await apiAuth.post(`/challenges/${challengeId}/items/${itemId}/uncomplete`);
@@ -266,11 +311,37 @@ const challengeService = {
             await apiAuth.post(`/challenges/${challengeId}/leave`);
         } catch (error) {
             console.error(`Error leaving challenge ${challengeId}:`, error);
-            if (axios.isAxiosError(error) && error.response &&
-                (error.response.status === 401 || error.response.status === 403)) {
-                throw new Error("Authentication required to leave this challenge");
-            }
             throw error;
+        }
+    },
+
+    isJoined: async (challengeId: number): Promise<boolean> => {
+        try {
+            const response = await apiAuth.get(`/challenges/${challengeId}/joined`);
+            return response.data;
+        } catch (error) {
+            console.error(`Error checking if joined challenge ${challengeId}:`, error);
+            return false;
+        }
+    },
+
+    getCreatedChallenges: async (): Promise<Challenge[]> => {
+        try {
+            const response = await apiAuth.get('/challenges/me/created');
+            return response.data.map((c: any) => adaptBackendChallengeToFrontend(c));
+        } catch (error) {
+            console.error('Error fetching created challenges:', error);
+            return [];
+        }
+    },
+
+    getJoinedChallenges: async (): Promise<Challenge[]> => {
+        try {
+            const response = await apiAuth.get('/challenges/me/joined');
+            return response.data.map((c: any) => adaptBackendChallengeToFrontend(c));
+        } catch (error) {
+            console.error('Error fetching joined challenges:', error);
+            return [];
         }
     }
 };

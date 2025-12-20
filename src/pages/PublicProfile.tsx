@@ -20,11 +20,10 @@ import {
     Calendar
 } from 'lucide-react';
 
-// --- Interfaces ---
 interface PublicProfileData {
     userId: number;
     username: string;
-    avatarUrl?: string; // Note: API might return profilePicture, handled in logic
+    profilePicture?: string;
     bio?: string;
     followersCount: number;
     followingCount: number;
@@ -32,8 +31,6 @@ interface PublicProfileData {
     guides: Guide[];
     reviews: Review[];
 }
-
-// --- Components ---
 
 const ProfileHeaderCard: React.FC<{
     profile: PublicProfileData;
@@ -45,24 +42,20 @@ const ProfileHeaderCard: React.FC<{
 }> = ({ profile, followersCount, followingCount, isFollowing, isOwnProfile, onToggleFollow }) => {
     return (
         <div className="relative overflow-hidden rounded-3xl bg-card/60 backdrop-blur-xl border border-white/10 shadow-2xl">
-            {/* Background gradient effect */}
             <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative p-8 md:p-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
-                {/* Avatar */}
                 <div className="flex-shrink-0 relative group">
                     <div className="h-28 w-28 md:h-32 md:w-32 rounded-full ring-4 ring-card bg-neutral-800 flex items-center justify-center text-5xl font-bold text-white uppercase shadow-xl relative z-10 overflow-hidden">
-                        {profile.avatarUrl ? (
-                            <img src={profile.avatarUrl} alt={profile.username} className="w-full h-full object-cover" />
+                        {profile.profilePicture ? (
+                            <img src={profile.profilePicture} alt={profile.username} className="w-full h-full object-cover" />
                         ) : (
                             <span>{profile.username.charAt(0)}</span>
                         )}
                     </div>
-                    {/* Decorative ring */}
                     <div className="absolute inset-0 rounded-full ring-2 ring-white/10 scale-110" />
                 </div>
 
-                {/* Info & Stats */}
                 <div className="flex-1 text-center md:text-left space-y-4">
                     <div>
                         <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">{profile.username}</h1>
@@ -85,14 +78,13 @@ const ProfileHeaderCard: React.FC<{
                     </div>
                 </div>
 
-                {/* Actions */}
                 {!isOwnProfile && (
                     <div className="flex-shrink-0">
                         <button
                             onClick={onToggleFollow}
                             className={`group md:min-w-[140px] px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 ${isFollowing
-                                    ? 'bg-secondary/50 text-foreground hover:bg-destructive/10 hover:text-destructive border border-white/10'
-                                    : 'bg-primary text-primary-foreground hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5'
+                                ? 'bg-secondary/50 text-foreground hover:bg-destructive/10 hover:text-destructive border border-white/10'
+                                : 'bg-primary text-primary-foreground hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5'
                                 }`}
                         >
                             {isFollowing ? (
@@ -177,29 +169,44 @@ const UserListCard: React.FC<{ list: UserListResponse }> = ({ list }) => (
     </Link>
 );
 
-const ReviewItem: React.FC<{ review: Review }> = ({ review }) => (
-    <Link
-        to={`/games/${review.gameId}`}
-        className="group block p-5 rounded-2xl bg-card border border-white/5 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5"
-    >
-        <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-2">
-                <div className="bg-orange-500/10 text-orange-400 p-2 rounded-lg">
-                    <Star size={20} fill="currentColor" className="opacity-20" />
+const ReviewItem: React.FC<{ review: Review }> = ({ review }) => {
+    // Convert rating from 10-scale to 5-scale if needed
+    // Backend stores as Double (0-10), we display as 5-star system
+    const displayRating = review.rating ? Math.round((review.rating / 5) * 5 * 5) / 5 : 0;
+
+    return (
+        <Link
+            to={`/games/${review.gameId}`}
+            className="group block p-5 rounded-2xl bg-card border border-white/5 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5"
+        >
+            <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-2">
+                    <div className="bg-orange-500/10 text-orange-400 p-2 rounded-lg">
+                        <Star size={20} fill="currentColor" className="opacity-20" />
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <span className="text-lg font-bold text-orange-400">{displayRating.toFixed(1)}</span>
+                        <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                                <Star
+                                    key={i}
+                                    size={14}
+                                    className={i < Math.floor(displayRating) ? "text-orange-400 fill-orange-400" : "text-muted-foreground/30"}
+                                />
+                            ))}
+                        </div>
+                    </div>
                 </div>
-                <span className="text-lg font-bold text-orange-400">{review.rating}/10</span>
+                <ChevronRight className="text-muted-foreground group-hover:text-primary transition-colors" size={20} />
             </div>
-            <ChevronRight className="text-muted-foreground group-hover:text-primary transition-colors" size={20} />
-        </div>
 
-        <h4 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">{review.gameTitle}</h4>
-        <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed italic">
-            "{review.content}"
-        </p>
-    </Link>
-);
-
-// --- Main Page Component ---
+            <h4 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">{review.gameTitle}</h4>
+            <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed italic">
+                "{review.content}"
+            </p>
+        </Link>
+    );
+};
 
 const PublicProfile: React.FC = () => {
     const { userId } = useParams<{ userId: string }>();
@@ -220,24 +227,19 @@ const PublicProfile: React.FC = () => {
         const load = async () => {
             setLoading(true);
             try {
-                // 1. Fetch Profile
                 const prof = await getUserProfileById(+userId);
-                // The API might return 'profilePicture' instead of 'avatarUrl', mapping it if needed
-                // Assuming prof structure matches or needs slight adaptation:
                 const mappedProfile: PublicProfileData = {
                     ...prof,
-                    avatarUrl: (prof as any).profilePicture || prof.avatarUrl
+                    profilePicture: (prof as any).profilePicture || (prof as any).avatarUrl
                 };
 
                 setProfile(mappedProfile);
                 setFollowersCount(prof.followersCount);
                 setFollowingCount(prof.followingCount);
 
-                // 2. Fetch Lists
                 const uLists = await userListService.getForUser(+userId);
                 setLists(uLists as UserListResponse[]);
 
-                // 3. Check Follow Status
                 if (me) {
                     const follows = await followService.isFollowing(me.id, +userId);
                     setIsFollowing(follows);
@@ -292,7 +294,6 @@ const PublicProfile: React.FC = () => {
 
     return (
         <div className="max-w-6xl mx-auto px-4 py-8 md:py-12 space-y-8 animate-fade-in">
-            {/* 1. Header Card */}
             <ProfileHeaderCard
                 profile={profile}
                 followersCount={followersCount}
@@ -302,7 +303,6 @@ const PublicProfile: React.FC = () => {
                 onToggleFollow={toggleFollow}
             />
 
-            {/* 2. Navigation Tabs */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="flex flex-wrap items-center gap-2 bg-card/30 p-1.5 rounded-2xl border border-white/5 backdrop-blur-sm">
                     {[
@@ -317,8 +317,8 @@ const PublicProfile: React.FC = () => {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as any)}
                                 className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${isActive
-                                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 translate-y-[-1px]"
-                                        : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 translate-y-[-1px]"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                                     }`}
                             >
                                 <Icon size={16} />
@@ -329,10 +329,7 @@ const PublicProfile: React.FC = () => {
                 </div>
             </div>
 
-            {/* 3. Content Area */}
             <div className="bg-card/30 backdrop-blur-md rounded-3xl border border-white/5 p-6 md:p-8 min-h-[400px]">
-
-                {/* Guides Tab */}
                 {activeTab === 'guides' && (
                     <div className="space-y-6 animate-fade-in">
                         <div className="flex items-center justify-between mb-2">
@@ -361,7 +358,6 @@ const PublicProfile: React.FC = () => {
                     </div>
                 )}
 
-                {/* Lists Tab */}
                 {activeTab === 'lists' && (
                     <div className="space-y-6 animate-fade-in">
                         <div className="flex items-center justify-between mb-2">
@@ -390,7 +386,6 @@ const PublicProfile: React.FC = () => {
                     </div>
                 )}
 
-                {/* Reviews Tab */}
                 {activeTab === 'reviews' && (
                     <div className="space-y-6 animate-fade-in">
                         <div className="flex items-center justify-between mb-2">

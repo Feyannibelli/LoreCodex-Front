@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Review } from '../interfaces/Review';
 import { useAuth } from '../context/AuthContext';
 import ReviewForm from './ReviewForm';
@@ -10,8 +11,6 @@ interface ReviewItemProps {
     review: Review;
     onEdit: (reviewId: number, content: string, rating: number) => void;
     onDelete: (reviewId: number) => void;
-    //onLike: (reviewId: number) => void;
-    //onDislike: (reviewId: number) => void;
 }
 
 const ReviewItem: React.FC<ReviewItemProps> = ({
@@ -29,8 +28,8 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
 
     const formattedDate = new Date(review.createdAt).toLocaleDateString();
 
-    const handleEditSubmit = (content: string, rating: number) => {
-        onEdit(review.id, content, rating);
+    const handleEditSubmit = (content: string) => {
+        onEdit(review.id, content, review.rating);
         setIsEditing(false);
     };
 
@@ -44,7 +43,6 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
             <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
                 <ReviewForm
                     initialContent={review.content}
-                    initialRating={review.rating}
                     onSubmit={handleEditSubmit}
                     onCancel={() => setIsEditing(false)}
                     isEditing={true}
@@ -60,13 +58,22 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
                     <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground font-semibold ring-1 ring-white/10">
                         {review.username.charAt(0).toUpperCase()}
                     </div>
-                    <span className="font-medium text-foreground">{review.username}</span>
+                    {/* SOLUCIÓN: Link al perfil del usuario */}
+                    <Link
+                        to={`/profile/${review.userId}`}
+                        className="font-medium text-foreground hover:text-primary transition-colors hover:underline"
+                    >
+                        {review.username}
+                    </Link>
                 </div>
                 <div className="flex items-center gap-1">
                     {Array.from({ length: 5 }).map((_, index) => (
                         <Star
                             key={index}
-                            className={`h-4 w-4 ${index < review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
+                            className={`h-4 w-4 ${index < review.rating
+                                ? "fill-amber-400 text-amber-400"
+                                : "text-muted-foreground/30"
+                                }`}
                         />
                     ))}
                 </div>

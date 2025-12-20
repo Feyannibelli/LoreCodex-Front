@@ -5,7 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 import { useInfiniteScroll } from "../../hook/useInfiniteScroll";
 import InfiniteScrollTrigger from "../../components/InfiniteScrollTrigger";
-import { FileEdit, ArrowLeft } from "lucide-react";
+import { FileEdit } from "lucide-react";
 
 const MyDraftsPage: React.FC = () => {
     const { user } = useAuth();
@@ -37,13 +37,6 @@ const MyDraftsPage: React.FC = () => {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="mb-6">
-                <Link
-                    to="/guides"
-                    className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
-                >
-                    <ArrowLeft size={20} />
-                    Back to Guides
-                </Link>
                 <h1 className="text-3xl font-bold text-foreground">My Drafts</h1>
                 <p className="text-muted-foreground mt-2">
                     These are your unpublished guides. Edit and publish them when ready.
