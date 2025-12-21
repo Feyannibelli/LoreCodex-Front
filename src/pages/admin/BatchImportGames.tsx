@@ -152,7 +152,34 @@ const BatchImportGames: React.FC = () => {
         setImportResult(null);
 
         try {
-            const payload = JSON.parse(jsonContent);
+            const rawPayload = JSON.parse(jsonContent);
+
+            // Transform payload to match backend DTO expectation
+            // The backend cannot deserialize "Unknown" or "YYYY" into LocalDate
+            const payload = {
+                ...rawPayload,
+                games: rawPayload.games.map((game: any) => {
+                    const { releaseDate, ...rest } = game;
+
+                    if (releaseDate === 'Unknown') {
+                        return {
+                            ...rest,
+                            releaseDate: null,
+                            releaseDateUnknown: true
+                        };
+                    }
+
+                    if (/^\d{4}$/.test(releaseDate)) {
+                        return {
+                            ...rest,
+                            releaseDate: null,
+                            releaseYear: parseInt(releaseDate, 10)
+                        };
+                    }
+
+                    return game;
+                })
+            };
             const response = await apiAuth.post('/games/batch/import', payload, {
                 headers: { 'Content-Type': 'application/json' },
             });
