@@ -4,6 +4,8 @@ export interface Game {
     description: string;
     genres: string[];
     releaseDate: string | null;
+    releaseYear?: number;           // New field
+    releaseDateUnknown?: boolean;   // New field
     coverImage: string;
     awards?: string[];
     averageRating: number | null;

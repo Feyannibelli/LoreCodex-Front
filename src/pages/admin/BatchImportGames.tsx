@@ -70,9 +70,9 @@ const BatchImportGames: React.FC = () => {
             for (let i = 0; i < parsed.games.length; i++) {
                 const game = parsed.games[i];
 
-                if (!game.title || !game.description || !game.releaseDate) {
+                if (!game.title || !game.description) {
                     setIsValidJson(false);
-                    setValidationError(`Game ${i + 1}: Missing required fields (title, description, releaseDate)`);
+                    setValidationError(`Game ${i + 1}: Missing required fields (title, description)`);
                     return;
                 }
 
@@ -88,11 +88,13 @@ const BatchImportGames: React.FC = () => {
                     return;
                 }
 
-                const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{4}|Unknown)$/;
-                if (!dateRegex.test(game.releaseDate)) {
-                    setIsValidJson(false);
-                    setValidationError(`Game ${i + 1}: Invalid date format. Use YYYY-MM-DD, YYYY or "Unknown"`);
-                    return;
+                if (game.releaseDate) {
+                    const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{4}|Unknown)$/;
+                    if (!dateRegex.test(game.releaseDate)) {
+                        setIsValidJson(false);
+                        setValidationError(`Game ${i + 1}: Invalid date format. Use YYYY-MM-DD, YYYY or "Unknown"`);
+                        return;
+                    }
                 }
             }
 
@@ -161,6 +163,7 @@ const BatchImportGames: React.FC = () => {
                 games: rawPayload.games.map((game: any) => {
                     const { releaseDate, ...rest } = game;
 
+                    // Case: Explicit "Unknown" string
                     if (releaseDate === 'Unknown') {
                         return {
                             ...rest,
@@ -169,7 +172,8 @@ const BatchImportGames: React.FC = () => {
                         };
                     }
 
-                    if (/^\d{4}$/.test(releaseDate)) {
+                    // Case: Year only string "YYYY"
+                    if (releaseDate && /^\d{4}$/.test(releaseDate)) {
                         return {
                             ...rest,
                             releaseDate: null,
@@ -177,7 +181,23 @@ const BatchImportGames: React.FC = () => {
                         };
                     }
 
-                    return game;
+                    // Case: Normal Date provided
+                    if (releaseDate) {
+                        return game;
+                    }
+
+                    // Case: No releaseDate provided
+                    // If releaseYear is present in the input JSON, we respect it and don't force 'Unknown'
+                    if (rest.releaseYear) {
+                        return { ...rest, releaseDate: null };
+                    }
+
+                    // Case: Neither releaseDate nor releaseYear provided -> Force Unknown
+                    return {
+                        ...rest,
+                        releaseDate: null,
+                        releaseDateUnknown: true
+                    };
                 })
             };
             const response = await apiAuth.post('/games/batch/import', payload, {
@@ -376,17 +396,16 @@ const BatchImportGames: React.FC = () => {
                                             <code className="bg-muted px-1 rounded text-foreground">description</code>
                                             <span>- Description</span>
                                         </li>
-                                        <li className="flex items-start gap-2">
-                                            <span className="text-destructive">*</span>
-                                            <code className="bg-muted px-1 rounded text-foreground">releaseDate</code>
-                                            <span>- Format: YYYY-MM-DD, YYYY or "Unknown"</span>
-                                        </li>
                                     </ul>
                                 </div>
 
                                 <div>
                                     <h3 className="font-semibold text-sm text-foreground mb-2">Optional Fields</h3>
                                     <ul className="text-sm space-y-1 text-muted-foreground">
+                                        <li className="flex items-start gap-2">
+                                            <code className="bg-muted px-1 rounded text-foreground">releaseDate</code>
+                                            <span>- Optional (default: Unknown)</span>
+                                        </li>
                                         <li className="flex items-start gap-2">
                                             <code className="bg-muted px-1 rounded text-foreground">genres</code>
                                             <span>- Array of genres ["Action", "RPG"]</span>

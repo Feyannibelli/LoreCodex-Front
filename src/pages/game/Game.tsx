@@ -194,7 +194,15 @@ const Game: React.FC = () => {
                         <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground mb-8 bg-black/20 backdrop-blur-md rounded-2xl p-4 border border-white/5 w-fit">
                             <div className="flex items-center gap-2">
                                 <Calendar className="h-4 w-4" />
-                                <span>{game.releaseDate ? new Date(game.releaseDate).getFullYear() : 'TBA'}</span>
+                                <span>
+                                    {game.releaseDateUnknown
+                                        ? 'Unknown'
+                                        : game.releaseYear
+                                            ? game.releaseYear
+                                            : game.releaseDate
+                                                ? new Date(game.releaseDate).getFullYear()
+                                                : 'TBA'}
+                                </span>
                             </div>
                             {summary && summary.average > 0 && (
                                 <>
@@ -254,7 +262,13 @@ const Game: React.FC = () => {
                                 <div>
                                     <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Release Date</h4>
                                     <p className="text-foreground text-sm font-medium">
-                                        {game.releaseDate ? new Date(game.releaseDate).toLocaleDateString('en-US', { dateStyle: 'long' }) : 'TBA'}
+                                        {game.releaseDateUnknown
+                                            ? 'Unknown'
+                                            : game.releaseYear
+                                                ? game.releaseYear.toString()
+                                                : game.releaseDate
+                                                    ? new Date(game.releaseDate).toLocaleDateString('en-US', { dateStyle: 'long' })
+                                                    : 'TBA'}
                                     </p>
                                 </div>
                             </div>
