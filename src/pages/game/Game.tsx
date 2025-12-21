@@ -7,7 +7,7 @@ import { useAuth } from "../../context/AuthContext.tsx";
 import ReviewList from "../../components/ReviewList.tsx";
 import GameNotesSection from "../../components/GameNotesSection.tsx";
 import ratingService, { RatingSummaryDto } from "../../services/ratingService.ts";
-import { Calendar, Star, Tag, FileText, User } from "lucide-react";
+import { Calendar, Star, Tag, FileText, User, Edit } from "lucide-react";
 import RatingPopover from "../../components/game/RatingPopover";
 import guideService from "../../services/guideService.ts";
 import Button from "../../components/Button.tsx";
@@ -22,7 +22,7 @@ const Game: React.FC = () => {
     const [relatedGuides, setRelatedGuides] = useState<Guide[]>([]);
     const [guidesLoading, setGuidesLoading] = useState<boolean>(false);
 
-    const { isAuthenticated, loading: authLoading } = useAuth();
+    const { isAuthenticated, isAdmin, loading: authLoading } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -222,6 +222,15 @@ const Game: React.FC = () => {
                                         onSave={handleRate}
                                         onClear={handleClearRating}
                                     />
+                                </>
+                            )}
+                            {isAdmin && id && (
+                                <>
+                                    <div className="w-px h-4 bg-white/10"></div>
+                                    <Link to={`/admin/games/edit/${id}`} className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
+                                        <Edit className="h-4 w-4" />
+                                        <span className="font-bold">Edit</span>
+                                    </Link>
                                 </>
                             )}
                         </div>
