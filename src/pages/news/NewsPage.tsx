@@ -7,6 +7,7 @@ import InfiniteScrollTrigger from "../../components/InfiniteScrollTrigger.tsx";
 import Button from "../../components/Button";
 import { useAuth } from "../../context/AuthContext";
 import { Search, Plus, Calendar, Newspaper, ArrowUpDown } from "lucide-react";
+import UnifiedContentRenderer from "../../components/UnifiedContentRenderer";
 
 const NewsPage: React.FC = () => {
     const { isAdmin } = useAuth();
@@ -210,9 +211,12 @@ const NewsPage: React.FC = () => {
                                             {item.title}
                                         </h2>
 
-                                        <p className="text-sm text-muted-foreground line-clamp-3 mb-6 leading-relaxed flex-1">
-                                            {item.content.substring(0, 150)}...
-                                        </p>
+                                        <div className="text-sm text-muted-foreground line-clamp-3 mb-6 leading-relaxed flex-1">
+                                            <UnifiedContentRenderer
+                                                content={item.content.substring(0, 200) + '...'}
+                                                className="line-clamp-3 text-muted-foreground"
+                                            />
+                                        </div>
 
                                         <div className="flex items-center justify-between pt-4 border-t border-dashed border-white/5 mt-auto">
                                             <div className="flex items-center gap-1">
