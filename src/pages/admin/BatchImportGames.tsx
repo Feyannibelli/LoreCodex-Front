@@ -88,10 +88,10 @@ const BatchImportGames: React.FC = () => {
                     return;
                 }
 
-                const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+                const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{4}|Unknown)$/;
                 if (!dateRegex.test(game.releaseDate)) {
                     setIsValidJson(false);
-                    setValidationError(`Game ${i + 1}: Invalid date format. Use YYYY-MM-DD`);
+                    setValidationError(`Game ${i + 1}: Invalid date format. Use YYYY-MM-DD, YYYY or "Unknown"`);
                     return;
                 }
             }
@@ -170,8 +170,8 @@ const BatchImportGames: React.FC = () => {
             console.error('Error importing games:', error);
             const message = axios.isAxiosError(error)
                 ? (typeof error.response?.data === 'string'
-                ? error.response.data
-                : (error.response?.data as { message?: string } | undefined)?.message) ?? error.message
+                    ? error.response.data
+                    : (error.response?.data as { message?: string } | undefined)?.message) ?? error.message
                 : error instanceof Error
                     ? error.message
                     : 'Unknown error';
@@ -352,7 +352,7 @@ const BatchImportGames: React.FC = () => {
                                         <li className="flex items-start gap-2">
                                             <span className="text-destructive">*</span>
                                             <code className="bg-muted px-1 rounded text-foreground">releaseDate</code>
-                                            <span>- Format: YYYY-MM-DD</span>
+                                            <span>- Format: YYYY-MM-DD, YYYY or "Unknown"</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -410,7 +410,7 @@ const BatchImportGames: React.FC = () => {
                                             className={`p-3 rounded-lg border ${result.success
                                                 ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-900/30'
                                                 : 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-900/30'
-                                            }`}
+                                                }`}
                                         >
                                             <div className="flex items-start gap-2">
                                                 {result.success ? (
@@ -423,7 +423,7 @@ const BatchImportGames: React.FC = () => {
                                                     <div className={`text-xs ${result.success
                                                         ? 'text-green-700 dark:text-green-300'
                                                         : 'text-red-700 dark:text-red-300'
-                                                    }`}>
+                                                        }`}>
                                                         {result.message}
                                                         {result.gameId && ` (ID: ${result.gameId})`}
                                                     </div>
@@ -452,7 +452,7 @@ const BatchImportGames: React.FC = () => {
                                 </h3>
                                 <ul className="text-sm text-amber-800 dark:text-amber-300 space-y-2">
                                     <li>• Duplicate games will be rejected</li>
-                                    <li>• Date format: YYYY-MM-DD (e.g., 2024-03-15)</li>
+                                    <li>• Date format: YYYY-MM-DD, YYYY or "Unknown"</li>
                                     <li>• Maximum 100 games per batch</li>
                                     <li>• Individual processing</li>
                                     <li>• Use "title" instead of "name"</li>
