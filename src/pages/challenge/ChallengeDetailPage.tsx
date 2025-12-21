@@ -336,8 +336,8 @@ const ChallengeDetailPage: React.FC = () => {
 
                                     {/* Creator or Admin Actions */}
                                     {(isCreator || isAdmin) && (
-                                        <div className="pt-4 mt-4 border-t border-white/5 space-y-2">
-                                            <Link to={`/challenges/edit/${challenge.id}`}>
+                                        <div className="pt-4 mt-6 border-t border-white/5 space-y-4">
+                                            <Link to={`/challenges/edit/${challenge.id}`} className="block w-full">
                                                 <Button
                                                     variant="outline" // Using outline to differentiate from "Delete"
                                                     className="w-full border-primary/20 text-primary hover:bg-primary/10 transition-colors flex items-center justify-center gap-2"

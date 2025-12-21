@@ -6,6 +6,7 @@ import { Guide } from "../../interfaces/Guide.ts";
 import { useInfiniteScroll } from "../../hook/useInfiniteScroll.ts";
 import InfiniteScrollTrigger from "../../components/InfiniteScrollTrigger.tsx";
 import Button from "../../components/Button";
+import UnifiedContentRenderer from "../../components/UnifiedContentRenderer";
 import { Search, FileText, Plus, AlertTriangle, User, Calendar } from "lucide-react";
 
 
@@ -210,9 +211,12 @@ const GuidePage: React.FC = () => {
                                             {g.title}
                                         </h2>
 
-                                        <p className="text-sm text-muted-foreground line-clamp-3 mb-6 flex-1 leading-relaxed">
-                                            {g.content.substring(0, 160)}...
-                                        </p>
+                                        <div className="text-sm text-muted-foreground line-clamp-3 mb-6 flex-1 leading-relaxed">
+                                            <UnifiedContentRenderer
+                                                content={g.content.substring(0, 200) + '...'}
+                                                className="line-clamp-3 text-muted-foreground"
+                                            />
+                                        </div>
 
                                         <div className="flex items-center justify-between pt-4 border-t border-dashed border-white/10 mt-auto">
                                             <div className="flex items-center gap-2">
