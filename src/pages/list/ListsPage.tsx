@@ -7,6 +7,7 @@ import { Search, ArrowUpDown, ListChecks, Plus, User, Calendar, Layers, Gamepad2
 import { cn } from "@/lib/utils.ts";
 import { useInfiniteScroll } from "@/hook/useInfiniteScroll.ts";
 import InfiniteScrollTrigger from "../../components/InfiniteScrollTrigger.tsx";
+import UnifiedContentRenderer from '../../components/UnifiedContentRenderer';
 
 const ListsPage: React.FC = () => {
     const { isAuthenticated } = useAuth();
@@ -266,9 +267,12 @@ const ListsPage: React.FC = () => {
                                             {list.title}
                                         </h2>
 
-                                        <p className="text-xs text-muted-foreground line-clamp-2 mb-4 leading-relaxed h-8">
-                                            {list.description || "No description provided."}
-                                        </p>
+                                        <div className="text-xs text-muted-foreground line-clamp-2 mb-4 leading-relaxed h-8">
+                                            <UnifiedContentRenderer
+                                                content={list.description || "No description provided."}
+                                                className="line-clamp-2"
+                                            />
+                                        </div>
 
                                         <div className="flex items-center justify-between pt-4 border-t border-dashed border-white/5 mt-auto">
                                             <div className="flex items-center gap-2">

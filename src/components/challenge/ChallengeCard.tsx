@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Challenge } from '../../services/challengeService';
 import { Trophy, User, Award } from 'lucide-react';
+import UnifiedContentRenderer from '../UnifiedContentRenderer';
 
 interface ChallengeCardProps {
     challenge: Challenge;
@@ -46,9 +47,12 @@ const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge }) => {
                     </div>
                 </div>
 
-                <p className="text-xs text-muted-foreground line-clamp-2 mb-4 leading-relaxed">
-                    {challenge.description || "No description provided."}
-                </p>
+                <div className="text-xs text-muted-foreground line-clamp-2 mb-4 leading-relaxed">
+                    <UnifiedContentRenderer
+                        content={challenge.description || "No description provided."}
+                        className="text-xs text-muted-foreground line-clamp-2"
+                    />
+                </div>
 
                 <div className="flex items-center justify-between pt-4 border-t border-dashed border-white/5 mt-auto">
                     <div className="flex items-center gap-2 relative z-20">
