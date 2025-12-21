@@ -28,4 +28,6 @@ export interface GameFormData {
     imageUrl?: string;         // Maps to coverImage
     awards?: string;           // Single award string (converted to array)
     rating?: number;           // Rating value
+    releaseYear?: number | null;
+    releaseDateUnknown?: boolean;
 }

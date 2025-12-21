@@ -57,7 +57,9 @@ const adaptFrontendGameToBackend = (frontendGame: GameFormData): any => {
         title: frontendGame.name,
         description: frontendGame.description,
         coverImage: frontendGame.imageUrl || '',
-        releaseDate: frontendGame.releaseDate,
+        releaseDate: frontendGame.releaseDate || null,
+        releaseYear: frontendGame.releaseYear,
+        releaseDateUnknown: frontendGame.releaseDateUnknown,
         genre: frontendGame.genre,                              // Singular genre
         genres: frontendGame.genres || [],                      // Plural genres array
         tags: frontendGame.tags || [],                          // Tags array

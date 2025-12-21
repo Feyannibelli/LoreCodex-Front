@@ -5,7 +5,7 @@ import Modal from "../../components/Modal.tsx";
 // import "../../css/AdminGames.css";
 import { Game } from "../../interfaces/Game.ts";
 import Button from "../../components/Button.tsx";
-import { FileJson, Plus } from "lucide-react";
+import { FileJson, Plus, Search } from "lucide-react";
 
 const AdminGames: React.FC = () => {
     const [games, setGames] = useState<Game[]>([]);
@@ -13,16 +13,18 @@ const AdminGames: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
     const [gameToDelete, setGameToDelete] = useState<Game | null>(null);
+    const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
         loadGames();
     }, []);
 
-    const loadGames = async () => {
+    const loadGames = async (query: string = "") => {
         try {
             setLoading(true);
-            const data = await gameService.getLibraryGamesPaginated(0, 50);
+            // Reusing getLibraryGamesPaginated: it supports 'title' as the 5th argument
+            const data = await gameService.getLibraryGamesPaginated(0, 50, 'id,desc', undefined, query);
             setGames(data.content);
             setError(null);
         } catch (err) {
@@ -69,6 +71,23 @@ const AdminGames: React.FC = () => {
                             </Button>
                         </Link>
                     </div>
+                </div>
+
+                <div className="mb-6 flex gap-4">
+                    <div className="relative flex-1 max-w-sm">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                        <input
+                            type="text"
+                            placeholder="Search games..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && loadGames(searchQuery)}
+                            className="w-full pl-9 pr-4 py-2 rounded-lg border border-input bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                        />
+                    </div>
+                    <Button onClick={() => loadGames(searchQuery)} variant="secondary">
+                        Search
+                    </Button>
                 </div>
 
                 {error && (
