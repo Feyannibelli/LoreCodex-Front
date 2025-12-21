@@ -28,7 +28,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
     const [showReplies, setShowReplies] = useState(true);
 
     const canDelete = currentUser?.isAdmin || currentUser?.id === comment.userId;
-    const maxLevel = 3; // Límite de anidación
+    const maxLevel = 3; // Nesting limit
 
     const handleReply = async () => {
         if (!replyContent.trim()) return;
@@ -39,27 +39,27 @@ const CommentItem: React.FC<CommentItemProps> = ({
             setReplyContent('');
             setShowReplyBox(false);
         } catch (error) {
-            console.error('Error al responder:', error);
-            alert('Error al enviar respuesta');
+            console.error('Error replying:', error);
+            alert('Error sending reply');
         } finally {
             setIsReplying(false);
         }
     };
 
     const handleDelete = async () => {
-        if (!window.confirm('¿Estás seguro de eliminar este comentario?')) return;
+        if (!window.confirm('Are you sure you want to delete this comment?')) return;
 
         try {
             await onDelete(comment.id);
         } catch (error) {
-            console.error('Error al eliminar:', error);
-            alert('Error al eliminar comentario');
+            console.error('Error deleting:', error);
+            alert('Error deleting comment');
         }
     };
 
     return (
         <div className={`relative ${level > 0 ? 'pl-6 mt-4 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-white/5' : ''}`}>
-            {/* Header del comentario */}
+            {/* Comment Header */}
             <div className="flex items-start justify-between mb-3">
                 <Link to={`/profile/${comment.userId}`} className="flex items-center gap-3 group">
                     <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-foreground font-semibold text-sm ring-1 ring-white/10 group-hover:ring-primary/50 transition-all">
@@ -92,13 +92,13 @@ const CommentItem: React.FC<CommentItemProps> = ({
                 )}
             </div>
 
-            {/* Contenido del comentario */}
+            {/* Comment Content */}
             <div className={`group ${level === 0 ? '' : ''}`}>
                 <p className="text-muted-foreground/90 leading-relaxed mb-3 whitespace-pre-wrap text-sm">
                     {comment.content}
                 </p>
 
-                {/* Acciones */}
+                {/* Actions */}
                 <div className="flex items-center gap-4 text-xs">
                     {currentUser && level < maxLevel && (
                         <button
@@ -122,7 +122,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                 </div>
             </div>
 
-            {/* Caja de respuesta */}
+            {/* Reply Box */}
             {showReplyBox && (
                 <div className="mt-4 bg-secondary/20 rounded-xl p-4 border border-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
                     <textarea
@@ -152,7 +152,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                 </div>
             )}
 
-            {/* Respuestas anidadas */}
+            {/* Nested Replies */}
             {showReplies && comment.replies.length > 0 && (
                 <div className="mt-4 space-y-4">
                     {comment.replies.map((reply) => (

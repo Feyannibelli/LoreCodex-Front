@@ -8,6 +8,7 @@ import { News } from "../interfaces/News";
 import { Guide } from "../interfaces/Guide.ts";
 import guideService from "../services/guideService.ts";
 import { Calendar, ArrowRight } from "lucide-react";
+import UnifiedContentRenderer from "../components/UnifiedContentRenderer.tsx";
 
 const Home: React.FC = () => {
     const [popularGuides, setPopularGuides] = useState<Guide[]>([]);
@@ -306,31 +307,55 @@ const Home: React.FC = () => {
                                     <Link
                                         key={guide.id}
                                         to={`/guides/${guide.id}`}
-                                        className="group relative flex flex-col rounded-2xl border border-white/5 bg-card p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
+                                        className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-card shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
                                     >
-                                        <div className="mb-4">
-                                            <span className="inline-flex rounded-full bg-secondary/80 px-2.5 py-0.5 text-xs font-medium text-muted-foreground border border-white/5">
-                                                Guide
-                                            </span>
+                                        <div className="relative w-full h-48 bg-muted">
+                                            {guide.coverImageUrl ? (
+                                                <img
+                                                    src={guide.coverImageUrl}
+                                                    alt={guide.title}
+                                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                />
+                                            ) : (
+                                                <div className="flex h-full w-full items-center justify-center bg-secondary/30 text-muted-foreground/50">
+                                                    <span className="text-4xl text-muted-foreground/20 font-light">Guide</span>
+                                                </div>
+                                            )}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-60"></div>
                                         </div>
-                                        <h3 className="text-xl font-bold text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors">
-                                            {guide.title}
-                                        </h3>
-                                        <p className="text-sm text-muted-foreground line-clamp-3 mb-6 flex-1">
-                                            {guide.content.substring(0, 150)}...
-                                        </p>
 
-                                        <div className="flex items-center justify-between pt-4 border-t border-white/5 mt-auto">
-                                            <div className="flex items-center gap-2">
-                                                <div className="h-6 w-6 rounded-full bg-secondary"></div>
-                                                <span className="text-xs text-muted-foreground">Author</span>
+                                        <div className="flex flex-1 flex-col p-6 pt-4">
+                                            <div className="mb-3">
+                                                <span className="inline-flex rounded-full bg-secondary/80 px-2.5 py-0.5 text-xs font-medium text-muted-foreground border border-white/5">
+                                                    Guide
+                                                </span>
                                             </div>
-                                            <span className="text-xs font-medium text-muted-foreground">
-                                                {new Date(guide.createdAt).toLocaleDateString()}
-                                            </span>
+                                            <h3 className="text-xl font-bold text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors">
+                                                {guide.title}
+                                            </h3>
+                                            <UnifiedContentRenderer
+                                                content={guide.content.length > 200 ? guide.content.substring(0, 200) + '...' : guide.content}
+                                                className="text-sm text-muted-foreground line-clamp-3 mb-6 flex-1 prose-p:my-0 prose-headings:text-base prose-headings:my-0 prose-strong:text-foreground"
+                                            />
+
+                                            <div className="flex items-center justify-between pt-4 border-t border-white/5 mt-auto">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center overflow-hidden">
+                                                        <span className="text-[10px] font-bold text-muted-foreground">
+                                                            {guide.authorUsername?.charAt(0).toUpperCase() || 'A'}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-xs text-muted-foreground truncate max-w-[100px]">
+                                                        {guide.authorUsername || 'Author'}
+                                                    </span>
+                                                </div>
+                                                <span className="text-xs font-medium text-muted-foreground">
+                                                    {new Date(guide.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
                                         </div>
 
-                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none rounded-2xl"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none"></div>
                                         <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none"></div>
                                     </Link>
                                 ))}

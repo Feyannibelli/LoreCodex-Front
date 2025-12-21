@@ -40,10 +40,10 @@ const NewsDetailPage: React.FC = () => {
             <div className="container mx-auto px-4 py-8">
                 <div className="text-center py-12">
                     <h2 className="text-xl font-semibold text-foreground mb-2">
-                        Noticia no encontrada
+                        News Not Found
                     </h2>
                     <Button onClick={() => navigate('/news')}>
-                        Volver a noticias
+                        Back to News
                     </Button>
                 </div>
             </div>
@@ -58,7 +58,7 @@ const NewsDetailPage: React.FC = () => {
                     onClick={() => navigate('/news')}
                     className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
                 >
-                    ← Volver
+                    ← Back
                 </button>
 
                 {/* Cover Image - FIXED: Better aspect ratio handling */}
@@ -98,7 +98,7 @@ const NewsDetailPage: React.FC = () => {
 
                     {!news.published && (
                         <span className="bg-yellow-500/10 text-yellow-600 px-2 py-1 rounded-full text-xs font-medium border border-yellow-500/20">
-                            🔒 Borrador
+                            🔒 Draft
                         </span>
                     )}
                 </div>
@@ -130,7 +130,7 @@ const NewsDetailPage: React.FC = () => {
             {isAdmin && (
                 <div className="mt-8 p-6 bg-secondary/30 rounded-lg mb-8 border border-border">
                     <h3 className="font-semibold mb-4 text-foreground">
-                        Acciones de Administrador
+                        Admin Actions
                     </h3>
                     <div className="flex flex-wrap gap-3">
                         {news.published ? (
@@ -141,7 +141,7 @@ const NewsDetailPage: React.FC = () => {
                                 variant="secondary"
                                 className="text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 dark:hover:bg-yellow-900/10"
                             >
-                                🔒 Despublicar
+                                🔒 Unpublish
                             </Button>
                         ) : (
                             <Button
@@ -150,7 +150,7 @@ const NewsDetailPage: React.FC = () => {
                                 }
                                 variant="default"
                             >
-                                ✅ Publicar
+                                ✅ Publish
                             </Button>
                         )}
 
@@ -158,18 +158,18 @@ const NewsDetailPage: React.FC = () => {
                             onClick={() => navigate(`/admin/news/edit/${news.id}`)}
                             variant="outline"
                         >
-                            ✏️ Editar
+                            ✏️ Edit
                         </Button>
 
                         <Button
                             onClick={() => {
-                                if (confirm("¿Estás seguro de que quieres eliminar esta noticia?")) {
+                                if (confirm("Are you sure you want to delete this news?")) {
                                     newsService.delete(news.id).then(() => navigate("/news"));
                                 }
                             }}
                             variant="destructive"
                         >
-                            🗑️ Eliminar
+                            🗑️ Delete
                         </Button>
                     </div>
                 </div>

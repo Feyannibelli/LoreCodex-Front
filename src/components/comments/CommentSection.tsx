@@ -25,7 +25,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
 
-    // Cargar comentarios
+    // Load comments
     const loadComments = useCallback(async (pageNum: number = 0) => {
         try {
             setLoading(true);
@@ -40,7 +40,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
             setHasMore(data.length === 10);
             setPage(pageNum);
         } catch (error) {
-            console.error('Error cargando comentarios:', error);
+            console.error('Error loading comments:', error);
         } finally {
             setLoading(false);
         }
@@ -50,7 +50,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         loadComments(0);
     }, [loadComments]);
 
-    // Agregar comentario nuevo
+    // Add new comment
     const handleAddComment = async () => {
         if (!newComment.trim() || !currentUser) return;
 
@@ -58,30 +58,30 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         try {
             await commentService.addComment(entityType, entityId, newComment);
             setNewComment('');
-            await loadComments(0); // Recargar comentarios
+            await loadComments(0); // Reload comments
         } catch (error) {
-            console.error('Error al agregar comentario:', error);
-            alert('Error al agregar comentario. ¿Estás autenticado?');
+            console.error('Error adding comment:', error);
+            alert('Error adding comment. Are you authenticated?');
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    // Responder a un comentario
+    // Reply to a comment
     const handleReply = async (parentId: number, content: string) => {
         if (!currentUser) return;
 
         await commentService.addComment(entityType, entityId, content, parentId);
-        await loadComments(0); // Recargar para mostrar la nueva respuesta
+        await loadComments(0); // Reload to show new reply
     };
 
-    // Eliminar comentario
+    // Delete comment
     const handleDelete = async (commentId: number) => {
         await commentService.deleteComment(commentId);
-        await loadComments(0); // Recargar después de eliminar
+        await loadComments(0); // Reload after deleting
     };
 
-    // Cargar más comentarios
+    // Load more comments
     const loadMore = () => {
         if (!loading && hasMore) {
             loadComments(page + 1);
@@ -98,7 +98,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                 </h2>
             </div>
 
-            {/* Formulario para nuevo comentario */}
+            {/* Form for new comment */}
             {currentUser ? (
                 <div className="mb-8">
                     <div className="relative">
@@ -136,7 +136,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                 </div>
             )}
 
-            {/* Lista de comentarios */}
+            {/* Comments List */}
             <div className="space-y-6">
                 {loading && comments.length === 0 ? (
                     <div className="text-center py-12">
@@ -164,7 +164,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                             ))}
                         </div>
 
-                        {/* Botón cargar más */}
+                        {/* Load more button */}
                         {hasMore && (
                             <div className="text-center pt-6 border-t border-white/5 mt-6">
                                 <button

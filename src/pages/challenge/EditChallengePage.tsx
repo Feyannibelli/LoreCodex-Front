@@ -34,12 +34,20 @@ const EditChallengePage: React.FC = () => {
 
             // Check ownership
             if (user && challenge.creatorId !== user.id && !user.roles?.includes('ADMIN')) {
-                // handle unauthorized?
+                // handle unauthorized - better redirect
+                console.error("Unauthorized access to edit challenge");
+                navigate('/challenges'); // or show error
+                return;
             }
 
-            setInitialData(challenge as unknown as ChallengeFormData);
+            // Map Challenge to ChallengeFormData
+            const formData: ChallengeFormData = {
+                title: challenge.title,
+                description: challenge.description,
+                items: challenge.items.map(item => item.description)
+            };
 
-            // If connected to a game logic removed as targetGameId does not exist on Challenge interface
+            setInitialData(formData);
 
         } catch (error) {
             console.error("Error loading challenge", error);

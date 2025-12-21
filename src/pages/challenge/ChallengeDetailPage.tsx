@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import challengeService, { Challenge, ChallengeProgress } from '../../services/challengeService';
 import { useAuth } from '../../context/AuthContext';
-import { Crown, User, Play, Circle, Trash2, Gamepad2 } from 'lucide-react';
+import { Crown, User, Play, Circle, Trash2, Gamepad2, Edit } from 'lucide-react';
 import Button from '../../components/Button';
 import UnifiedContentRenderer from '../../components/UnifiedContentRenderer';
 import PrettyCheckbox from '../../components/PrettyCheckbox';
@@ -336,7 +336,16 @@ const ChallengeDetailPage: React.FC = () => {
 
                                     {/* Creator or Admin Actions */}
                                     {(isCreator || isAdmin) && (
-                                        <div className="pt-4 mt-4 border-t border-white/5">
+                                        <div className="pt-4 mt-4 border-t border-white/5 space-y-2">
+                                            <Link to={`/challenges/edit/${challenge.id}`}>
+                                                <Button
+                                                    variant="outline" // Using outline to differentiate from "Delete"
+                                                    className="w-full border-primary/20 text-primary hover:bg-primary/10 transition-colors flex items-center justify-center gap-2"
+                                                >
+                                                    <Edit className="h-4 w-4" /> Edit Challenge
+                                                </Button>
+                                            </Link>
+
                                             <Button
                                                 variant="outline"
                                                 className="w-full border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors flex items-center justify-center gap-2"

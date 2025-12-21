@@ -38,7 +38,7 @@ const GuideDetailPage: React.FC = () => {
         const url = window.location.href;
         navigator.clipboard.writeText(url);
         // Could use a toast here if available, falling back to alert
-        alert('Enlace copiado al portapapeles!');
+        alert('Link copied to clipboard!');
     };
 
     if (loading) {
@@ -52,10 +52,10 @@ const GuideDetailPage: React.FC = () => {
     if (!guide) {
         return (
             <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-                <h2 className="text-2xl font-bold text-white mb-4">Guía no encontrada</h2>
-                <p className="text-muted-foreground mb-6">La guía que buscas no existe o ha sido eliminada.</p>
+                <h2 className="text-2xl font-bold text-white mb-4">Guide Not Found</h2>
+                <p className="text-muted-foreground mb-6">The guide you are looking for does not exist or has been deleted.</p>
                 <Button onClick={() => navigate('/guides')} variant="outline">
-                    Volver a Guías
+                    Back to Guides
                 </Button>
             </div>
         );

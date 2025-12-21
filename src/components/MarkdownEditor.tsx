@@ -125,7 +125,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                             : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                 >
-                    ✏️ Editar
+                    ✏️ Edit
                 </button>
                 <button
                     type="button"
@@ -136,7 +136,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                             : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                 >
-                    👁️ Vista previa
+                    👁️ Preview
                 </button>
                 <button
                     type="button"
