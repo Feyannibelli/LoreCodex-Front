@@ -32,11 +32,15 @@ const EditChallengePage: React.FC = () => {
             setLoading(true);
             const challenge = await challengeService.getChallengeById(parseInt(id));
 
-            // Check ownership
-            if (user && challenge.creatorId !== user.id && !user.roles?.includes('ADMIN')) {
-                // handle unauthorized - better redirect
-                console.error("Unauthorized access to edit challenge");
-                navigate('/challenges'); // or show error
+            // Check ownership - Convert to strings for safe comparison
+            const creatorId = String(challenge.creatorId);
+            const userId = String(user?.id);
+            const isAdmin = user?.roles?.includes('ADMIN');
+
+            if (user && creatorId !== userId && !isAdmin) {
+                console.warn(`Unauthorized access: User ${userId} is not creator ${creatorId}`);
+                // Instead of redirecting immediately, maybe show a "Not Authorized" message or redirect to detail
+                navigate(`/challenges/${id}`);
                 return;
             }
 
