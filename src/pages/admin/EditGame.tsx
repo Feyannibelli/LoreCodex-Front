@@ -24,6 +24,7 @@ const EditGame: React.FC = () => {
     type DateMode = 'full' | 'year' | 'unknown';
     const [dateMode, setDateMode] = useState<DateMode>('full');
     const [yearInput, setYearInput] = useState<string>("");
+    const [devPubInput, setDevPubInput] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -58,6 +59,7 @@ const EditGame: React.FC = () => {
 
                     setDateMode(initialMode);
                     setYearInput(initialYear);
+                    setDevPubInput(gameData.developersAndPublishers?.join(", ") || "");
 
                     setFormData({
                         name: gameData.title,
@@ -102,6 +104,9 @@ const EditGame: React.FC = () => {
             if (id) {
                 // Prepare final payload based on mode
                 const finalData = { ...formData };
+
+                // Parse developers and publishers from string input to array
+                finalData.developersAndPublishers = devPubInput.split(',').map(item => item.trim()).filter(Boolean);
 
                 if (dateMode === 'unknown') {
                     finalData.releaseDate = "";
@@ -247,6 +252,18 @@ const EditGame: React.FC = () => {
                                     </div>
                                 )}
                             </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="devPub" className="block text-sm font-medium text-foreground">Developers & Publishers (comma separated)</label>
+                            <input
+                                type="text"
+                                id="devPub"
+                                value={devPubInput}
+                                onChange={(e) => setDevPubInput(e.target.value)}
+                                placeholder="e.g. Nintendo, GameFreak"
+                                className="w-full rounded-lg border border-input bg-secondary/50 px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input"
+                            />
                         </div>
 
                         <div className="space-y-2">
