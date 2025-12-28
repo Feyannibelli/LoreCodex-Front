@@ -80,7 +80,7 @@ const AdminNewsList: React.FC = () => {
                                         <th className="p-4 font-semibold text-foreground">ID</th>
                                         <th className="p-4 font-semibold text-foreground">Title</th>
                                         <th className="p-4 font-semibold text-foreground">Published</th>
-                                        <th className="p-4 font-semibold text-foreground">Likes</th>
+
                                         <th className="p-4 font-semibold text-foreground">Actions</th>
                                     </tr>
                                 </thead>
@@ -101,7 +101,7 @@ const AdminNewsList: React.FC = () => {
                                                     {n.published ? "Published" : "Draft"}
                                                 </span>
                                             </td>
-                                            <td className="p-4 text-muted-foreground">{n.likes}</td>
+
                                             <td className="p-4 space-x-2">
                                                 <button
                                                     onClick={() => handleTogglePublish(n)}

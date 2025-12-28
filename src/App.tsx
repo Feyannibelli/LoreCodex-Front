@@ -30,8 +30,10 @@ import MyListsPage from './pages/list/MyListsPage.tsx';
 import ListDetailPage from './pages/list/ListDetailPage.tsx';
 import EditListPage from './pages/list/EditListPage.tsx';
 import ChallengesPage from './pages/challenge/ChallengesPage.tsx';
+import MyChallengesPage from './pages/challenge/MyChallengesPage.tsx';
 import ChallengeDetailPage from './pages/challenge/ChallengeDetailPage.tsx';
 import CreateChallengePage from './pages/challenge/CreateChallengePage.tsx';
+import EditChallengePage from './pages/challenge/EditChallengePage.tsx';
 import PublicProfile from "./pages/PublicProfile.tsx";
 import GuideDetailPage from "./pages/guide/GuideDetailPage.tsx";
 import Game from "./pages/game/Game.tsx";
@@ -134,12 +136,21 @@ const App: React.FC = () => {
 
                 {/* Challenge Routes */}
                 <Route path="/challenges" element={<ChallengesPage />} />
+                <Route path="/challenges/me" element={<PrivateRoute><MyChallengesPage /></PrivateRoute>} />
                 <Route path="/challenges/:id" element={<ChallengeDetailPage />} />
                 <Route
                     path="/challenges/create"
                     element={
                         <PrivateRoute>
                             <CreateChallengePage />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/challenges/edit/:id"
+                    element={
+                        <PrivateRoute>
+                            <EditChallengePage />
                         </PrivateRoute>
                     }
                 />

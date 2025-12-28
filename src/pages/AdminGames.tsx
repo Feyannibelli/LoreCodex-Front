@@ -244,7 +244,7 @@ const AdminGames: React.FC = () => {
                         <th>Genre</th>
                         <th>Release Date</th>
                         <th>Rating</th>
-                        <th>Likes</th>
+
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -256,7 +256,7 @@ const AdminGames: React.FC = () => {
                             <td>{game.genre}</td>
                             <td>{new Date(game.releaseDate).toLocaleDateString()}</td>
                             <td>{game.rating}</td>
-                            <td>{game.likes}</td>
+
                             <td className="action-buttons">
                                 <Button onClick={() => openEditForm(game)}>Edit</Button>
                                 <Button

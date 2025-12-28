@@ -6,14 +6,14 @@ import { Guide } from "../../interfaces/Guide.ts";
 import { useInfiniteScroll } from "../../hook/useInfiniteScroll.ts";
 import InfiniteScrollTrigger from "../../components/InfiniteScrollTrigger.tsx";
 import Button from "../../components/Button";
-import { Search, ArrowUpDown, FileText, Plus, AlertTriangle, User, Calendar } from "lucide-react";
-import { cn } from "../../lib/utils.ts";
+import UnifiedContentRenderer from "../../components/UnifiedContentRenderer";
+import { Search, FileText, Plus, AlertTriangle, User, Calendar } from "lucide-react";
+
 
 const GuidePage: React.FC = () => {
     const { isAuthenticated } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredGuides, setFilteredGuides] = useState<Guide[]>([]);
-    const [activeFilter, setActiveFilter] = useState("All");
 
     const fetchGuides = useCallback(async (page: number, pageSize: number): Promise<Guide[]> => {
         return await guideService.getPublishedGuidesPaginated(page, pageSize);
@@ -42,7 +42,7 @@ const GuidePage: React.FC = () => {
         }
     }, [searchTerm, guides]);
 
-    const filters = ["All", "Featured", "New", "Top", "My Favorites"];
+
 
     return (
         <div className="min-h-screen bg-background py-8 md:py-12 mb-20">
@@ -68,7 +68,7 @@ const GuidePage: React.FC = () => {
                     {isAuthenticated && (
                         <div className="flex items-center gap-3 shrink-0 pb-1">
                             <Link to="/my-drafts">
-                                <Button variant="ghost" className="text-muted-foreground hover:text-foreground gap-2">
+                                <Button variant="outline" className="border-primary/20 hover:bg-primary/5 text-primary font-semibold px-6 gap-2">
                                     <FileText className="h-4 w-4" />
                                     My Drafts
                                 </Button>
@@ -76,7 +76,7 @@ const GuidePage: React.FC = () => {
                             <Link to="/guides/create">
                                 <Button className="shadow-lg shadow-primary/20 font-semibold px-6 gap-2">
                                     <Plus className="h-4 w-4" />
-                                    New Guide
+                                    Create Guide
                                 </Button>
                             </Link>
                         </div>
@@ -99,35 +99,7 @@ const GuidePage: React.FC = () => {
                             />
                         </div>
 
-                        {/* Divider on desktop */}
-                        <div className="hidden h-6 w-px bg-white/5 md:block"></div>
 
-                        {/* Controls */}
-                        <div className="flex items-center gap-3 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-                            {/* Mock Sort Dropdown */}
-                            <button className="flex h-10 items-center gap-2 rounded-lg border border-white/5 bg-secondary/30 px-4 text-sm font-medium text-muted-foreground hover:bg-secondary/50 hover:text-foreground transition-colors whitespace-nowrap">
-                                <ArrowUpDown className="h-3.5 w-3.5" />
-                                <span>Newest</span>
-                            </button>
-
-                            {/* Filter Chips */}
-                            <div className="flex items-center gap-1.5 bg-secondary/20 p-1 rounded-lg border border-white/5">
-                                {filters.map(filter => (
-                                    <button
-                                        key={filter}
-                                        onClick={() => setActiveFilter(filter)}
-                                        className={cn(
-                                            "px-3 py-1.5 text-xs font-semibold rounded-md transition-all whitespace-nowrap",
-                                            activeFilter === filter
-                                                ? "bg-primary text-primary-foreground shadow-sm"
-                                                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                                        )}
-                                    >
-                                        {filter}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -239,16 +211,29 @@ const GuidePage: React.FC = () => {
                                             {g.title}
                                         </h2>
 
-                                        <p className="text-sm text-muted-foreground line-clamp-3 mb-6 flex-1 leading-relaxed">
-                                            {g.content.substring(0, 160)}...
-                                        </p>
+                                        <div className="text-sm text-muted-foreground line-clamp-3 mb-6 flex-1 leading-relaxed">
+                                            <UnifiedContentRenderer
+                                                content={g.content.substring(0, 200) + '...'}
+                                                className="line-clamp-3 text-muted-foreground"
+                                            />
+                                        </div>
 
                                         <div className="flex items-center justify-between pt-4 border-t border-dashed border-white/10 mt-auto">
                                             <div className="flex items-center gap-2">
-                                                <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center ring-1 ring-white/10">
+                                                <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center ring-1 ring-white/10 overflow-hidden">
                                                     <User className="h-3 w-3 text-muted-foreground" />
                                                 </div>
-                                                <span className="text-xs font-medium text-muted-foreground">Community</span>
+                                                {g.authorId ? (
+                                                    <Link
+                                                        to={`/profile/${g.authorId}`}
+                                                        className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        {g.authorUsername || "Unknown"}
+                                                    </Link>
+                                                ) : (
+                                                    <span className="text-xs font-medium text-muted-foreground">Community</span>
+                                                )}
                                             </div>
                                             <span className="text-xs text-muted-foreground/60 font-mono flex items-center gap-1">
                                                 <Calendar className="h-3 w-3" />

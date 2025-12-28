@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.tsx";
 import { News } from "../../interfaces/News.ts";
 import newsService from "../../services/newsService.ts";
 import UnifiedContentRenderer from "../../components/UnifiedContentRenderer";
 import CommentSection from "../../components/comments/CommentSection";
-import { ArrowLeft, Calendar, Heart, Tag } from "lucide-react";
+import { Calendar, Tag } from "lucide-react";
 import Button from "../../components/Button";
 
 const NewsDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { isAuthenticated, isAdmin } = useAuth();
+    const { isAdmin } = useAuth();
 
     const [news, setNews] = useState<News | null>(null);
     const [loading, setLoading] = useState(true);
@@ -24,11 +24,6 @@ const NewsDetailPage: React.FC = () => {
                 .finally(() => setLoading(false));
         }
     }, [id]);
-
-    const toggleLike = () => {
-        if (!news) return;
-        newsService.toggleLike(news.id).then(res => setNews(res.data));
-    };
 
     if (loading) {
         return (
@@ -45,10 +40,10 @@ const NewsDetailPage: React.FC = () => {
             <div className="container mx-auto px-4 py-8">
                 <div className="text-center py-12">
                     <h2 className="text-xl font-semibold text-foreground mb-2">
-                        Noticia no encontrada
+                        News Not Found
                     </h2>
                     <Button onClick={() => navigate('/news')}>
-                        Volver a Noticias
+                        Back to News
                     </Button>
                 </div>
             </div>
@@ -63,17 +58,17 @@ const NewsDetailPage: React.FC = () => {
                     onClick={() => navigate('/news')}
                     className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
                 >
-                    <ArrowLeft size={20} />
-                    Volver a Noticias
+                    ← Back
                 </button>
 
-                {/* Cover Image */}
+                {/* Cover Image - FIXED: Better aspect ratio handling */}
                 {news.coverImage && (
-                    <div className="mb-6">
+                    <div className="mb-6 rounded-xl overflow-hidden bg-muted">
                         <img
                             src={news.coverImage}
                             alt={news.title}
-                            className="w-full h-auto rounded-lg shadow-lg max-h-96 object-cover"
+                            className="w-full h-auto max-h-[600px] object-contain"
+                            style={{ objectFit: 'contain' }}
                         />
                     </div>
                 )}
@@ -89,13 +84,21 @@ const NewsDetailPage: React.FC = () => {
                         <Calendar size={16} />
                         <span>{new Date(news.createdAt).toLocaleDateString()}</span>
                     </div>
+
                     <div className="flex items-center gap-2">
-                        <Heart size={16} />
-                        <span>{news.likes} likes</span>
+                        <span className="text-muted-foreground">By</span>
+                        {news.authorId ? (
+                            <Link to={`/profile/${news.authorId}`} className="font-medium hover:text-primary transition-colors text-foreground">
+                                {news.authorUsername}
+                            </Link>
+                        ) : (
+                            <span className="font-medium text-foreground">{news.authorUsername || "LoreCodex Team"}</span>
+                        )}
                     </div>
+
                     {!news.published && (
                         <span className="bg-yellow-500/10 text-yellow-600 px-2 py-1 rounded-full text-xs font-medium border border-yellow-500/20">
-                            🔒 Borrador
+                            🔒 Draft
                         </span>
                     )}
                 </div>
@@ -123,25 +126,11 @@ const NewsDetailPage: React.FC = () => {
                 </div>
             </article>
 
-            {/* Like Button */}
-            {isAuthenticated && (
-                <div className="mb-6">
-                    <Button
-                        onClick={toggleLike}
-                        className="flex items-center gap-2"
-                        variant="default"
-                    >
-                        <Heart size={20} className={news.likes > 0 ? "fill-current" : ""} />
-                        {news.likes > 0 ? 'Liked' : 'Like'}
-                    </Button>
-                </div>
-            )}
-
             {/* Admin Panel */}
             {isAdmin && (
                 <div className="mt-8 p-6 bg-secondary/30 rounded-lg mb-8 border border-border">
                     <h3 className="font-semibold mb-4 text-foreground">
-                        Acciones de Administrador
+                        Admin Actions
                     </h3>
                     <div className="flex flex-wrap gap-3">
                         {news.published ? (
@@ -152,7 +141,7 @@ const NewsDetailPage: React.FC = () => {
                                 variant="secondary"
                                 className="text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 dark:hover:bg-yellow-900/10"
                             >
-                                🔒 Despublicar
+                                🔒 Unpublish
                             </Button>
                         ) : (
                             <Button
@@ -161,7 +150,7 @@ const NewsDetailPage: React.FC = () => {
                                 }
                                 variant="default"
                             >
-                                ✅ Publicar
+                                ✅ Publish
                             </Button>
                         )}
 
@@ -169,24 +158,24 @@ const NewsDetailPage: React.FC = () => {
                             onClick={() => navigate(`/admin/news/edit/${news.id}`)}
                             variant="outline"
                         >
-                            ✏️ Editar
+                            ✏️ Edit
                         </Button>
 
                         <Button
                             onClick={() => {
-                                if (confirm("¿Estás seguro de que quieres eliminar esta noticia?")) {
+                                if (confirm("Are you sure you want to delete this news?")) {
                                     newsService.delete(news.id).then(() => navigate("/news"));
                                 }
                             }}
                             variant="destructive"
                         >
-                            🗑️ Eliminar
+                            🗑️ Delete
                         </Button>
                     </div>
                 </div>
             )}
 
-            {/* ========== COMENTARIOS ========== */}
+            {/* Comments */}
             <CommentSection
                 entityType="news"
                 entityId={news.id}

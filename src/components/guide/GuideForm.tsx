@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { GuideForm as Form } from "../../interfaces/Guide";
+import { Game } from "../../interfaces/Game";
+import gameService from "../../services/gameService";
 import UnifiedContentEditor from "../UnifiedContentEditor";
 import ProInput from "../ui/ProInput";
 import ProEditorLayout from "../layout/ProEditorLayout";
 import Button from "../Button";
-import { Save, Send, Image as ImageIcon, Tag, Hash, FileText, Eye } from "lucide-react";
-import { cn } from "../../lib/utils";
+import { Save, Send, Image as ImageIcon, Tag, Hash, FileText, Eye, Gamepad2, Search, X } from "lucide-react";
+
 
 interface Props {
     initial?: Form;
@@ -34,17 +36,47 @@ const GuideForm: React.FC<Props> = ({
             coverImageUrl: "",
             tags: [],
             published: false,
-            draft: true
+            draft: true,
+            gameId: undefined
         }
     );
+
+    // Game Selection State
+    const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+    const [gameSearchTerm, setGameSearchTerm] = useState('');
+    const [showGameSearch, setShowGameSearch] = useState(false);
+    const [games, setGames] = useState<Game[]>([]);
+
+    // Tag Input State (Local to allow typing commas without immediate format/wipe)
+    const [tagInput, setTagInput] = useState(initial?.tags?.join(", ") || "");
 
     // Save Status State (simulated for UI feedback)
     const [status, setStatus] = useState<'saved' | 'unsaved' | 'saving'>('saved');
 
+    // Load initial game if editing and gameId exists
+    useEffect(() => {
+        if (initial?.gameId && !selectedGame) {
+            gameService.getGameById(initial.gameId).then(setSelectedGame);
+        }
+    }, [initial?.gameId]);
+
+    // Load games for search
+    useEffect(() => {
+        const loadGames = async () => {
+            try {
+                const response = await gameService.getGames({ page: 0, size: 50, sort: 'title,asc' });
+                setGames(response.content);
+            } catch (err) {
+                console.error("Error loading games", err);
+            }
+        };
+        if (games.length === 0) loadGames();
+    }, [games.length]);
+
     // Mark as unsaved on change
     useEffect(() => {
         setStatus('unsaved');
-    }, [form]);
+    }, [form, selectedGame]);
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -60,22 +92,42 @@ const GuideForm: React.FC<Props> = ({
         setForm(prev => ({ ...prev, content: value }));
     };
 
-    const handleTags = (e: React.ChangeEvent<HTMLInputElement>) =>
+    const handleTags = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setTagInput(val);
         setForm(prev => ({
             ...prev,
-            tags: e.target.value.split(",").map(t => t.trim()).filter(Boolean),
+            tags: val.split(",").map(t => t.trim()).filter(Boolean),
         }));
+    };
+
+    // Game Selection Handlers
+    const filteredGames = games.filter(g =>
+        g.title.toLowerCase().includes(gameSearchTerm.toLowerCase())
+    ).slice(0, 10);
+
+    const handleGameSelect = (game: Game) => {
+        setSelectedGame(game);
+        setForm(prev => ({ ...prev, gameId: game.id }));
+        setShowGameSearch(false);
+        setGameSearchTerm('');
+    };
+
+    const handleRemoveGame = () => {
+        setSelectedGame(null);
+        setForm(prev => ({ ...prev, gameId: undefined }));
+    };
 
     const handleSubmit = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         setStatus('saving');
-        onSubmit(form);
+        onSubmit({ ...form, gameId: selectedGame?.id });
     };
 
     const handlePublish = () => {
         if (onPublish) {
             setStatus('saving');
-            onPublish({ ...form, published: true, draft: false });
+            onPublish({ ...form, published: true, draft: false, gameId: selectedGame?.id });
         }
     };
 
@@ -94,7 +146,7 @@ const GuideForm: React.FC<Props> = ({
 
             {onPublish && (
                 <Button
-                    variant="primary" // Assuming you have a primary variant or use default/className
+                    variant="default"
                     size="sm"
                     onClick={handlePublish}
                     className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shadow-primary/20"
@@ -133,6 +185,66 @@ const GuideForm: React.FC<Props> = ({
                             required
                             icon={Hash}
                         />
+
+                        {/* Game Selector */}
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80 ml-1">
+                                Related Game
+                            </label>
+                            {selectedGame ? (
+                                <div className="flex items-center gap-3 p-3 rounded-lg border border-primary/20 bg-primary/5 group">
+                                    <div className="h-10 w-10 rounded bg-black/40 overflow-hidden shrink-0">
+                                        {selectedGame.coverImage ? (
+                                            <img src={selectedGame.coverImage} alt="" className="h-full w-full object-cover" />
+                                        ) : (
+                                            <div className="flex h-full items-center justify-center text-muted-foreground"><Gamepad2 className="h-5 w-5" /></div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium truncate">{selectedGame.title}</p>
+                                    </div>
+                                    <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="h-8 w-8 text-muted-foreground hover:text-red-400"
+                                        onClick={handleRemoveGame}
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="relative">
+                                    <ProInput
+                                        value={gameSearchTerm}
+                                        onChange={(e) => {
+                                            setGameSearchTerm(e.target.value);
+                                            setShowGameSearch(true);
+                                        }}
+                                        placeholder="Search game..."
+                                        icon={Search}
+                                        onFocus={() => setShowGameSearch(true)}
+                                    />
+                                    {showGameSearch && gameSearchTerm && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 p-2 rounded-xl border border-white/10 bg-card shadow-xl z-50 max-h-60 overflow-y-auto">
+                                            {filteredGames.length > 0 ? (
+                                                filteredGames.map(game => (
+                                                    <button
+                                                        key={game.id}
+                                                        onClick={() => handleGameSelect(game)}
+                                                        className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 text-left transition-colors"
+                                                    >
+                                                        <img src={game.coverImage || ''} className="h-8 w-8 rounded bg-black/50 object-cover" alt="" />
+                                                        <span className="text-sm truncate">{game.title}</span>
+                                                    </button>
+                                                ))
+                                            ) : (
+                                                <p className="text-xs text-muted-foreground p-2 text-center">No games found.</p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
 
                         <div className="space-y-3">
                             <ProInput
@@ -174,7 +286,7 @@ const GuideForm: React.FC<Props> = ({
                             <ProInput
                                 label="Tags"
                                 name="tags"
-                                value={form.tags?.join(", ") ?? ""}
+                                value={tagInput}
                                 onChange={handleTags}
                                 placeholder="comma, separated, tags"
                                 helperText="Press comma to separate"

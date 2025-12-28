@@ -54,14 +54,14 @@ const Header: React.FC = () => {
                                         align="end"
                                         className="w-48 rounded-xl border border-border bg-card p-1 shadow-lg shadow-black/50"
                                     >
-                                        <DropdownMenuItem asChild className="rounded-lg focus:bg-secondary">
-                                            <Link to="/admin/users">Users Management</Link>
+                                        <DropdownMenuItem className="rounded-lg focus:bg-secondary cursor-pointer" onClick={() => navigate('/admin/users')}>
+                                            Users Management
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem asChild className="rounded-lg focus:bg-secondary">
-                                            <Link to="/admin/games">Games Database</Link>
+                                        <DropdownMenuItem className="rounded-lg focus:bg-secondary cursor-pointer" onClick={() => navigate('/admin/games')}>
+                                            Games Database
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem asChild className="rounded-lg focus:bg-secondary">
-                                            <Link to="/admin/news">News Editorial</Link>
+                                        <DropdownMenuItem className="rounded-lg focus:bg-secondary cursor-pointer" onClick={() => navigate('/admin/news')}>
+                                            News Editorial
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
@@ -91,8 +91,11 @@ const Header: React.FC = () => {
                                         <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                                     </div>
                                     <div className="h-px bg-border my-1" />
-                                    <DropdownMenuItem asChild className="rounded-lg focus:bg-secondary cursor-pointer">
-                                        <Link to="/profile">Profile Settings</Link>
+                                    <DropdownMenuItem className="rounded-lg focus:bg-secondary cursor-pointer" onClick={() => navigate(`/profile/${user?.id}`)}>
+                                        Profile
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="rounded-lg focus:bg-secondary cursor-pointer" onClick={() => navigate('/profile')}>
+                                        Settings
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         onClick={() => logout()}

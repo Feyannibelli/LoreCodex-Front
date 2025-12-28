@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import challengeService, { ChallengeFormData } from '../../services/challengeService';
-import gameService from '../../services/gameService';
-import { Game } from '../../interfaces/Game';
+
+
 import ChallengeForm from '../../components/challenge/ChallengeForm';
 
 const EditChallengePage: React.FC = () => {
@@ -13,7 +13,7 @@ const EditChallengePage: React.FC = () => {
 
     const [loading, setLoading] = useState(true);
     const [initialData, setInitialData] = useState<ChallengeFormData | null>(null);
-    const [initialGame, setInitialGame] = useState<Game | null>(null);
+
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -32,14 +32,26 @@ const EditChallengePage: React.FC = () => {
             setLoading(true);
             const challenge = await challengeService.getChallengeById(parseInt(id));
 
-            // Check ownership
-            if (user && challenge.creatorId !== user.id && !user.roles?.includes('ADMIN')) {
-                // handle unauthorized?
+            // Check ownership - Convert to strings for safe comparison
+            const creatorId = String(challenge.creatorId);
+            const userId = String(user?.id);
+            const isAdmin = user?.roles?.includes('ADMIN');
+
+            if (user && creatorId !== userId && !isAdmin) {
+                console.warn(`Unauthorized access: User ${userId} is not creator ${creatorId}`);
+                // Instead of redirecting immediately, maybe show a "Not Authorized" message or redirect to detail
+                navigate(`/challenges/${id}`);
+                return;
             }
 
-            setInitialData(challenge as unknown as ChallengeFormData);
+            // Map Challenge to ChallengeFormData
+            const formData: ChallengeFormData = {
+                title: challenge.title,
+                description: challenge.description,
+                items: challenge.items.map(item => item.description)
+            };
 
-            // If connected to a game logic removed as targetGameId does not exist on Challenge interface
+            setInitialData(formData);
 
         } catch (error) {
             console.error("Error loading challenge", error);
@@ -81,7 +93,6 @@ const EditChallengePage: React.FC = () => {
             onSubmit={handleSubmit}
             submitLabel="Save Changes"
             initialData={initialData}
-            initialGame={initialGame}
             isSubmitting={isSubmitting}
         />
     );

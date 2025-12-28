@@ -7,6 +7,8 @@ import newsService from "../services/newsService";
 import { News } from "../interfaces/News";
 import { Guide } from "../interfaces/Guide.ts";
 import guideService from "../services/guideService.ts";
+import { Calendar, ArrowRight } from "lucide-react";
+import UnifiedContentRenderer from "../components/UnifiedContentRenderer.tsx";
 
 const Home: React.FC = () => {
     const [popularGuides, setPopularGuides] = useState<Guide[]>([]);
@@ -33,7 +35,7 @@ const Home: React.FC = () => {
     useEffect(() => { loadGames(); }, []);
 
     useEffect(() => {
-        newsService.getRecent(5)
+        newsService.getRecent(3)
             .then(res => setLatestNews(res.data))
             .catch(err => console.error("Error loading news:", err));
     }, []);
@@ -41,13 +43,8 @@ const Home: React.FC = () => {
     const loadGames = async () => {
         try {
             setLoading(true);
-
-            // Fetch recently added games using createdAt,desc
             const recentResponse = await gameService.getLibraryGamesPaginated(0, 10, 'createdAt,desc');
-
-            // Fetch popular games using rating,desc
             const popularResponse = await gameService.getLibraryGamesPaginated(0, 8, 'rating,desc');
-
             setRecentlyAdded(recentResponse.content);
             setPopularGames(popularResponse.content);
             setError(null);
@@ -68,23 +65,16 @@ const Home: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-background relative selection:bg-primary/30">
-            {/* Dynamic Background with Noise & Gradients */}
+            {/* Background Effects */}
             <div className="fixed inset-0 z-0 pointer-events-none">
-                {/* Main Dark Radial Gradient */}
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-950/20 via-background to-background"></div>
-
-                {/* Subtle Orange Glow Top-Right */}
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] opacity-40 mix-blend-screen"></div>
-
-                {/* Subtle Glow Bottom-Left */}
                 <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-900/10 rounded-full blur-[120px] opacity-30"></div>
-
-                {/* Noise Texture (Optional, handled via SVG or CSS if available, simulating with opacity) */}
                 <div className="absolute inset-0 opacity-[0.015] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
             </div>
 
             <main className="relative z-10">
-                {/* Hero Section - Editorial Style */}
+                {/* Hero Section */}
                 <section className="relative pt-24 pb-20 overflow-hidden">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10 text-center">
                         <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-8 backdrop-blur-sm animate-fade-in-up">
@@ -113,7 +103,6 @@ const Home: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Decorative Grid/Lines */}
                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0"></div>
                 </section>
 
@@ -125,32 +114,33 @@ const Home: React.FC = () => {
                         </div>
                     )}
 
-                    {/* Latest News - Editorial Block */}
+                    {/* Latest News - COMPACT VERSION */}
                     <section>
-                        <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center justify-between mb-6">
                             <div>
-                                <h2 className="text-3xl font-bold text-foreground tracking-tight">Latest News</h2>
-                                <p className="text-muted-foreground mt-1">Fresh from the editorial team.</p>
+                                <h2 className="text-2xl font-bold text-foreground tracking-tight">Latest News</h2>
+                                <p className="text-muted-foreground mt-1 text-sm">Fresh from the editorial team</p>
                             </div>
                             <Link to="/news" className="group flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-primary/80">
-                                View all news
-                                <span className="block transition-transform group-hover:translate-x-1">→</span>
+                                View all
+                                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                             </Link>
                         </div>
 
                         {latestNews.length === 0 ? (
-                            <div className="rounded-2xl border border-white/5 bg-card/50 p-12 text-center text-muted-foreground shadow-sm">
+                            <div className="rounded-2xl border border-white/5 bg-card/50 p-8 text-center text-muted-foreground shadow-sm">
                                 <p>No news available at the moment.</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {latestNews.slice(0, 3).map((item, index) => (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {latestNews.map((item) => (
                                     <Link
                                         key={item.id}
                                         to={`/news/${item.id}`}
-                                        className={`group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-card shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-primary/5 ${index === 0 ? 'md:col-span-2 lg:col-span-2 aspect-[2/1]' : ''}`}
+                                        className="group relative flex flex-col overflow-hidden rounded-xl border border-white/5 bg-card shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
                                     >
-                                        <div className={`relative w-full overflow-hidden bg-muted ${index === 0 ? 'h-full' : 'aspect-video'}`}>
+                                        {/* Compact Image */}
+                                        <div className="relative w-full h-40 overflow-hidden bg-muted">
                                             {item.coverImage ? (
                                                 <img
                                                     src={item.coverImage}
@@ -158,29 +148,36 @@ const Home: React.FC = () => {
                                                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                                 />
                                             ) : (
-                                                <div className="flex h-full w-full items-center justify-center bg-secondary/30 text-muted-foreground">
+                                                <div className="flex h-full w-full items-center justify-center bg-secondary/30 text-muted-foreground text-sm">
                                                     No Image
                                                 </div>
                                             )}
-                                            {/* Gradient overlay for text readability */}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent"></div>
+                                            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent"></div>
                                         </div>
 
-                                        <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
-                                            <div className="mb-2 flex items-center gap-2">
-                                                <span className="inline-flex rounded-md bg-primary/20 px-2 py-1 text-xs font-medium text-primary backdrop-blur-md">
-                                                    News
-                                                </span>
-                                                <span className="text-xs text-gray-300/80">
-                                                    {new Date(item.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                                </span>
+                                        {/* Compact Content */}
+                                        <div className="p-4 space-y-2">
+                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                <Calendar className="h-3 w-3" />
+                                                <span>{new Date(item.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
                                             </div>
-                                            <h3 className={`font-bold text-foreground leading-tight group-hover:text-primary transition-colors ${index === 0 ? 'text-2xl md:text-3xl' : 'text-xl'}`}>
+
+                                            <h3 className="text-base font-bold text-foreground leading-tight group-hover:text-primary transition-colors line-clamp-2">
                                                 {item.title}
                                             </h3>
+
+                                            {item.tags && item.tags.length > 0 && (
+                                                <div className="flex gap-1 flex-wrap">
+                                                    {item.tags.slice(0, 2).map(tag => (
+                                                        <span key={tag} className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-sm font-medium">
+                                                            {tag}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
-                                        {/* Inner Highlight for depth */}
-                                        <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 pointer-events-none"></div>
+
+                                        <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/5 pointer-events-none"></div>
                                     </Link>
                                 ))}
                             </div>
@@ -222,7 +219,6 @@ const Home: React.FC = () => {
                                             ) : (
                                                 <div className="flex h-full items-center justify-center text-muted-foreground">Game</div>
                                             )}
-                                            {/* Hover overlay */}
                                             <div className="absolute inset-0 bg-primary/0 transition-colors duration-300 group-hover:bg-primary/10"></div>
                                         </div>
 
@@ -237,7 +233,6 @@ const Home: React.FC = () => {
                                             </p>
                                         </div>
 
-                                        {/* Inner border */}
                                         <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none"></div>
                                     </Link>
                                 ))}
@@ -245,7 +240,7 @@ const Home: React.FC = () => {
                         )}
                     </section>
 
-                    {/* Popular Games - Carousel-like or Grid */}
+                    {/* Popular Games */}
                     <section>
                         <div className="flex items-center justify-between mb-8">
                             <div>
@@ -284,7 +279,6 @@ const Home: React.FC = () => {
                                                 )}
                                             </div>
                                         </div>
-                                        {/* Inner border */}
                                         <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none"></div>
                                     </Link>
                                 ))}
@@ -313,32 +307,55 @@ const Home: React.FC = () => {
                                     <Link
                                         key={guide.id}
                                         to={`/guides/${guide.id}`}
-                                        className="group relative flex flex-col rounded-2xl border border-white/5 bg-card p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
+                                        className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-card shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
                                     >
-                                        <div className="mb-4">
-                                            <span className="inline-flex rounded-full bg-secondary/80 px-2.5 py-0.5 text-xs font-medium text-muted-foreground border border-white/5">
-                                                Guide
-                                            </span>
+                                        <div className="relative w-full h-48 bg-muted">
+                                            {guide.coverImageUrl ? (
+                                                <img
+                                                    src={guide.coverImageUrl}
+                                                    alt={guide.title}
+                                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                />
+                                            ) : (
+                                                <div className="flex h-full w-full items-center justify-center bg-secondary/30 text-muted-foreground/50">
+                                                    <span className="text-4xl text-muted-foreground/20 font-light">Guide</span>
+                                                </div>
+                                            )}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-60"></div>
                                         </div>
-                                        <h3 className="text-xl font-bold text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors">
-                                            {guide.title}
-                                        </h3>
-                                        <p className="text-sm text-muted-foreground line-clamp-3 mb-6 flex-1">
-                                            {guide.content.substring(0, 150)}...
-                                        </p>
 
-                                        <div className="flex items-center justify-between pt-4 border-t border-white/5 mt-auto">
-                                            <div className="flex items-center gap-2">
-                                                <div className="h-6 w-6 rounded-full bg-secondary"></div>
-                                                <span className="text-xs text-muted-foreground">Author</span>
+                                        <div className="flex flex-1 flex-col p-6 pt-4">
+                                            <div className="mb-3">
+                                                <span className="inline-flex rounded-full bg-secondary/80 px-2.5 py-0.5 text-xs font-medium text-muted-foreground border border-white/5">
+                                                    Guide
+                                                </span>
                                             </div>
-                                            <span className="text-xs font-medium text-muted-foreground">
-                                                {new Date(guide.createdAt).toLocaleDateString()}
-                                            </span>
+                                            <h3 className="text-xl font-bold text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors">
+                                                {guide.title}
+                                            </h3>
+                                            <UnifiedContentRenderer
+                                                content={guide.content.length > 200 ? guide.content.substring(0, 200) + '...' : guide.content}
+                                                className="text-sm text-muted-foreground line-clamp-3 mb-6 flex-1 prose-p:my-0 prose-headings:text-base prose-headings:my-0 prose-strong:text-foreground"
+                                            />
+
+                                            <div className="flex items-center justify-between pt-4 border-t border-white/5 mt-auto">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center overflow-hidden">
+                                                        <span className="text-[10px] font-bold text-muted-foreground">
+                                                            {guide.authorUsername?.charAt(0).toUpperCase() || 'A'}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-xs text-muted-foreground truncate max-w-[100px]">
+                                                        {guide.authorUsername || 'Author'}
+                                                    </span>
+                                                </div>
+                                                <span className="text-xs font-medium text-muted-foreground">
+                                                    {new Date(guide.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
                                         </div>
 
-                                        {/* Light gradient effect on hover */}
-                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none rounded-2xl"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none"></div>
                                         <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none"></div>
                                     </Link>
                                 ))}

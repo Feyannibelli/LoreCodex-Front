@@ -4,6 +4,8 @@ export interface Game {
     description: string;
     genres: string[];
     releaseDate: string | null;
+    releaseYear?: number;           // New field
+    releaseDateUnknown?: boolean;   // New field
     coverImage: string;
     awards?: string[];
     averageRating: number | null;
@@ -26,4 +28,6 @@ export interface GameFormData {
     imageUrl?: string;         // Maps to coverImage
     awards?: string;           // Single award string (converted to array)
     rating?: number;           // Rating value
+    releaseYear?: number | null;
+    releaseDateUnknown?: boolean;
 }

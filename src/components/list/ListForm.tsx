@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import { ListItemType, ListItemRequest } from '../../services/listService';
 import gameService from '../../services/gameService';
 import guideService from '../../services/guideService';
@@ -8,7 +8,7 @@ import UnifiedContentEditor from '../UnifiedContentEditor';
 import ProEditorLayout from '../layout/ProEditorLayout';
 import ProInput from '../ui/ProInput';
 import Button from '../Button';
-import { Save, Plus, Search, Trash2, ArrowUp, ArrowDown, Hash, FileText, List as ListIcon, Gamepad2, BookOpen, Trophy } from 'lucide-react';
+import { Save, Plus, Search, Trash2, ArrowUp, ArrowDown, Hash, List as ListIcon, Gamepad2, BookOpen, Trophy } from 'lucide-react';
 
 interface SearchableItem {
     id: number;
@@ -76,12 +76,12 @@ const ListForm: React.FC<ListFormProps> = ({
 
             switch (searchType) {
                 case ListItemType.GAME: {
-                    const games = await gameService.searchGamesByName(searchTerm);
+                    const games = await gameService.searchGamesByTitle(searchTerm);
                     results = games.map(game => ({
                         id: game.id,
-                        title: game.name,
+                        title: game.title,
                         type: ListItemType.GAME,
-                        thumbnailUrl: game.imageUrl
+                        thumbnailUrl: game.coverImage
                     }));
                     break;
                 }

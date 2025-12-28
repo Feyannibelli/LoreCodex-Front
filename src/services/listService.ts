@@ -1,4 +1,3 @@
-// src/services/listService.ts
 import apiAuth from './apiAuth';
 import api from './api';
 
@@ -26,7 +25,16 @@ export interface ListItemResponse {
 export interface UserListRequest {
     title: string;
     description: string;
-    items: ListItemRequest[];
+    // Items are now managed atomically, not via the list payload
+}
+
+export interface CommentResponse {
+    id: number;
+    content: string;
+    userId: number;
+    username: string;
+    createdAt: string;
+    replies: CommentResponse[];
 }
 
 export interface UserListResponse {
@@ -35,8 +43,9 @@ export interface UserListResponse {
     description: string;
     createdAt: string;
     userId: number;
-    username?: string;
+    username: string;
     items: ListItemResponse[];
+    comments?: CommentResponse[];
 }
 
 export interface ReorderItemRequest {
@@ -59,7 +68,7 @@ export const listService = {
 
     // Get all public lists
     getAllLists: async (): Promise<UserListResponse[]> => {
-        const response = await api.get('/lists/get-all'); // The 1 is a placeholder, backend ignores this parameter
+        const response = await api.get('/lists/get-all');
         return response.data;
     },
 
@@ -76,6 +85,7 @@ export const listService = {
 
     // Add an item to a list
     addItemToList: async (listId: number, item: ListItemRequest): Promise<void> => {
+        // Spec says POST /lists/{listId}/items/add
         await apiAuth.post(`/lists/${listId}/items/add`, item);
     },
 

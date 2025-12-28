@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Reply, Trash2, Send, ChevronDown, ChevronUp } from 'lucide-react';
 import { Comment } from '../../services/commentService';
 
@@ -15,19 +16,19 @@ interface CommentItemProps {
 }
 
 const CommentItem: React.FC<CommentItemProps> = ({
-                                                     comment,
-                                                     currentUser,
-                                                     onReply,
-                                                     onDelete,
-                                                     level
-                                                 }) => {
+    comment,
+    currentUser,
+    onReply,
+    onDelete,
+    level
+}) => {
     const [showReplyBox, setShowReplyBox] = useState(false);
     const [replyContent, setReplyContent] = useState('');
     const [isReplying, setIsReplying] = useState(false);
     const [showReplies, setShowReplies] = useState(true);
 
     const canDelete = currentUser?.isAdmin || currentUser?.id === comment.userId;
-    const maxLevel = 3; // Límite de anidación
+    const maxLevel = 3; // Nesting limit
 
     const handleReply = async () => {
         if (!replyContent.trim()) return;
@@ -38,119 +39,122 @@ const CommentItem: React.FC<CommentItemProps> = ({
             setReplyContent('');
             setShowReplyBox(false);
         } catch (error) {
-            console.error('Error al responder:', error);
-            alert('Error al enviar respuesta');
+            console.error('Error replying:', error);
+            alert('Error sending reply');
         } finally {
             setIsReplying(false);
         }
     };
 
     const handleDelete = async () => {
-        if (!window.confirm('¿Estás seguro de eliminar este comentario?')) return;
+        if (!window.confirm('Are you sure you want to delete this comment?')) return;
 
         try {
             await onDelete(comment.id);
         } catch (error) {
-            console.error('Error al eliminar:', error);
-            alert('Error al eliminar comentario');
+            console.error('Error deleting:', error);
+            alert('Error deleting comment');
         }
     };
 
     return (
-        <div className={`border-l-2 ${level === 0 ? 'border-orange-500/30' : 'border-gray-200 dark:border-gray-700'} pl-4 py-3`}>
-            {/* Header del comentario */}
-            <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-orange-500 flex items-center justify-center text-white font-semibold text-sm">
+        <div className={`relative ${level > 0 ? 'pl-6 mt-4 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-white/5' : ''}`}>
+            {/* Comment Header */}
+            <div className="flex items-start justify-between mb-3">
+                <Link to={`/profile/${comment.userId}`} className="flex items-center gap-3 group">
+                    <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-foreground font-semibold text-sm ring-1 ring-white/10 group-hover:ring-primary/50 transition-all">
                         {comment.username[0].toUpperCase()}
                     </div>
                     <div>
-            <span className="font-semibold text-gray-900 dark:text-white">
-              {comment.username}
-            </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
-              {new Date(comment.createdAt).toLocaleDateString('es-ES', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-              })}
-            </span>
+                        <span className="font-semibold text-foreground group-hover:text-primary transition-colors block leading-tight">
+                            {comment.username}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                            {new Date(comment.createdAt).toLocaleDateString('en-US', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}
+                        </span>
                     </div>
-                </div>
+                </Link>
 
                 {canDelete && (
                     <button
                         onClick={handleDelete}
-                        className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                        title="Eliminar comentario"
+                        className="text-muted-foreground hover:text-red-400 p-1.5 rounded-md hover:bg-red-400/10 transition-colors opacity-0 group-hover:opacity-100"
+                        title="Delete comment"
                     >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                     </button>
                 )}
             </div>
 
-            {/* Contenido del comentario */}
-            <p className="text-gray-700 dark:text-gray-300 mb-3 whitespace-pre-wrap">
-                {comment.content}
-            </p>
+            {/* Comment Content */}
+            <div className={`group ${level === 0 ? '' : ''}`}>
+                <p className="text-muted-foreground/90 leading-relaxed mb-3 whitespace-pre-wrap text-sm">
+                    {comment.content}
+                </p>
 
-            {/* Acciones */}
-            <div className="flex items-center gap-4 text-sm">
-                {currentUser && level < maxLevel && (
-                    <button
-                        onClick={() => setShowReplyBox(!showReplyBox)}
-                        className="flex items-center gap-1 text-indigo-600 hover:text-indigo-700 font-medium"
-                    >
-                        <Reply size={14} />
-                        Responder
-                    </button>
-                )}
+                {/* Actions */}
+                <div className="flex items-center gap-4 text-xs">
+                    {currentUser && level < maxLevel && (
+                        <button
+                            onClick={() => setShowReplyBox(!showReplyBox)}
+                            className="flex items-center gap-1.5 text-primary hover:text-primary/80 font-medium transition-colors"
+                        >
+                            <Reply size={12} />
+                            Reply
+                        </button>
+                    )}
 
-                {comment.replies.length > 0 && (
-                    <button
-                        onClick={() => setShowReplies(!showReplies)}
-                        className="flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 font-medium"
-                    >
-                        {showReplies ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                        {comment.replies.length} {comment.replies.length === 1 ? 'respuesta' : 'respuestas'}
-                    </button>
-                )}
+                    {comment.replies.length > 0 && (
+                        <button
+                            onClick={() => setShowReplies(!showReplies)}
+                            className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors font-medium"
+                        >
+                            {showReplies ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                            {comment.replies.length} {comment.replies.length === 1 ? 'reply' : 'replies'}
+                        </button>
+                    )}
+                </div>
             </div>
 
-            {/* Caja de respuesta */}
+            {/* Reply Box */}
             {showReplyBox && (
-                <div className="mt-3 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-          <textarea
-              value={replyContent}
-              onChange={(e) => setReplyContent(e.target.value)}
-              placeholder="Escribe tu respuesta..."
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
-              rows={3}
-          />
-                    <div className="flex justify-end gap-2 mt-2">
+                <div className="mt-4 bg-secondary/20 rounded-xl p-4 border border-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <textarea
+                        value={replyContent}
+                        onChange={(e) => setReplyContent(e.target.value)}
+                        placeholder="Write your reply..."
+                        className="w-full px-3 py-2 bg-background/50 border border-white/5 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary/50 text-foreground text-sm resize-none"
+                        rows={2}
+                        autoFocus
+                    />
+                    <div className="flex justify-end gap-2 mt-3">
                         <button
                             onClick={() => setShowReplyBox(false)}
-                            className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                            className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
                         >
-                            Cancelar
+                            Cancel
                         </button>
                         <button
                             onClick={handleReply}
                             disabled={!replyContent.trim() || isReplying}
-                            className="flex items-center gap-1 px-3 py-1 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
                         >
-                            <Send size={14} />
-                            {isReplying ? 'Enviando...' : 'Responder'}
+                            <Send size={12} />
+                            {isReplying ? 'Sending...' : 'Reply'}
                         </button>
                     </div>
                 </div>
             )}
 
-            {/* Respuestas anidadas */}
+            {/* Nested Replies */}
             {showReplies && comment.replies.length > 0 && (
-                <div className="mt-3 space-y-2">
+                <div className="mt-4 space-y-4">
                     {comment.replies.map((reply) => (
                         <CommentItem
                             key={reply.id}

@@ -1,367 +1,439 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import challengeService, { Challenge, ChallengeProgress } from '../../services/challengeService';
-import UnifiedContentRenderer from '../../components/UnifiedContentRenderer';
+import { useAuth } from '../../context/AuthContext';
+import { Crown, User, Play, Circle, Trash2, Gamepad2, Edit } from 'lucide-react';
 import Button from '../../components/Button';
-import { ArrowLeft, Play, Circle, Trophy, User, Clock, Crown } from 'lucide-react';
-import PrettyCheckbox from "../../components/PrettyCheckbox.tsx";
+import UnifiedContentRenderer from '../../components/UnifiedContentRenderer';
+import PrettyCheckbox from '../../components/PrettyCheckbox';
+
+import CommentSection from '../../components/comments/CommentSection';
+import Confetti from 'react-confetti';
+
+// Simple hook for window size
+const useWindowSize = () => {
+    const [windowSize, setWindowSize] = useState({
+        width: window.innerWidth,
+        height: window.innerHeight,
+    });
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowSize({
+                width: window.innerWidth,
+                height: window.innerHeight,
+            });
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return windowSize;
+};
 
 const ChallengeDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
+    const { isAuthenticated, user, isAdmin } = useAuth();
     const navigate = useNavigate();
-    const { isAuthenticated, user } = useAuth();
     const [challenge, setChallenge] = useState<Challenge | null>(null);
     const [progress, setProgress] = useState<ChallengeProgress | null>(null);
     const [loading, setLoading] = useState(true);
-    const [joining, setJoining] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [hasJoined, setHasJoined] = useState(false);
-    const [leaving, setLeaving] = useState(false);
-    const [deleting, setDeleting] = useState(false);
+    const [showConfetti, setShowConfetti] = useState(false);
+    const { width, height } = useWindowSize();
+
+    const isItemCompleted = (itemId: number) => {
+        return progress?.completedItemIds?.includes(Number(itemId)) || false;
+    };
+
+    const [isCreator, setIsCreator] = useState(false);
+
+    useEffect(() => {
+        if (progress && progress.progress === 100) {
+            setShowConfetti(true);
+            // Optional: Stop confetti after a few seconds
+            // const timer = setTimeout(() => setShowConfetti(false), 8000);
+            // return () => clearTimeout(timer);
+        } else {
+            setShowConfetti(false); // Hide if they uncheck an item
+        }
+    }, [progress?.progress]);
 
     useEffect(() => {
         const fetchChallenge = async () => {
-            if (!id) return;
-
             try {
-                const challengeData = await challengeService.getChallengeById(parseInt(id));
-                setChallenge(challengeData);
+                if (!id) return;
+                const challengeIdInt = parseInt(id);
+                const fetchedChallenge = await challengeService.getChallengeById(challengeIdInt);
+                setChallenge(fetchedChallenge);
 
                 if (isAuthenticated) {
                     try {
-                        const progressData = await challengeService.getChallengeProgress(parseInt(id));
-                        setProgress(progressData);
-                        setHasJoined(true);
-                    } catch (error) {
-                        console.error('Error fetching challenge progress:', error);
-                        setHasJoined(false);
+                        const [progressData, joinedStatus, createdChallenges] = await Promise.all([
+                            challengeService.getChallengeProgress(challengeIdInt).catch(() => null),
+                            challengeService.isJoined(challengeIdInt),
+                            challengeService.getCreatedChallenges().catch(() => [])
+                        ]);
+
+                        setHasJoined(joinedStatus);
+
+                        // Robust ownership check: Is this challenge in my created list?
+                        const ownershipConfirmed = createdChallenges.some(c => c.id === challengeIdInt);
+                        setIsCreator(ownershipConfirmed);
+
+                        // Progress is only available if joined; if not joined, progressData might be null or error
+                        if (joinedStatus && progressData) {
+                            setProgress(progressData);
+                        } else {
+                            setProgress(null);
+                        }
+                    } catch (err: any) {
+                        console.log("Error checking status", err);
                     }
                 }
-            } catch (error) {
-                console.error('Error fetching challenge:', error);
+            } catch (err) {
+                console.error('Error fetching challenge:', err);
+                setError('Failed to load challenge. It may not exist.');
             } finally {
                 setLoading(false);
             }
         };
 
         fetchChallenge();
-    }, [id, isAuthenticated, user]);
+    }, [id, isAuthenticated]);
 
-    const handleJoinChallenge = async () => {
+    const handleJoin = async () => {
         if (!challenge || !isAuthenticated) return;
-
-        setJoining(true);
         try {
             await challengeService.joinChallenge(challenge.id);
             setHasJoined(true);
-            const progressData = await challengeService.getChallengeProgress(challenge.id);
-            setProgress(progressData);
+            const initialProgress: ChallengeProgress = {
+                challengeId: challenge.id,
+                progress: 0,
+                completed: 0,
+                total: challenge.items.length,
+                completedItemIds: []
+            };
+            setProgress(initialProgress);
         } catch (error) {
             console.error('Error joining challenge:', error);
-            alert('Error al unirse al challenge. Por favor, intenta de nuevo.');
-        } finally {
-            setJoining(false);
         }
     };
 
-    const handleToggleItem = async (itemId: number, isCompletedNow: boolean) => {
-        if (!challenge || !hasJoined) return;
+    const handleToggleItem = async (itemId: number) => {
+        if (!challenge || !isAuthenticated || !hasJoined || !progress) return;
 
-        setProgress(prev =>
-            prev
-                ? {
-                    ...prev,
-                    completedItems: isCompletedNow
-                        ? (prev.completedItems ?? []).filter(id => id !== itemId)
-                        : [...(prev.completedItems ?? []), itemId],
-                    completed: isCompletedNow ? prev.completed - 1 : prev.completed + 1
-                }
-                : prev
-        );
+        const currentlyCompleted = isItemCompleted(itemId);
+        const numericItemId = Number(itemId);
+
+        // Optimistic Update
+        const currentCompletedIds = progress.completedItemIds || [];
+        const newCompletedIds = currentlyCompleted
+            ? currentCompletedIds.filter(id => id !== numericItemId)
+            : [...currentCompletedIds, numericItemId];
+
+        const newCompletedCount = newCompletedIds.length;
+        const newPercentage = (newCompletedCount / challenge.items.length) * 100;
+
+        const optimisticProgress: ChallengeProgress = {
+            ...progress,
+            completedItemIds: newCompletedIds,
+            completed: newCompletedCount,
+            progress: newPercentage
+        };
+
+        setProgress(optimisticProgress);
 
         try {
-            const newProgress = isCompletedNow
-                ? await challengeService.uncompleteItem(challenge.id, itemId)
-                : await challengeService.completeItem(challenge.id, itemId);
+            let serverProgress;
+            if (currentlyCompleted) {
+                serverProgress = await challengeService.uncompleteItem(challenge.id, itemId);
+            } else {
+                serverProgress = await challengeService.completeItem(challenge.id, itemId);
+            }
+            // Sync with server response to be sure
+            setProgress(serverProgress);
 
-            setProgress(newProgress);
-        } catch (err) {
-            console.error('Error toggling item completion:', err);
-            alert('No se pudo actualizar la tarea');
+        } catch (error) {
+            console.error('Error toggling item:', error);
+            // Revert on error - re-fetch truth
+            try {
+                const freshProgress = await challengeService.getChallengeProgress(challenge.id);
+                setProgress(freshProgress);
+            } catch (fetchErr) {
+                console.error("Failed to revert state", fetchErr);
+            }
         }
     };
 
+
+
+    const handleDeleteChallenge = async () => {
+        if (!challenge || !confirm("Are you sure you want to delete this challenge? This action cannot be undone.")) return;
+        try {
+            await challengeService.deleteChallenge(challenge.id);
+            navigate('/challenges/me');
+        } catch (error) {
+            console.error("Error deleting challenge", error);
+            setError("Failed to delete challenge. Please try again.");
+        }
+    }
+
     const handleLeaveChallenge = async () => {
-        if (!challenge) return;
-        setLeaving(true);
+        if (!challenge || !confirm("Are you sure you want to leave this challenge? Your progress will be reset.")) return;
         try {
             await challengeService.leaveChallenge(challenge.id);
             setHasJoined(false);
             setProgress(null);
         } catch (error) {
-            console.error('Error leaving challenge:', error);
-            alert('Error al salir del challenge');
-        } finally {
-            setLeaving(false);
+            console.error("Error leaving challenge", error);
         }
-    };
-
-    const handleDeleteChallenge = async () => {
-        if (!challenge) return;
-        if (!window.confirm('¿Seguro que quieres eliminar este challenge? Esta acción no se puede deshacer.')) return;
-        setDeleting(true);
-        try {
-            await challengeService.deleteChallenge(challenge.id);
-            navigate('/challenges');
-        } catch (error) {
-            console.error('Error deleting challenge:', error);
-            alert('Error al eliminar el challenge');
-        } finally {
-            setDeleting(false);
-        }
-    };
+    }
 
     if (loading) {
         return (
-            <div className="container mx-auto px-4 py-8">
-                <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                </div>
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             </div>
         );
     }
 
-    if (!challenge) {
+    if (error || !challenge) {
         return (
-            <div className="container mx-auto px-4 py-8">
-                <div className="text-center py-12">
-                    <h2 className="text-xl font-semibold text-foreground mb-2">
-                        Challenge no encontrado
-                    </h2>
-                    <Button onClick={() => navigate('/challenges')}>
-                        Volver a Challenges
-                    </Button>
-                </div>
+            <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+                <h2 className="text-2xl font-bold text-white mb-4">Challenge not found</h2>
+                <Link to="/challenges">
+                    <Button variant="outline">Back to Challenges</Button>
+                </Link>
             </div>
         );
     }
-
-    const progressPercentage = progress ? (progress.completed / progress.total) * 100 : 0;
-    const isOwner = user?.username === challenge.creatorUsername;
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            {/* Header */}
-            <div className="mb-6">
-                <button
-                    onClick={() => navigate('/challenges')}
-                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
-                >
-                    <ArrowLeft size={20} />
-                    Volver a Challenges
-                </button>
+        <div className="min-h-screen bg-background pb-20 relative">
+            {showConfetti && (
+                <div className="fixed inset-0 z-[9999] pointer-events-none">
+                    <Confetti width={width} height={height} recycle={false} numberOfPieces={500} />
+                </div>
+            )}
 
-                <div className="flex flex-col lg:flex-row gap-6">
-                    {/* Media */}
-                    {challenge.mediaUrl && (
-                        <div className="lg:w-1/2">
-                            <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-muted">
-                                {challenge.mediaType === 'image' ? (
-                                    <img
-                                        src={challenge.mediaUrl}
-                                        alt={challenge.title}
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : challenge.mediaType === 'video' ? (
-                                    <video
-                                        src={challenge.mediaUrl}
-                                        controls
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : null}
+            {/* Header / Banner Area */}
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+                {/* Congratulations Banner */}
+                {progress && progress.progress === 100 && (
+                    <div className="mb-8 rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-6 md:p-8 text-center relative overflow-hidden animate-in fade-in zoom-in duration-500">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-500/5 to-transparent animate-pulse" />
+                        <div className="relative z-10 flex flex-col items-center gap-4">
+                            <div className="h-16 w-16 rounded-full bg-yellow-500/20 flex items-center justify-center ring-2 ring-yellow-500/50 shadow-[0_0_20px_rgba(234,179,8,0.3)]">
+                                <Crown className="h-8 w-8 text-yellow-400 fill-yellow-400" />
+                            </div>
+                            <div>
+                                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Congratulations, Champion! 🏆</h2>
+                                <p className="text-muted-foreground">You've mastered this challenge. Great work!</p>
                             </div>
                         </div>
-                    )}
+                    </div>
+                )}
 
-                    {/* Info */}
-                    <div className={`${challenge.mediaUrl ? 'lg:w-1/2' : 'w-full'}`}>
-                        <div className="flex items-start justify-between mb-4">
-                            <h1 className="text-3xl font-bold text-foreground">
-                                {challenge.title}
-                            </h1>
-                        </div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                        {/* Challenge info */}
-                        <div className="space-y-3 mb-6">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                                <User size={18} />
-                                <span>Creado por{' '}
-                                    <strong className="cursor-pointer text-primary hover:underline" onClick={() => navigate(`/profile/${challenge?.creatorId}`)}>
-                                        {challenge.creatorUsername}
-                                    </strong>
-                                    {isOwner && (
-                                        <span title="Eres el creador">
-                                            <Crown size={16} className="inline ml-1 text-primary" />
-                                        </span>
-                                    )}
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                                <Clock size={18} />
-                                <span>{challenge.items.length} tareas</span>
-                            </div>
-                        </div>
+                    {/* Left Column: Summary & Actions (Sticky) */}
+                    <div className="lg:col-span-1 space-y-6">
+                        <div className="rounded-2xl border border-white/10 bg-card/60 backdrop-blur-md p-6 shadow-xl shadow-black/20">
 
-                        {/* Progress bar */}
-                        {hasJoined && progress && (
-                            <div className="mb-6">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="text-sm font-medium text-foreground">
-                                        Progreso: {progress.completed}/{progress.total}
-                                        {isOwner && (
-                                            <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                                                Creador participando
-                                            </span>
-                                        )}
-                                    </span>
-                                    <span className="text-sm text-muted-foreground">
-                                        {Math.round(progressPercentage)}%
-                                    </span>
-                                </div>
-                                <div className="w-full bg-secondary rounded-full h-3">
-                                    <div
-                                        className="bg-primary h-3 rounded-full transition-all duration-300"
-                                        style={{ width: `${progressPercentage}%` }}
-                                    />
-                                </div>
-                                {progressPercentage === 100 && (
-                                    <div className="flex items-center gap-2 mt-2 text-primary">
-                                        <Trophy size={20} />
-                                        <span className="font-medium">
-                                            ¡Challenge completado!
-                                            {isOwner && " 🎉 ¡Completaste tu propio challenge!"}
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                            {/* Title moved here */}
+                            <h1 className="text-2xl font-bold text-white mb-6 leading-tight">{challenge.title}</h1>
 
-                        {/* Actions */}
-                        <div className="space-y-3">
-                            {!isAuthenticated ? (
-                                <div className="text-center p-4 bg-secondary/50 rounded-xl">
-                                    <p className="text-muted-foreground mb-3">
-                                        Inicia sesión para unirte a este challenge
-                                    </p>
-                                    <Button onClick={() => navigate('/login')}>
-                                        Iniciar Sesión
-                                    </Button>
-                                </div>
-                            ) : !hasJoined ? (
-                                <Button
-                                    onClick={handleJoinChallenge}
-                                    disabled={joining}
-                                    className="w-full flex items-center justify-center gap-2"
-                                >
-                                    <Play size={20} />
-                                    {joining ? 'Uniéndose...' : isOwner ? 'Participar en mi Challenge' : 'Unirse al Challenge'}
-                                </Button>
-                            ) : (
-                                <div className="space-y-2">
-                                    {isOwner && (
-                                        <div className="text-center p-3 bg-primary/10 rounded-lg">
-                                            <p className="text-primary text-sm">
-                                                Estás participando en tu propio challenge
-                                            </p>
+                            {/* Creator */}
+                            <div className="flex items-center justify-between mb-6 pb-6 border-b border-white/5 relative z-10">
+                                <div className="flex items-center gap-3">
+                                    {(challenge.creatorId !== null && challenge.creatorId !== undefined && challenge.creatorId > 0) ? (
+                                        <Link to={`/profile/${challenge.creatorId}`} className="group/avatar relative z-50 pointer-events-auto block">
+                                            <div className="h-10 w-10 rounded-full bg-secondary ring-2 ring-background flex items-center justify-center group-hover/avatar:ring-primary/50 transition-all">
+                                                <User className="h-5 w-5 text-muted-foreground group-hover/avatar:text-primary transition-colors" />
+                                            </div>
+                                        </Link>
+                                    ) : (
+                                        <div className="h-10 w-10 rounded-full bg-secondary ring-2 ring-background flex items-center justify-center cursor-help" title="User profile not available">
+                                            <User className="h-5 w-5 text-muted-foreground" />
                                         </div>
                                     )}
-                                    <div className="flex gap-2">
-                                        <Button
-                                            onClick={handleLeaveChallenge}
-                                            disabled={leaving}
-                                            variant="destructive"
-                                            className="flex-1 flex items-center justify-center gap-2"
-                                        >
-                                            {leaving ? 'Saliendo...' : 'Salir del Challenge'}
-                                        </Button>
-                                        {isOwner && (
-                                            <Button
-                                                onClick={handleDeleteChallenge}
-                                                disabled={deleting}
-                                                variant="destructive"
-                                                className="flex-1 flex items-center justify-center gap-2"
+
+                                    <div>
+                                        <p className="text-xs text-muted-foreground">Created by</p>
+                                        {challenge.creatorId ? (
+                                            <Link
+                                                to={`/profile/${challenge.creatorId}`}
+                                                className="text-sm font-medium text-white hover:text-primary hover:underline transition-colors relative z-50 pointer-events-auto inline-block"
                                             >
-                                                {deleting ? 'Eliminando...' : 'Eliminar Challenge'}
-                                            </Button>
+                                                {challenge.creatorUsername}
+                                            </Link>
+                                        ) : (
+                                            <p className="text-sm font-medium text-white cursor-help" title="User profile not available">
+                                                {challenge.creatorUsername}
+                                            </p>
                                         )}
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* Related Game Placeholder (Since backend doesn't provide game yet) */}
+                            <div className="mb-6 p-4 rounded-xl bg-background/50 border border-white/5 flex items-center gap-4">
+                                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0">
+                                    <Gamepad2 className="h-6 w-6 text-primary" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="text-sm font-bold text-white truncate">Target Game</h4>
+                                    <p className="text-xs text-muted-foreground truncate">
+                                        Unknown Title
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Progress Section */}
+                            {isAuthenticated && hasJoined && (
+                                <div className="space-y-4 mb-8">
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-muted-foreground font-medium">Your Progress</span>
+                                        <span className="text-primary font-bold">{progress ? Math.round(progress.progress) : 0}%</span>
+                                    </div>
+                                    <div className="h-2 w-full bg-secondary/50 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-primary transition-all duration-1000 ease-out relative overflow-hidden"
+                                            style={{ width: `${progress ? progress.progress : 0}%` }}
+                                        >
+                                            <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]" />
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-center text-muted-foreground">
+                                        {progress ? progress.completed : 0} of {challenge.items.length} tasks completed
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Actions */}
+                            {isAuthenticated && (
+                                <div className="space-y-3">
+                                    {!hasJoined ? (
+                                        <Button
+                                            className="w-full shadow-lg shadow-primary/20"
+                                            onClick={handleJoin}
+                                        >
+                                            <Play className="h-4 w-4 mr-2 fill-current" /> Start Challenge
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            variant="outline"
+                                            className="w-full border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+                                            onClick={handleLeaveChallenge}
+                                        >
+                                            Leave Challenge
+                                        </Button>
+                                    )}
+
+                                    {/* Creator or Admin Actions */}
+                                    {(isCreator || isAdmin) && (
+                                        <div className="pt-4 mt-6 border-t border-white/5 space-y-4">
+                                            <Link to={`/challenges/edit/${challenge.id}`} className="block w-full">
+                                                <Button
+                                                    variant="outline" // Using outline to differentiate from "Delete"
+                                                    className="w-full border-primary/20 text-primary hover:bg-primary/10 transition-colors flex items-center justify-center gap-2"
+                                                >
+                                                    <Edit className="h-4 w-4" /> Edit Challenge
+                                                </Button>
+                                            </Link>
+
+                                            <Button
+                                                variant="outline"
+                                                className="w-full border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors flex items-center justify-center gap-2"
+                                                onClick={handleDeleteChallenge}
+                                            >
+                                                <Trash2 className="h-4 w-4" /> Delete Challenge
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
                     </div>
-                </div>
-            </div>
 
-            {/* Description - UNIFICADO */}
-            <div className="mb-8">
-                <h2 className="text-2xl font-semibold text-foreground mb-4">
-                    Descripción
-                </h2>
-                <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-                    <UnifiedContentRenderer content={challenge.description} />
-                </div>
-            </div>
+                    {/* Right Column: Content & Tasks */}
+                    <div className="lg:col-span-2 space-y-8">
+                        {/* Description */}
+                        <div className="rounded-2xl border border-white/5 bg-card/40 p-6 md:p-8">
+                            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                <Crown className="h-5 w-5 text-primary" /> Challenge Rules
+                            </h3>
+                            <div className="prose prose-invert max-w-none text-muted-foreground leading-relaxed">
+                                <UnifiedContentRenderer content={challenge.description || ''} />
+                            </div>
+                        </div>
 
-            {/* Tasks/Checklist */}
-            <div>
-                <h2 className="text-2xl font-semibold text-foreground mb-4">
-                    Tareas ({challenge.items.length})
-                </h2>
-                <div className="space-y-3">
-                    {challenge.items
-                        .sort((a, b) => a.order - b.order)
-                        .map((item) => {
-                            const isCompleted = (
-                                hasJoined &&
-                                item.id !== undefined &&
-                                Array.isArray(progress?.completedItems) &&
-                                progress.completedItems.includes(item.id)
-                            );
-                            return (
-                                <div
-                                    key={item.id}
-                                    className={`bg-card rounded-xl p-4 shadow-sm border transition-all ${isCompleted ? 'border-primary/50 bg-primary/5 animate-pulse-once' : 'border-border'}`}
-                                >
-                                    <div className="flex items-start gap-3">
-                                        {hasJoined ? (
-                                            <PrettyCheckbox
-                                                checked={isCompleted}
-                                                disabled={false}
-                                                onToggle={() => handleToggleItem(item.id!, isCompleted)}
-                                            />
-                                        ) : (
-                                            <Circle size={24} className="text-muted-foreground mt-1 flex-shrink-0" />
-                                        )}
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <span className="text-sm font-medium text-muted-foreground">
-                                                    Tarea {item.order}
-                                                </span>
-                                                {isCompleted && (
-                                                    <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
-                                                        Completado
-                                                    </span>
-                                                )}
+                        {/* Tasks List */}
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2 mb-2 px-1">
+                                <Circle className="h-2 w-2 fill-primary text-primary animate-pulse" />
+                                <h3 className="text-lg font-bold text-white uppercase tracking-wider">Tasks Checklist</h3>
+                            </div>
+
+                            <div className="grid gap-3">
+                                {challenge.items.map((item) => {
+                                    const completed = isItemCompleted(item.id!);
+                                    return (
+                                        <div
+                                            key={item.id}
+                                            className={`
+                                                group flex items-start gap-4 p-4 rounded-xl border transition-all duration-300
+                                                ${completed
+                                                    ? 'bg-primary/5 border-primary/20 shadow-[0_0_15px_-5px_var(--primary)]'
+                                                    : 'bg-card/40 border-white/5 hover:bg-white/5 hover:border-white/10'
+                                                }
+                                            `}
+                                        >
+                                            <div className="pt-0.5 shrink-0">
+                                                <PrettyCheckbox
+                                                    checked={completed}
+                                                    onToggle={() => item.id && handleToggleItem(item.id)}
+                                                    disabled={!isAuthenticated || !hasJoined}
+                                                />
                                             </div>
-                                            <UnifiedContentRenderer
-                                                content={item.description}
-                                                className={`prose dark:prose-invert max-w-none ${isCompleted ? 'text-primary' : ''}`}
-                                            />
+                                            <div className="flex-1 min-w-0">
+                                                <p className={`text-sm leading-relaxed transition-all ${completed ? 'text-muted-foreground line-through decoration-primary/50' : 'text-gray-200'}`}>
+                                                    {item.description}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
+                                    );
+                                })}
+                            </div>
+
+                            {!isAuthenticated && (
+                                <div className="mt-8 p-6 rounded-xl border border-primary/20 bg-primary/5 text-center">
+                                    <p className="text-sm text-muted-foreground mb-3">Join the community to track your progress on this challenge.</p>
+                                    <Link to="/login">
+                                        <Button className="font-semibold shadow-lg shadow-primary/20">Sign In to Join</Button>
+                                    </Link>
                                 </div>
-                            );
-                        })}
+                            )}
+                        </div>
+
+                        {/* Comments Section */}
+                        <div className="pt-8">
+                            <CommentSection
+                                entityType="challenge"
+                                entityId={challenge.id}
+                                currentUser={isAuthenticated && user ? {
+                                    id: user.id,
+                                    username: user.username,
+                                    isAdmin: isAdmin
+                                } : null}
+                            />
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

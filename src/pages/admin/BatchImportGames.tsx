@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Upload, FileJson, CheckCircle, XCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Upload, FileJson, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import apiAuth from '../../services/apiAuth';
 import axios from 'axios';
 
@@ -24,6 +23,7 @@ const EXAMPLE_JSON = {
             "title": "Portal 2",
             "description": "A first-person puzzle-platform video game",
             "genres": ["Puzzle"],
+            "developersAndPublishers": ["Valve"],
             "releaseDate": "2011-04-19",
             "coverImage": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3p2d.jpg"
         },
@@ -31,6 +31,7 @@ const EXAMPLE_JSON = {
             "title": "Half-Life 2",
             "description": "A first-person shooter game",
             "genres": ["FPS"],
+            "developersAndPublishers": ["Valve"],
             "releaseDate": "2004-11-16",
             "coverImage": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1q1f.jpg"
         }
@@ -38,7 +39,6 @@ const EXAMPLE_JSON = {
 };
 
 const BatchImportGames: React.FC = () => {
-    const navigate = useNavigate();
     const [jsonContent, setJsonContent] = useState<string>('');
     const [isValidJson, setIsValidJson] = useState<boolean | null>(null);
     const [validationError, setValidationError] = useState<string>('');
@@ -57,38 +57,44 @@ const BatchImportGames: React.FC = () => {
 
             if (!parsed.games || !Array.isArray(parsed.games)) {
                 setIsValidJson(false);
-                setValidationError('El JSON debe contener un array "games"');
+                setValidationError('JSON must contain a "games" array');
                 return;
             }
 
             if (parsed.games.length === 0) {
                 setIsValidJson(false);
-                setValidationError('El array "games" no puede estar vacío');
+                setValidationError('The "games" array cannot be empty');
                 return;
             }
 
             for (let i = 0; i < parsed.games.length; i++) {
                 const game = parsed.games[i];
 
-                // Validar campos requeridos - ACTUALIZADO
-                if (!game.title || !game.description || !game.releaseDate) {
+                if (!game.title || !game.description) {
                     setIsValidJson(false);
-                    setValidationError(`Juego ${i + 1}: Faltan campos requeridos (title, description, releaseDate)`);
+                    setValidationError(`Game ${i + 1}: Missing required fields (title, description)`);
                     return;
                 }
 
-                // Validar que genres sea un array - NUEVO
                 if (game.genres && !Array.isArray(game.genres)) {
                     setIsValidJson(false);
-                    setValidationError(`Juego ${i + 1}: "genres" debe ser un array`);
+                    setValidationError(`Game ${i + 1}: "genres" must be an array`);
                     return;
                 }
 
-                const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-                if (!dateRegex.test(game.releaseDate)) {
+                if (game.developersAndPublishers && !Array.isArray(game.developersAndPublishers)) {
                     setIsValidJson(false);
-                    setValidationError(`Juego ${i + 1}: Formato de fecha inválido. Use YYYY-MM-DD`);
+                    setValidationError(`Game ${i + 1}: "developersAndPublishers" must be an array`);
                     return;
+                }
+
+                if (game.releaseDate) {
+                    const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{4}|Unknown)$/;
+                    if (!dateRegex.test(game.releaseDate)) {
+                        setIsValidJson(false);
+                        setValidationError(`Game ${i + 1}: Invalid date format. Use YYYY-MM-DD, YYYY or "Unknown"`);
+                        return;
+                    }
                 }
             }
 
@@ -96,7 +102,7 @@ const BatchImportGames: React.FC = () => {
             setValidationError('');
         } catch (e) {
             setIsValidJson(false);
-            setValidationError('JSON inválido: ' + (e as Error).message);
+            setValidationError('Invalid JSON: ' + (e as Error).message);
         }
     };
 
@@ -111,12 +117,12 @@ const BatchImportGames: React.FC = () => {
         if (!file) return;
 
         if (!file.name.endsWith('.json')) {
-            alert('Por favor selecciona un archivo .json');
+            alert('Please select a .json file');
             return;
         }
 
         if (file.size > 5 * 1024 * 1024) {
-            alert('El archivo es demasiado grande (máximo 5MB)');
+            alert('File is too large (maximum 5MB)');
             return;
         }
 
@@ -127,7 +133,7 @@ const BatchImportGames: React.FC = () => {
             validateJson(content);
         };
         reader.onerror = () => {
-            alert('Error al leer el archivo');
+            alert('Error reading file');
         };
         reader.readAsText(file);
     };
@@ -140,7 +146,7 @@ const BatchImportGames: React.FC = () => {
 
     const handleSubmit = async () => {
         if (!isValidJson) {
-            alert('Por favor corrige los errores en el JSON antes de importar');
+            alert('Please fix JSON errors before importing');
             return;
         }
 
@@ -148,7 +154,52 @@ const BatchImportGames: React.FC = () => {
         setImportResult(null);
 
         try {
-            const payload = JSON.parse(jsonContent);
+            const rawPayload = JSON.parse(jsonContent);
+
+            // Transform payload to match backend DTO expectation
+            // The backend cannot deserialize "Unknown" or "YYYY" into LocalDate
+            const payload = {
+                ...rawPayload,
+                games: rawPayload.games.map((game: any) => {
+                    const { releaseDate, ...rest } = game;
+
+                    // Case: Explicit "Unknown" string
+                    if (releaseDate === 'Unknown') {
+                        return {
+                            ...rest,
+                            releaseDate: null,
+                            releaseDateUnknown: true
+                        };
+                    }
+
+                    // Case: Year only string "YYYY"
+                    if (releaseDate && /^\d{4}$/.test(releaseDate)) {
+                        return {
+                            ...rest,
+                            releaseDate: null,
+                            releaseYear: parseInt(releaseDate, 10)
+                        };
+                    }
+
+                    // Case: Normal Date provided
+                    if (releaseDate) {
+                        return game;
+                    }
+
+                    // Case: No releaseDate provided
+                    // If releaseYear is present in the input JSON, we respect it and don't force 'Unknown'
+                    if (rest.releaseYear) {
+                        return { ...rest, releaseDate: null };
+                    }
+
+                    // Case: Neither releaseDate nor releaseYear provided -> Force Unknown
+                    return {
+                        ...rest,
+                        releaseDate: null,
+                        releaseDateUnknown: true
+                    };
+                })
+            };
             const response = await apiAuth.post('/games/batch/import', payload, {
                 headers: { 'Content-Type': 'application/json' },
             });
@@ -170,8 +221,8 @@ const BatchImportGames: React.FC = () => {
                     : (error.response?.data as { message?: string } | undefined)?.message) ?? error.message
                 : error instanceof Error
                     ? error.message
-                    : 'Error desconocido';
-            alert('Error al importar juegos: ' + message);
+                    : 'Unknown error';
+            alert('Error importing games: ' + message);
         } finally {
             setIsSubmitting(false);
         }
@@ -193,11 +244,11 @@ const BatchImportGames: React.FC = () => {
                         <div className="flex items-center gap-3 mb-2">
                             <FileJson className="text-primary" size={32} />
                             <h1 className="text-3xl font-bold text-foreground">
-                                Importación Masiva de Juegos
+                                Batch Game Import
                             </h1>
                         </div>
                         <p className="text-muted-foreground">
-                            Importa múltiples juegos a la vez usando un archivo JSON
+                            Import multiple games at once using a JSON file
                         </p>
                     </div>
                 </div>
@@ -210,13 +261,13 @@ const BatchImportGames: React.FC = () => {
                         <div className="bg-card rounded-xl border border-border shadow-sm p-6">
                             <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
                                 <Upload size={20} />
-                                1. Cargar JSON
+                                1. Load JSON
                             </h2>
 
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-foreground mb-2">
-                                        Subir archivo JSON
+                                        Upload JSON file
                                     </label>
                                     <input
                                         type="file"
@@ -229,11 +280,11 @@ const BatchImportGames: React.FC = () => {
                       file:bg-primary/10 file:text-primary
                       hover:file:bg-primary/20 cursor-pointer"
                                     />
-                                    <p className="text-xs text-muted-foreground mt-1">Máximo 5MB</p>
+                                    <p className="text-xs text-muted-foreground mt-1">Maximum 5MB</p>
                                 </div>
 
                                 <div className="text-center">
-                                    <span className="text-muted-foreground">o</span>
+                                    <span className="text-muted-foreground">or</span>
                                 </div>
 
                                 <button
@@ -241,14 +292,14 @@ const BatchImportGames: React.FC = () => {
                                     className="w-full py-2 px-4 bg-secondary hover:bg-secondary/80
                     text-secondary-foreground rounded-lg transition-colors"
                                 >
-                                    Cargar Ejemplo
+                                    Load Example
                                 </button>
                             </div>
                         </div>
 
                         {/* Editor Card */}
                         <div className="bg-card rounded-xl border border-border shadow-sm p-6">
-                            <h2 className="text-xl font-semibold text-foreground mb-4">2. Editar JSON</h2>
+                            <h2 className="text-xl font-semibold text-foreground mb-4">2. Edit JSON</h2>
 
                             <div className="relative">
                                 <textarea
@@ -285,7 +336,7 @@ const BatchImportGames: React.FC = () => {
                                     <div className="flex items-center gap-2">
                                         <CheckCircle className="text-green-600 dark:text-green-400" size={20} />
                                         <p className="text-sm text-green-800 dark:text-green-300">
-                                            JSON válido - {JSON.parse(jsonContent).games.length} juego(s) listo(s) para importar
+                                            Valid JSON - {JSON.parse(jsonContent).games.length} game(s) ready to import
                                         </p>
                                     </div>
                                 </div>
@@ -305,12 +356,12 @@ const BatchImportGames: React.FC = () => {
                                 {isSubmitting ? (
                                     <>
                                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-foreground" />
-                                        Importando...
+                                        Importing...
                                     </>
                                 ) : (
                                     <>
                                         <Upload size={20} />
-                                        Importar Juegos
+                                        Import Games
                                     </>
                                 )}
                             </button>
@@ -320,7 +371,7 @@ const BatchImportGames: React.FC = () => {
                                 className="py-3 px-6 bg-secondary hover:bg-secondary/80
                   text-secondary-foreground font-semibold rounded-lg transition-colors"
                             >
-                                Limpiar
+                                Clear
                             </button>
                         </div>
                     </div>
@@ -329,47 +380,50 @@ const BatchImportGames: React.FC = () => {
                     <div className="space-y-6">
                         {/* Format Guide */}
                         <div className="bg-card rounded-xl border border-border shadow-sm p-6">
-                            <h2 className="text-xl font-semibold text-foreground mb-4">📋 Formato del JSON</h2>
+                            <h2 className="text-xl font-semibold text-foreground mb-4">📋 JSON Format</h2>
 
                             <div className="space-y-4">
                                 <div>
-                                    <h3 className="font-semibold text-sm text-foreground mb-2">Campos Requeridos</h3>
+                                    <h3 className="font-semibold text-sm text-foreground mb-2">Required Fields</h3>
                                     <ul className="text-sm space-y-1 text-muted-foreground">
                                         <li className="flex items-start gap-2">
                                             <span className="text-destructive">*</span>
                                             <code className="bg-muted px-1 rounded text-foreground">title</code>
-                                            <span>- Título del juego</span>
+                                            <span>- Game title</span>
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="text-destructive">*</span>
                                             <code className="bg-muted px-1 rounded text-foreground">description</code>
-                                            <span>- Descripción</span>
-                                        </li>
-                                        <li className="flex items-start gap-2">
-                                            <span className="text-destructive">*</span>
-                                            <code className="bg-muted px-1 rounded text-foreground">releaseDate</code>
-                                            <span>- Formato: YYYY-MM-DD</span>
+                                            <span>- Description</span>
                                         </li>
                                     </ul>
                                 </div>
 
                                 <div>
-                                    <h3 className="font-semibold text-sm text-foreground mb-2">Campos Opcionales</h3>
+                                    <h3 className="font-semibold text-sm text-foreground mb-2">Optional Fields</h3>
                                     <ul className="text-sm space-y-1 text-muted-foreground">
                                         <li className="flex items-start gap-2">
+                                            <code className="bg-muted px-1 rounded text-foreground">releaseDate</code>
+                                            <span>- Optional (default: Unknown)</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
                                             <code className="bg-muted px-1 rounded text-foreground">genres</code>
-                                            <span>- Array de géneros ["Action", "RPG"]</span>
+                                            <span>- Array of genres ["Action", "RPG"]</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <code className="bg-muted px-1 rounded text-foreground">developersAndPublishers</code>
+                                            <span>- Array of developers ["Valve", "EA"]</span>
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <code className="bg-muted px-1 rounded text-foreground">coverImage</code>
-                                            <span>- URL de la imagen</span>
+                                            <span>- Image URL</span>
                                         </li>
                                     </ul>
                                 </div>
 
                                 <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
                                     <p className="text-xs text-primary">
-                                        💡 <strong>Tip:</strong> Los juegos duplicados (mismo título) serán rechazados automáticamente
+                                        💡 <strong>Tip:</strong> Duplicate games (same title) will be rejected automatically
                                     </p>
                                 </div>
                             </div>
@@ -378,25 +432,25 @@ const BatchImportGames: React.FC = () => {
                         {/* Results */}
                         {importResult && (
                             <div className="bg-card rounded-xl border border-border shadow-sm p-6">
-                                <h2 className="text-xl font-semibold text-foreground mb-4">📊 Resultados de la Importación</h2>
+                                <h2 className="text-xl font-semibold text-foreground mb-4">📊 Import Results</h2>
 
                                 <div className="grid grid-cols-3 gap-4 mb-6">
                                     <div className="bg-primary/10 rounded-lg p-4 text-center">
-                                        <div className="text-2xl font-bold text-primary">{importResult!.totalProcessed}</div>
+                                        <div className="text-2xl font-bold text-primary">{importResult.totalProcessed}</div>
                                         <div className="text-xs text-primary">Total</div>
                                     </div>
                                     <div className="bg-green-50 dark:bg-green-900/10 rounded-lg p-4 text-center">
-                                        <div className="text-2xl font-bold text-green-600 dark:text-green-400">{importResult!.successCount}</div>
-                                        <div className="text-xs text-green-800 dark:text-green-300">Exitosos</div>
+                                        <div className="text-2xl font-bold text-green-600 dark:text-green-400">{importResult.successCount}</div>
+                                        <div className="text-xs text-green-800 dark:text-green-300">Success</div>
                                     </div>
                                     <div className="bg-red-50 dark:bg-red-900/10 rounded-lg p-4 text-center">
-                                        <div className="text-2xl font-bold text-red-600 dark:text-red-400">{importResult!.failureCount}</div>
-                                        <div className="text-xs text-red-800 dark:text-red-300">Fallidos</div>
+                                        <div className="text-2xl font-bold text-red-600 dark:text-red-400">{importResult.failureCount}</div>
+                                        <div className="text-xs text-red-800 dark:text-red-300">Failed</div>
                                     </div>
                                 </div>
 
                                 <div className="space-y-2 max-h-96 overflow-y-auto">
-                                    {importResult!.results.map((result, index) => (
+                                    {importResult.results.map((result, index) => (
                                         <div
                                             key={index}
                                             className={`p-3 rounded-lg border ${result.success
@@ -425,10 +479,10 @@ const BatchImportGames: React.FC = () => {
                                     ))}
                                 </div>
 
-                                {importResult!.failureCount === 0 && (
+                                {importResult.failureCount === 0 && (
                                     <div className="mt-4 p-4 bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-900/50 rounded-lg">
                                         <p className="text-green-800 dark:text-green-300 font-semibold text-center">
-                                            🎉 ¡Todos los juegos se importaron correctamente!
+                                            🎉 All games imported successfully!
                                         </p>
                                     </div>
                                 )}
@@ -440,15 +494,15 @@ const BatchImportGames: React.FC = () => {
                             <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 rounded-lg p-6">
                                 <h3 className="font-semibold text-amber-900 dark:text-amber-200 mb-2 flex items-center gap-2">
                                     <AlertCircle size={20} />
-                                    Notas Importantes
+                                    Important Notes
                                 </h3>
                                 <ul className="text-sm text-amber-800 dark:text-amber-300 space-y-2">
-                                    <li>• Los juegos duplicados serán rechazados</li>
-                                    <li>• Fecha: YYYY-MM-DD (ej: 2024-03-15)</li>
-                                    <li>• Máximo 100 juegos por vez</li>
-                                    <li>• Procesamiento individual</li>
-                                    <li>• Usar "title" en lugar de "name"</li>
-                                    <li>• "genres" debe ser un array</li>
+                                    <li>• Duplicate games will be rejected</li>
+                                    <li>• Date format: YYYY-MM-DD, YYYY or "Unknown"</li>
+                                    <li>• Maximum 100 games per batch</li>
+                                    <li>• Individual processing</li>
+                                    <li>• Use "title" instead of "name"</li>
+                                    <li>• "genres" and "developersAndPublishers" must be arrays</li>
                                 </ul>
                             </div>
                         )}

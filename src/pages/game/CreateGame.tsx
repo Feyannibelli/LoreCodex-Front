@@ -11,10 +11,22 @@ const CreateGame: React.FC = () => {
         description: "",
         genre: "",
         releaseDate: "",
-        imageUrl: ""
+        releaseYear: null,
+        releaseDateUnknown: false,
+        imageUrl: "",
+        awards: "",
+        genres: [],
+        tags: [],
+        developersAndPublishers: []
     };
 
     const [formData, setFormData] = useState<GameFormData>(initialFormData);
+
+    type DateMode = 'full' | 'year' | 'unknown';
+    const [dateMode, setDateMode] = useState<DateMode>('full');
+    const [yearInput, setYearInput] = useState<string>("");
+    const [devPubInput, setDevPubInput] = useState<string>("");
+
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
@@ -33,7 +45,28 @@ const CreateGame: React.FC = () => {
         setError(null);
 
         try {
-            await gameService.createGame(formData);
+            // Prepare final payload based on mode
+            const finalData = { ...formData };
+
+            // Parse developers and publishers from string input to array
+            finalData.developersAndPublishers = devPubInput.split(',').map(item => item.trim()).filter(Boolean);
+
+            if (dateMode === 'unknown') {
+                finalData.releaseDate = "";
+                finalData.releaseYear = null;
+                finalData.releaseDateUnknown = true;
+            } else if (dateMode === 'year') {
+                finalData.releaseDate = "";
+                finalData.releaseDateUnknown = false;
+                finalData.releaseYear = yearInput ? parseInt(yearInput) : null;
+            } else {
+                // Full date
+                finalData.releaseYear = null;
+                finalData.releaseDateUnknown = false;
+                // releaseDate is already in formData
+            }
+
+            await gameService.createGame(finalData);
             navigate("/admin/games");
         } catch (err) {
             console.error("Error creating game:", err);
@@ -99,18 +132,81 @@ const CreateGame: React.FC = () => {
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <label htmlFor="releaseDate" className="block text-sm font-medium text-foreground">Release Date *</label>
-                                <input
-                                    type="date"
-                                    id="releaseDate"
-                                    name="releaseDate"
-                                    value={formData.releaseDate}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full rounded-lg border border-input bg-secondary/50 px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input"
-                                />
+                            <div className="space-y-4">
+                                <label className="block text-sm font-medium text-foreground">Release Date Format</label>
+                                <div className="flex gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setDateMode('full')}
+                                        className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${dateMode === 'full'
+                                            ? 'bg-primary text-primary-foreground border-primary'
+                                            : 'bg-background text-muted-foreground border-input hover:bg-muted'}`}
+                                    >
+                                        Full Date
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDateMode('year')}
+                                        className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${dateMode === 'year'
+                                            ? 'bg-primary text-primary-foreground border-primary'
+                                            : 'bg-background text-muted-foreground border-input hover:bg-muted'}`}
+                                    >
+                                        Year Only
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDateMode('unknown')}
+                                        className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${dateMode === 'unknown'
+                                            ? 'bg-primary text-primary-foreground border-primary'
+                                            : 'bg-background text-muted-foreground border-input hover:bg-muted'}`}
+                                    >
+                                        Unknown
+                                    </button>
+                                </div>
+
+                                {dateMode === 'full' && (
+                                    <input
+                                        type="date"
+                                        id="releaseDate"
+                                        name="releaseDate"
+                                        value={formData.releaseDate}
+                                        onChange={handleChange}
+                                        required={dateMode === 'full'}
+                                        className="w-full rounded-lg border border-input bg-secondary/50 px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input"
+                                    />
+                                )}
+
+                                {dateMode === 'year' && (
+                                    <input
+                                        type="number"
+                                        placeholder="YYYY (e.g., 1998)"
+                                        value={yearInput}
+                                        onChange={(e) => setYearInput(e.target.value)}
+                                        min="1950"
+                                        max="2100"
+                                        required={dateMode === 'year'}
+                                        className="w-full rounded-lg border border-input bg-secondary/50 px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input"
+                                    />
+                                )}
+
+                                {dateMode === 'unknown' && (
+                                    <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground italic border border-border">
+                                        Release date will be set to "Unknown"
+                                    </div>
+                                )}
                             </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="devPub" className="block text-sm font-medium text-foreground">Developers & Publishers (comma separated)</label>
+                            <input
+                                type="text"
+                                id="devPub"
+                                value={devPubInput}
+                                onChange={(e) => setDevPubInput(e.target.value)}
+                                placeholder="e.g., Nintendo, GameFreak"
+                                className="w-full rounded-lg border border-input bg-secondary/50 px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input"
+                            />
                         </div>
 
                         <div className="space-y-2">
@@ -130,6 +226,19 @@ const CreateGame: React.FC = () => {
                                     <img src={formData.imageUrl} alt="Preview" className="mt-1 h-32 w-auto object-cover rounded-md border border-border" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
                                 </div>
                             )}
+
+                            <div className="space-y-2">
+                                <label htmlFor="awards" className="block text-sm font-medium text-foreground">Awards</label>
+                                <input
+                                    type="text"
+                                    id="awards"
+                                    name="awards"
+                                    value={formData.awards || ""}
+                                    onChange={handleChange}
+                                    className="w-full rounded-lg border border-input bg-secondary/50 px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input"
+                                    placeholder="e.g. GOTY 2020"
+                                />
+                            </div>
                         </div>
 
                         <div className="flex items-center justify-end gap-4 pt-4 border-t border-border">

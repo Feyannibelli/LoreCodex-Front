@@ -21,7 +21,16 @@ const CreateChallengePage: React.FC = () => {
         setIsSubmitting(true);
         try {
             const challenge = await challengeService.createChallenge(data);
-            navigate(`/challenges/${challenge.id}`);
+
+            if (challenge.isTemporary) {
+                // If backend didn't return an ID, we can't navigate to the specific challenge.
+                // Go to the list instead.
+                // You might want to replace this with a proper toast notification.
+                // alert('Challenge created successfully! (Redirecting to list)');
+                navigate('/challenges');
+            } else {
+                navigate(`/challenges/${challenge.id}`);
+            }
         } catch (error) {
             console.error('Error creating challenge:', error);
             // Add toast here
@@ -30,16 +39,10 @@ const CreateChallengePage: React.FC = () => {
         }
     };
 
-    const breadcrumbs = [
-        { label: 'Home', href: '/' },
-        { label: 'Challenges', href: '/challenges' },
-        { label: 'Create New Challenge' },
-    ];
-
     return (
         <ChallengeForm
             pageTitle="Create New Challenge"
-            breadcrumbs={breadcrumbs}
+            breadcrumbs={[]}
             onSubmit={handleSubmit}
             submitLabel="Publish Challenge"
             isSubmitting={isSubmitting}

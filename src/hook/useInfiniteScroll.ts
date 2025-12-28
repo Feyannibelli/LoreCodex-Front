@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-interface UseInfiniteScrollOptions<T> {
+interface UseInfiniteScrollOptions {
     fetchFunction: (page: number, pageSize: number) => Promise<any>;
     pageSize?: number;
     initialPage?: number;
@@ -19,7 +19,7 @@ export function useInfiniteScroll<T>({
     fetchFunction,
     pageSize = 12,
     initialPage = 0
-}: UseInfiniteScrollOptions<T>): UseInfiniteScrollReturn<T> {
+}: UseInfiniteScrollOptions): UseInfiniteScrollReturn<T> {
     const [items, setItems] = useState<T[]>([]);
     const [page, setPage] = useState(initialPage);
     const [loading, setLoading] = useState(false);

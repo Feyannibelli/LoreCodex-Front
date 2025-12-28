@@ -6,12 +6,13 @@ import { useInfiniteScroll } from "../../hook/useInfiniteScroll.ts";
 import InfiniteScrollTrigger from "../../components/InfiniteScrollTrigger.tsx";
 import Button from "../../components/Button";
 import { useAuth } from "../../context/AuthContext";
-import { Search, ArrowUpDown, Plus, Calendar, Newspaper, Heart } from "lucide-react";
+import { Search, Plus, Calendar, Newspaper, ArrowUpDown } from "lucide-react";
+import UnifiedContentRenderer from "../../components/UnifiedContentRenderer";
 
 const NewsPage: React.FC = () => {
     const { isAdmin } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
-    const [activeFilter] = useState("All");
+    const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
 
     const fetchNews = useCallback(async (page: number, pageSize: number): Promise<News[]> => {
         const response = await newsService.getAllPaginated(page, pageSize);
@@ -29,22 +30,38 @@ const NewsPage: React.FC = () => {
         pageSize: 12
     });
 
-    const filteredNews = useMemo(() => {
-        if (!searchTerm.trim()) return news;
-        const term = searchTerm.toLowerCase();
-        return news.filter(item =>
-            item.title.toLowerCase().includes(term) ||
-            item.content.toLowerCase().includes(term)
-        );
-    }, [news, searchTerm]);
+    // Filter and sort news
+    const filteredAndSortedNews = useMemo(() => {
+        let result = [...news];
 
-    const displayedNews = activeFilter === "All" ? filteredNews : filteredNews; // Placeholder for tag filtering if needed
+        // Apply search filter
+        if (searchTerm.trim()) {
+            const term = searchTerm.toLowerCase();
+            result = result.filter(item =>
+                item.title.toLowerCase().includes(term) ||
+                item.content.toLowerCase().includes(term)
+            );
+        }
+
+        // Apply sorting
+        result.sort((a, b) => {
+            const dateA = new Date(a.createdAt).getTime();
+            const dateB = new Date(b.createdAt).getTime();
+            return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+
+        return result;
+    }, [news, searchTerm, sortOrder]);
+
+    const toggleSort = () => {
+        setSortOrder(prev => prev === 'newest' ? 'oldest' : 'newest');
+    };
 
     return (
         <div className="min-h-screen bg-background py-8 md:py-12 mb-20">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-                {/* 1. Header Section - Aligned */}
+                {/* Header Section */}
                 <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
                     <div className="max-w-3xl space-y-2">
                         <div className="flex items-center gap-2">
@@ -57,7 +74,7 @@ const NewsPage: React.FC = () => {
                             Latest News
                         </h1>
                         <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
-                            Stay informed with the latest updates, patches, and announcements from the LoreCodex team.
+                            Stay informed with the latest updates, patches, and announcements from our team.
                         </p>
                     </div>
 
@@ -73,11 +90,11 @@ const NewsPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* 2. Toolbar Section - Premium Surface */}
+                {/* Toolbar Section */}
                 <div className="sticky top-20 z-30 mb-8 rounded-2xl border border-white/5 bg-card/80 p-2 shadow-xl shadow-black/20 backdrop-blur-xl">
                     <div className="flex flex-col gap-4 md:flex-row md:items-center p-2">
 
-                        {/* Search Input - Compact & Local */}
+                        {/* Search Input */}
                         <div className="relative flex-1 group">
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
                             <input
@@ -89,20 +106,21 @@ const NewsPage: React.FC = () => {
                             />
                         </div>
 
-                        {/* Divider on desktop */}
+                        {/* Divider */}
                         <div className="hidden h-6 w-px bg-white/5 md:block"></div>
 
-                        {/* Controls */}
-                        <div className="flex items-center gap-3 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-                            <button className="flex h-10 items-center gap-2 rounded-lg border border-white/5 bg-secondary/30 px-4 text-sm font-medium text-muted-foreground hover:bg-secondary/50 hover:text-foreground transition-colors whitespace-nowrap">
-                                <ArrowUpDown className="h-3.5 w-3.5" />
-                                <span>Recent</span>
-                            </button>
-                        </div>
+                        {/* Sort Button */}
+                        <button
+                            onClick={toggleSort}
+                            className="flex h-10 items-center gap-2 rounded-lg border border-white/5 bg-secondary/30 px-4 text-sm font-medium text-muted-foreground hover:bg-secondary/50 hover:text-foreground transition-colors whitespace-nowrap"
+                        >
+                            <ArrowUpDown className="h-3.5 w-3.5" />
+                            <span>{sortOrder === 'newest' ? 'Newest First' : 'Oldest First'}</span>
+                        </button>
                     </div>
                 </div>
 
-                {/* 3. Content Grid */}
+                {/* Content Grid */}
                 <div className="space-y-8">
                     {/* Error Alert */}
                     {error && (
@@ -117,7 +135,7 @@ const NewsPage: React.FC = () => {
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {loading && news.length === 0 ? (
                             /* Skeletons */
                             [...Array(6)].map((_, i) => (
@@ -130,7 +148,7 @@ const NewsPage: React.FC = () => {
                                     </div>
                                 </div>
                             ))
-                        ) : displayedNews.length === 0 ? (
+                        ) : filteredAndSortedNews.length === 0 ? (
                             /* Empty State */
                             <div className="col-span-full flex flex-col items-center justify-center rounded-3xl border border-white/5 bg-card/30 py-24 text-center backdrop-blur-sm">
                                 <div className="h-20 w-20 rounded-full bg-secondary/50 flex items-center justify-center mb-6 ring-8 ring-secondary/20">
@@ -138,20 +156,32 @@ const NewsPage: React.FC = () => {
                                 </div>
                                 <h3 className="text-xl font-bold text-foreground mb-2">No news found</h3>
                                 <p className="text-muted-foreground max-w-sm mx-auto mb-8">
-                                    We couldn't find any news articles matching "{searchTerm}".
+                                    {searchTerm
+                                        ? `We couldn't find any news articles matching "${searchTerm}".`
+                                        : "There are no news articles available at the moment."
+                                    }
                                 </p>
+                                {searchTerm && (
+                                    <Button onClick={() => setSearchTerm('')} variant="outline">
+                                        Clear Search
+                                    </Button>
+                                )}
                             </div>
                         ) : (
-                            displayedNews.map(item => (
+                            filteredAndSortedNews.map(item => (
                                 <Link
                                     to={`/news/${item.id}`}
                                     key={item.id}
                                     className="group flex flex-col overflow-hidden rounded-3xl border border-white/5 bg-card shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/5 hover:border-primary/20 h-full"
                                 >
-                                    {/* Image Placeholder / Banner */}
+                                    {/* Image */}
                                     <div className="aspect-[16/9] w-full overflow-hidden bg-muted relative">
                                         {item.coverImage ? (
-                                            <img src={item.coverImage} alt={item.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                            <img
+                                                src={item.coverImage}
+                                                alt={item.title}
+                                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                            />
                                         ) : (
                                             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-secondary/30 to-background">
                                                 <Newspaper className="h-12 w-12 opacity-10" />
@@ -170,31 +200,36 @@ const NewsPage: React.FC = () => {
                                     {/* Content */}
                                     <div className="flex flex-col flex-1 p-6 relative">
                                         <div className="mb-3 flex flex-wrap gap-2">
-                                            {item.tags?.slice(0, 3).map(tag => (
+                                            {item.tags?.slice(0, 2).map(tag => (
                                                 <span key={tag} className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-sm">
                                                     {tag}
                                                 </span>
                                             ))}
                                         </div>
 
-                                        <h2 className="text-2xl font-bold text-foreground mb-3 leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                                        <h2 className="text-xl font-bold text-foreground mb-3 leading-tight group-hover:text-primary transition-colors line-clamp-2">
                                             {item.title}
                                         </h2>
 
-                                        <p className="text-sm text-muted-foreground line-clamp-3 mb-6 leading-relaxed">
-                                            {item.content}
-                                        </p>
+                                        <div className="text-sm text-muted-foreground line-clamp-3 mb-6 leading-relaxed flex-1">
+                                            <UnifiedContentRenderer
+                                                content={item.content.substring(0, 200) + '...'}
+                                                className="line-clamp-3 text-muted-foreground"
+                                            />
+                                        </div>
 
                                         <div className="flex items-center justify-between pt-4 border-t border-dashed border-white/5 mt-auto">
-                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                                By <span className="text-foreground font-medium">LoreCodex Team</span>
-                                            </div>
-
-                                            <div className="flex items-center gap-4 text-xs text-muted-foreground/60">
-                                                <div className="flex items-center gap-1.5">
-                                                    <Heart className="h-3.5 w-3.5" />
-                                                    {item.likes || 0}
-                                                </div>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-xs text-muted-foreground">By</span>
+                                                {item.authorId ? (
+                                                    <Link to={`/profile/${item.authorId}`} className="text-xs font-medium text-foreground hover:text-primary transition-colors">
+                                                        {item.authorUsername}
+                                                    </Link>
+                                                ) : (
+                                                    <span className="text-xs font-medium text-foreground">
+                                                        {item.authorUsername || "LoreCodex Team"}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

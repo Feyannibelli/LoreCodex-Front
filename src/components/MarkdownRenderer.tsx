@@ -4,10 +4,10 @@ interface MarkdownRendererProps {
 }
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
-                                                               content,
-                                                               className = "prose prose-slate dark:prose-invert max-w-none"
-                                                           }) => {
-    // Función para convertir markdown a HTML (misma lógica que en el editor)
+    content,
+    className = "prose prose-slate dark:prose-invert max-w-none"
+}) => {
+    // Function to convert markdown to HTML (same logic as in the editor)
     const parseMarkdown = (text: string): string => {
         let html = text;
 

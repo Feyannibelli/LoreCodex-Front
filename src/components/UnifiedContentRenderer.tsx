@@ -1,6 +1,6 @@
 import React from 'react';
-import {useNavigate} from 'react-router-dom';
-import {ParsedMention, parseMentions} from '../utils/mentionParser';
+import { useNavigate } from 'react-router-dom';
+import { ParsedMention, parseMentions } from '../utils/mentionParser';
 
 interface UnifiedContentRendererProps {
     content: string;
@@ -8,16 +8,16 @@ interface UnifiedContentRendererProps {
 }
 
 /**
- * Componente unificado que renderiza contenido con:
+ * Unified component that renders content with:
  * - Markdown (headers, bold, italic, code, links, lists, blockquotes)
- * - Menciones (/games/id|name, /guides/id|name, etc.)
+ * - Mentions (/games/id|name, /guides/id|name, etc.)
  *
- * Detecta automáticamente qué sintaxis usar según el contenido.
+ * Automatically detects which syntax to use based on content.
  */
 const UnifiedContentRenderer: React.FC<UnifiedContentRendererProps> = ({
-                                                                           content,
-                                                                           className = "prose prose-slate dark:prose-invert max-w-none"
-                                                                       }) => {
+    content,
+    className = "prose prose-slate dark:prose-invert max-w-none"
+}) => {
     const navigate = useNavigate();
 
     const { mentions } = parseMentions(content);
@@ -43,7 +43,7 @@ const UnifiedContentRenderer: React.FC<UnifiedContentRendererProps> = ({
             </span>`;
             html = html.replace(mention.fullMatch, placeholder);
         });
-        
+
         // Headers (deben procesarse primero)
         html = html.replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold mb-2 mt-4">$1</h3>');
         html = html.replace(/^## (.*$)/gim, '<h2 class="text-xl font-semibold mb-3 mt-4">$1</h2>');
